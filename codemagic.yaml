@@ -7,9 +7,12 @@ workflows:
       xcode: latest
     scripts:
       - name: Install dependencies
-        script: npm install
+        script: |
+          npm install
+          npm install @capacitor/ios
       - name: Add iOS platform
         script: |
+          chmod +x node_modules/.bin/cap
           npx cap add ios
           npx cap sync ios
       - name: Build iOS App (Unsigned)
