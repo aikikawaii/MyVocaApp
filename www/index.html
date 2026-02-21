@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나만의 영단어장</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .fade-in{animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .no-scrollbar::-webkit-scrollbar{display:none}
+  .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+  .game-btn{transition:all .2s}
+  .game-btn:active{transform:scale(.97)}
+  .correct-answer{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
+  .wrong-answer{background:#f43f5e!important;color:#fff!important;border-color:#f43f5e!important}
+  /* chips */
+  .chip{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:9999px;
+        font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s;border:2px solid transparent;
+        position:relative}
+  .chip:hover{filter:brightness(.92);transform:scale(1.04)}
+  /* 호버 툴팁 */
+  .chip-tooltip{
+    position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+    background:#1e1b4b;color:#fff;font-size:.72rem;font-weight:600;white-space:nowrap;
+    padding:4px 10px;border-radius:8px;pointer-events:none;
+    opacity:0;transition:opacity .15s;z-index:50;letter-spacing:.01em;
+    box-shadow:0 4px 12px rgba(0,0,0,.25);
+  }
+  .chip-tooltip::after{
+    content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:5px solid transparent;border-top-color:#1e1b4b;
+  }
+  .chip:hover .chip-tooltip{opacity:1;}
+  .chip-tooltip.loading{color:#a5b4fc;}
+  .chip-syn{background:#ede9fe;color:#7c3aed}
+  .chip-ant{background:#fee2e2;color:#dc2626}
+  .chip-rel{background:#d1fae5;color:#059669}
+  .chip-freq{background:#fef9c3;color:#b45309}
+  .chip-new{background:#e0f2fe;color:#0369a1}
+  /* skeleton */
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .skeleton{animation:pulse 1.5s infinite;background:#e5e7eb;border-radius:8px}
+  .sim-bar{height:6px;border-radius:9999px;transition:width .5s ease}
+  /* fill blank */
+  .fill-blank{display:inline-block;min-width:80px;border-bottom:3px solid #6366f1;
+              color:#6366f1;font-weight:900;text-align:center;padding:0 6px;letter-spacing:.05em}
+  .fill-opt{transition:all .2s;border:2px solid #e5e7eb}
+  .fill-opt:hover:not(:disabled){border-color:#6366f1;background:#eef2ff}
+  .fill-opt.correct{background:#d1fae5!important;border-color:#10b981!important;color:#065f46!important}
+  .fill-opt.wrong{background:#fee2e2!important;border-color:#f43f5e!important;color:#9f1239!important}
+</style>
+</head>
+<body class="bg-gray-200 text-gray-800 font-sans h-screen w-screen flex items-center justify-center p-4 sm:p-8 overflow-hidden">
+<!-- 데스크탑 비율 중앙 배치 창 -->
+<div class="w-full max-w-5xl h-full max-h-[85vh] min-h-[600px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-gray-300">
+
+<!-- 헤더 -->
+<header class="bg-indigo-600 text-white px-5 py-4 text-center shadow-md z-10 flex-shrink-0 relative">
+  <!-- 좌상단 설명서(Info) 버튼 -->
+  <button onclick="openInfoModal()" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white transition-colors" title="프로그램 설명서 보기">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  </button>
+  <h1 class="text-xl font-bold tracking-wide">나만의 영단어장 📚</h1>
+</header>
+
+<!-- 탭 (5개) -->
+<div class="flex border-b border-gray-200 bg-white z-10 flex-shrink-0" style="font-size:14px">
+  <button id="tab-manage"   class="flex-1 py-3 font-bold text-indigo-600 border-b-4 border-indigo-600 transition-colors hover:bg-indigo-50" onclick="switchTab('manage')">단어 📝</button>
+  <button id="tab-test"     class="flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600" onclick="switchTab('test')">학습 🎲</button>
+  <button id="tab-quiz"     class="flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600" onclick="switchTab('quiz')">사지선다 🎯</button>
+  <button id="tab-fill"     class="flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600" onclick="switchTab('fill')">빈칸 ✏️</button>
+  <button id="tab-analysis" class="flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600" onclick="switchTab('analysis')">분석 🔬</button>
+</div>
+
+<!-- ===== 1. 관리 ===== -->
+<div id="view-manage" class="flex-1 flex flex-col p-6 overflow-hidden fade-in bg-gray-50">
+  <div class="bg-white p-5 rounded-xl mb-4 flex-shrink-0 shadow-sm border border-gray-100">
+    <!-- 가로로 넓어진 인풋 영역 -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <input id="input-en" type="text" placeholder="영어 단어 (예: Apple)" class="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all">
+      <input id="input-ko" type="text" placeholder="한국어 뜻 (예: 사과)" class="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all" onkeypress="if(event.key==='Enter')addWord()">
+      <button onclick="addWord()" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 active:scale-95 transition-all shadow-md whitespace-nowrap">단어 추가하기 ➕</button>
+    </div>
+  </div>
+  
+  <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3 text-sm px-2 flex-shrink-0">
+    <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+      <span class="font-semibold text-gray-600 text-base whitespace-nowrap">총 <span id="word-count" class="text-indigo-600 font-bold text-lg">0</span>단어</span>
+      <select id="sort-select" onchange="currentPage=1;renderWords()" class="bg-white border border-gray-300 text-gray-600 py-1.5 px-3 rounded-md focus:outline-none font-medium cursor-pointer shadow-sm">
+        <option value="newest">최신순</option>
+        <option value="wrongCount">오답순</option>
+      </select>
+    </div>
+    <!-- 검색창 영역 추가 -->
+    <div class="relative w-full sm:max-w-xs flex-1">
+      <input id="search-manage" type="text" placeholder="입력한 단어 찾기..." oninput="currentPage=1;renderWords()" class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm transition-all text-sm">
+      <span class="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
+    </div>
+    <div class="flex gap-2 w-full sm:w-auto justify-end">
+      <button onclick="exportData()" class="text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors whitespace-nowrap">내보내기 📤</button>
+      <button onclick="document.getElementById('file-upload').click()" class="text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors whitespace-nowrap">불러오기 📥</button>
+      <input type="file" id="file-upload" class="hidden" accept=".json" onchange="importData(event)">
+    </div>
+  </div>
+  
+  <!-- 단어 리스트: 넓은 화면에 맞춰 그리드로 변경 -->
+  <ul id="word-list" class="flex-1 overflow-y-auto no-scrollbar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-2 content-start px-1"></ul>
+  
+  <div id="pagination-controls" class="flex justify-between items-center pt-4 border-t border-gray-200 hidden flex-shrink-0 mt-2">
+    <button onclick="changePage(-1)" id="btn-prev" class="px-6 py-2.5 bg-white text-indigo-600 rounded-xl text-sm font-bold border-2 border-indigo-100 hover:bg-indigo-50 disabled:opacity-40 disabled:hover:bg-white transition-all" disabled>이전</button>
+    <span id="page-info" class="text-base text-gray-500 font-bold bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">1 / 1</span>
+    <button onclick="changePage(1)"  id="btn-next" class="px-6 py-2.5 bg-white text-indigo-600 rounded-xl text-sm font-bold border-2 border-indigo-100 hover:bg-indigo-50 disabled:opacity-40 disabled:hover:bg-white transition-all">다음</button>
+  </div>
+</div>
+
+<!-- ===== 2. 학습 ===== -->
+<div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-gray-50 overflow-y-auto no-scrollbar">
+  <div id="test-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
+    <div class="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 w-full max-w-2xl text-center">
+      <div class="text-6xl mb-6">🧠</div>
+      <h2 class="text-3xl font-bold mb-3">랜덤 플래시카드</h2>
+      <p class="text-gray-500 mb-10 text-base">단어를 보고 뜻을 맞혀보세요.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="startTest('all')"   class="flex-1 bg-indigo-600 text-white font-bold py-5 rounded-xl hover:bg-indigo-700 active:scale-95 shadow-md text-lg">전체 복습 🚀</button>
+        <button onclick="startTest('wrong')" class="flex-1 bg-rose-50 text-rose-600 font-bold py-5 rounded-xl hover:bg-rose-100 active:scale-95 border border-rose-200 text-lg">틀린 단어 복습 🎯</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="test-active" class="flex-1 flex flex-col hidden fade-in max-w-4xl mx-auto w-full h-full">
+    <div class="flex justify-between mb-6 flex-shrink-0">
+      <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 text-base font-bold text-gray-600">진행 <span id="test-progress" class="text-indigo-600">1/10</span></div>
+      <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 text-base font-bold text-gray-600">✅ <span id="test-score" class="text-emerald-600">0</span></div>
+    </div>
+    
+    <div class="flex-1 bg-white rounded-[2rem] shadow-xl border-4 border-indigo-50 flex flex-col items-center justify-center p-10 mb-6 text-center relative min-h-[300px]">
+      <h2 id="test-word-en" class="text-5xl sm:text-7xl font-black text-gray-800 mb-10">Apple</h2>
+      <div class="h-28 flex items-center justify-center w-full">
+        <button id="btn-reveal" onclick="revealAnswer()" class="bg-gray-100 text-gray-600 font-bold text-lg px-12 py-4 rounded-full hover:bg-gray-200 transition-colors shadow-sm">정답 확인 👀</button>
+        <p id="test-word-ko" class="text-4xl sm:text-5xl font-bold text-indigo-600 hidden fade-in">사과</p>
+      </div>
+    </div>
+    
+    <div id="test-actions" class="flex gap-6 hidden pb-4 flex-shrink-0 h-28">
+      <button onclick="markAnswer(false)" class="flex-1 bg-rose-100 text-rose-600 rounded-3xl font-bold text-xl hover:bg-rose-200 active:scale-95 flex items-center justify-center gap-3 shadow-sm transition-all"><span class="text-3xl">❌</span>몰랐어요</button>
+      <button onclick="markAnswer(true)"  class="flex-1 bg-emerald-100 text-emerald-600 rounded-3xl font-bold text-xl hover:bg-emerald-200 active:scale-95 flex items-center justify-center gap-3 shadow-sm transition-all"><span class="text-3xl">⭕</span>알았어요</button>
+    </div>
+  </div>
+  
+  <div id="test-result" class="flex-1 flex flex-col items-center justify-center hidden fade-in">
+    <div class="bg-white p-10 rounded-3xl shadow-lg text-center border border-gray-100 w-full max-w-xl">
+      <div class="text-7xl mb-6">🎉</div>
+      <h2 class="text-4xl font-black mb-8">학습 완료!</h2>
+      <button onclick="resetTestView()" class="w-full bg-gray-800 text-white font-bold py-5 text-lg rounded-xl hover:bg-gray-900 active:scale-95 shadow-md">돌아가기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3. 사지선다 ===== -->
+<div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-gray-50 overflow-y-auto no-scrollbar">
+  <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
+    <div class="bg-white p-10 rounded-3xl shadow-sm text-center border border-gray-100 w-full max-w-2xl">
+      <div class="text-6xl mb-6">🎯</div>
+      <h2 class="text-3xl font-bold mb-3">무한 사지선다</h2>
+      <p class="text-gray-500 mb-10 text-base">의미 유사도 기반으로 헷갈리는 선지가 구성돼요!</p>
+      <button onclick="startQuiz()" class="w-full bg-indigo-600 text-white font-bold py-5 text-lg rounded-xl hover:bg-indigo-700 active:scale-95 shadow-md">시작 🚀</button>
+    </div>
+  </div>
+  
+  <div id="quiz-active" class="flex-1 flex flex-col hidden fade-in max-w-4xl mx-auto w-full h-full">
+    <div class="flex justify-between items-center mb-6 flex-shrink-0">
+      <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 text-base font-bold text-gray-600"><span id="quiz-progress" class="text-indigo-600">1번째</span></div>
+      <div class="flex gap-3">
+        <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 text-base font-bold text-gray-600">✅ <span id="quiz-score" class="text-emerald-600">0</span></div>
+        <button onclick="showQuizResult()" class="bg-rose-50 text-rose-600 px-4 py-2.5 rounded-full border border-rose-100 text-sm font-bold hover:bg-rose-100 transition-colors">종료</button>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-[2rem] shadow-md border-4 border-indigo-50 flex flex-col items-center justify-center py-16 px-6 mb-8">
+      <span class="text-base font-bold text-indigo-400 mb-4 tracking-wider">어떤 뜻일까요?</span>
+      <h2 id="quiz-word-en" class="text-5xl sm:text-6xl font-black text-gray-800 text-center">Word</h2>
+    </div>
+    
+    <!-- 데스크탑 최적화: 2x2 그리드 배열 -->
+    <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 content-end pb-4"></div>
+  </div>
+  
+  <div id="quiz-result" class="flex-1 flex flex-col items-center justify-center hidden fade-in">
+    <div class="bg-white p-10 rounded-3xl shadow-lg text-center border border-gray-100 w-full max-w-xl">
+      <div class="text-7xl mb-6" id="quiz-result-emoji">🏅</div>
+      <h2 class="text-4xl font-black mb-4">퀴즈 종료!</h2>
+      <div class="bg-gray-50 rounded-2xl p-8 my-8 border border-gray-100">
+        <div class="text-6xl font-black text-indigo-600"><span id="quiz-final-score">0</span><span class="text-3xl text-gray-400"> / <span id="quiz-total-score">0</span></span></div>
+        <p class="font-bold text-gray-500 mt-4 text-lg" id="quiz-feedback"></p>
+      </div>
+      <button onclick="resetQuizView()" class="w-full bg-gray-800 text-white font-bold py-5 text-lg rounded-xl hover:bg-gray-900 active:scale-95 shadow-md transition-all">다시 하기 🔄</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 4. 빈칸 넣기 ===== -->
+<div id="view-fill" class="flex-1 flex flex-col hidden bg-gray-50 overflow-y-auto no-scrollbar">
+
+  <!-- 인트로 -->
+  <div id="fill-intro" class="flex-1 flex flex-col items-center justify-center p-6 fade-in">
+    <div class="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 w-full max-w-2xl text-center">
+      <div class="text-6xl mb-6">✏️</div>
+      <h2 class="text-3xl font-bold mb-4">빈칸 넣기</h2>
+      <p class="text-gray-500 text-base leading-relaxed mb-4">실제 영어 예문 속 <span class="fill-blank px-2">빈칸</span>에<br>올바른 단어를 골라보세요!</p>
+      <p class="text-sm text-indigo-400 font-bold mb-10">📡 Datamuse API 실제 예문 사용</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="startFill(10)" class="flex-1 bg-indigo-600 text-white font-bold py-5 text-lg rounded-xl hover:bg-indigo-700 active:scale-95 shadow-md">10문제 풀기</button>
+        <button onclick="startFill(20)" class="flex-1 bg-indigo-100 text-indigo-700 font-bold py-5 text-lg rounded-xl hover:bg-indigo-200 active:scale-95">20문제 풀기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로딩 -->
+  <div id="fill-loading" class="flex-1 flex-col items-center justify-center hidden">
+    <div class="relative w-20 h-20 mx-auto mb-6">
+      <div class="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+      <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
+    </div>
+    <p class="text-base font-bold text-gray-500 text-center">예문 불러오는 중...</p>
+    <p id="fill-loading-word" class="text-sm text-gray-400 mt-2 text-center"></p>
+  </div>
+
+  <!-- 문제 -->
+  <div id="fill-active" class="flex-1 flex flex-col hidden fade-in max-w-4xl mx-auto w-full h-full">
+    <!-- 진행 바 -->
+    <div class="flex items-center gap-4 px-6 pt-6 pb-4 bg-transparent flex-shrink-0">
+      <div class="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+        <div id="fill-progress-bar" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width:0%"></div>
+      </div>
+      <span id="fill-progress-text" class="text-sm font-bold text-gray-500 whitespace-nowrap">1 / 10</span>
+      <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full text-sm font-bold text-emerald-600 shadow-sm">✅ <span id="fill-score">0</span></div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 flex flex-col justify-center">
+      <!-- 예문 (한글 뜻 힌트 제거됨) -->
+      <div class="bg-white rounded-[2rem] shadow-md border-4 border-gray-50 p-10 text-center">
+        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">예문</p>
+        <p id="fill-sentence" class="text-2xl text-gray-800 leading-relaxed font-semibold"></p>
+      </div>
+
+      <!-- 피드백 -->
+      <div id="fill-feedback" class="hidden rounded-2xl p-6 border-2">
+        <p id="fill-feedback-text" class="font-bold text-lg mb-2"></p>
+        <p class="text-sm text-gray-600 mt-2">전체 예문: <span id="fill-full-sentence" class="italic text-gray-800 font-medium"></span></p>
+      </div>
+
+      <!-- 선택지 (2×2 그리드) -->
+      <div id="fill-options" class="grid grid-cols-2 gap-4 mt-auto"></div>
+    </div>
+
+    <div class="px-6 pb-6 flex-shrink-0">
+      <button id="fill-next-btn" onclick="nextFillQuestion()" class="hidden w-full bg-gray-800 text-white font-bold py-5 text-lg rounded-xl hover:bg-gray-900 active:scale-95 transition-all shadow-md">다음 문제 →</button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="fill-result" class="flex-1 flex flex-col items-center justify-center hidden fade-in p-6">
+    <div class="bg-white p-10 rounded-3xl shadow-lg text-center border border-gray-100 w-full max-w-xl">
+      <div class="text-7xl mb-6" id="fill-result-emoji">🎉</div>
+      <h2 class="text-4xl font-black mb-3">완료!</h2>
+      <div class="bg-gray-50 rounded-2xl p-8 my-8 border border-gray-100">
+        <p class="text-gray-500 font-bold mb-2">최종 점수</p>
+        <p class="text-6xl font-black text-indigo-600"><span id="fill-final-score">0</span><span class="text-3xl text-gray-300"> / <span id="fill-final-total">10</span></span></p>
+        <p class="text-base font-bold text-gray-600 mt-5" id="fill-result-msg"></p>
+      </div>
+      <button onclick="resetFillView()" class="w-full bg-gray-800 text-white font-bold py-5 text-lg rounded-xl hover:bg-gray-900 active:scale-95 shadow-md">다시 하기 🔄</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 5. 분석 ===== -->
+<div id="view-analysis" class="flex-1 flex flex-col hidden bg-gray-50 overflow-hidden">
+
+  <!-- 단어 선택 헤더: 스크롤 영역 확장을 위해 여백과 패딩 최소화 -->
+  <div class="p-4 sm:p-5 bg-white border-b border-gray-200 flex-shrink-0 shadow-sm z-20">
+    <div class="max-w-4xl mx-auto w-full">
+      <p class="text-xs sm:text-sm font-bold text-gray-400 mb-2 uppercase tracking-widest">분석할 단어</p>
+      <div class="relative">
+        <input id="analysis-search" type="text" placeholder="단어를 검색해보세요..."
+          class="w-full border-2 border-gray-200 rounded-xl p-3 pr-10 text-sm sm:text-base focus:outline-none focus:border-indigo-400 bg-gray-50 focus:bg-white transition-all shadow-inner"
+          oninput="filterAnalysisWords()" onclick="showAnalysisDropdown()">
+        <span class="absolute right-4 top-3.5 text-lg text-gray-400">🔍</span>
+      </div>
+      <div id="analysis-dropdown" class="hidden mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar absolute w-[calc(100%-2rem)] sm:w-[calc(100%-2.5rem)] max-w-4xl left-1/2 -translate-x-1/2 z-50"></div>
+      
+      <!-- 선택된 단어 패널 (콤팩트화) -->
+      <div id="analysis-selected-word" class="hidden mt-3 flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
+        <div class="flex-1 flex items-baseline gap-2 sm:gap-3">
+          <span id="analysis-word-en-display" class="text-xl sm:text-2xl font-black text-indigo-700"></span>
+          <span id="analysis-word-ko-display" class="text-sm sm:text-base font-medium text-indigo-500"></span>
+        </div>
+        <button onclick="clearAnalysisWord()" class="text-gray-400 hover:text-rose-500 text-xl px-2">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 플레이스홀더: 글씨 잘림 방지를 위한 my-auto 및 텍스트 반응형 구조 적용 -->
+  <div id="analysis-placeholder" class="flex-1 flex flex-col p-6 sm:p-8 overflow-y-auto no-scrollbar">
+    <div class="max-w-xl mx-auto my-auto w-full text-center py-4">
+      <div class="text-6xl sm:text-7xl mb-4 sm:mb-6">🔬</div>
+      <p class="font-bold text-gray-700 text-xl sm:text-2xl mb-3 sm:mb-4 break-keep">단어를 선택하면 상세하게 분석해드려요!</p>
+      <p class="text-sm sm:text-base text-gray-500 leading-relaxed break-keep">유의어 · 반의어 · 연관어 · 발음기호 · 영영정의<br class="hidden sm:block">원어민 예문 3개 · 내 단어장 내 유사도까지 한눈에 파악하세요.</p>
+      
+      <div class="mt-8 sm:mt-10 bg-white rounded-2xl p-5 sm:p-6 w-full text-left border border-gray-200 shadow-sm">
+        <p class="text-xs sm:text-sm font-bold text-gray-400 mb-3 sm:mb-4 uppercase tracking-wider">사용 API (무료·키 불필요)</p>
+        <div class="space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-sm text-gray-600">
+            <span class="bg-violet-100 text-violet-700 px-3 py-1 rounded-full font-bold w-max text-xs sm:text-sm">Dictionary</span>
+            <span class="text-xs sm:text-sm break-keep">단어 정의 · 발음기호 · 원어민 예문</span>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-sm text-gray-600">
+            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-bold w-max text-xs sm:text-sm">Datamuse</span>
+            <span class="text-xs sm:text-sm break-keep">유의어 · 반의어 · 자주 함께 쓰이는 연관어</span>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-sm text-gray-600">
+            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold w-max text-xs sm:text-sm">Google Tr.</span>
+            <span class="text-xs sm:text-sm break-keep">호버링 시 실시간 한글 뜻 번역</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로딩 & 결과 영역의 스크롤 컨테이너 -->
+  <div class="flex-1 overflow-y-auto no-scrollbar relative p-4 sm:p-6">
+    <div class="max-w-4xl mx-auto w-full">
+      
+      <!-- 로딩 -->
+      <div id="analysis-loading" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 space-y-4">
+          <div class="skeleton h-10 w-48 mb-6"></div>
+          <div class="skeleton h-5 w-32"></div>
+          <div class="skeleton h-5 w-full"></div>
+          <div class="skeleton h-5 w-5/6"></div>
+          <div class="skeleton h-5 w-4/6"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+            <div class="skeleton h-4 w-24 mb-4"></div>
+            <div class="flex gap-2 flex-wrap"><div class="skeleton h-10 w-24 rounded-full"></div><div class="skeleton h-10 w-20 rounded-full"></div></div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+            <div class="skeleton h-4 w-24 mb-4"></div>
+            <div class="flex gap-2 flex-wrap"><div class="skeleton h-10 w-24 rounded-full"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 결과 -->
+      <div id="analysis-result" class="space-y-6 hidden pb-8 fade-in">
+        
+        <!-- 데스크탑 최적화: 윗부분 2단 레이아웃 분리 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- 좌측: ① 기본 정보 + 예문 3개 (넓게) -->
+          <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 sm:p-8">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h3 id="ar-word" class="text-3xl sm:text-4xl font-black text-gray-800 tracking-tight"></h3>
+                <p id="ar-phonetic" class="text-base sm:text-lg text-indigo-400 font-mono mt-1 font-medium"></p>
+              </div>
+              <button id="ar-audio-btn" class="hidden bg-indigo-50 text-indigo-600 border border-indigo-100 px-4 py-2 rounded-full text-sm font-bold hover:bg-indigo-100 transition-colors flex-shrink-0 flex items-center gap-2">🔊 <span class="hidden sm:inline">원어민 발음</span></button>
+            </div>
+            <span id="ar-partOfSpeech" class="inline-block text-xs sm:text-sm font-bold text-white bg-indigo-500 px-3 py-1.5 rounded-full mb-4 shadow-sm"></span>
+            <p id="ar-definition" class="text-sm sm:text-base text-gray-700 leading-relaxed mb-6 font-medium"></p>
+            
+            <div class="border-t border-gray-100 pt-6">
+              <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">📝 실생활 예문</p>
+              <div id="ar-examples" class="space-y-4"></div>
+            </div>
+          </div>
+
+          <!-- 우측: ② 단어장 내 유사도 (사이드 패널 느낌) -->
+          <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 flex flex-col">
+            <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-5">📚 내 단어장 유사도</p>
+            <div id="ar-internal-list" class="space-y-4 flex-1 overflow-y-auto no-scrollbar pr-1"></div>
+          </div>
+        </div> <!-- End of top Grid -->
+
+        <!-- 하단: ③④⑤⑥ 칩 (2x2 그리드) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2"><span>🔵</span><p class="text-sm font-bold text-violet-600 uppercase tracking-widest">유의어</p></div>
+              <span class="text-xs text-gray-400">뜻이 비슷한 단어</span>
+            </div>
+            <div id="ar-synonyms" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2"><span>🔴</span><p class="text-sm font-bold text-rose-600 uppercase tracking-widest">반의어</p></div>
+              <span class="text-xs text-gray-400">반대 의미</span>
+            </div>
+            <div id="ar-antonyms" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2"><span>🟢</span><p class="text-sm font-bold text-emerald-600 uppercase tracking-widest">연관어</p></div>
+              <span class="text-xs text-gray-400">자주 함께 쓰이는</span>
+            </div>
+            <div id="ar-related" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2"><span>🟡</span><p class="text-sm font-bold text-amber-600 uppercase tracking-widest">빈출 동반어</p></div>
+              <span class="text-xs text-gray-400">자주 수식하는 단어</span>
+            </div>
+            <div id="ar-collocations" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+
+        <!-- ⑦ 추천 단어 (전체 폭) -->
+        <div class="bg-gradient-to-r from-indigo-50 via-white to-violet-50 rounded-2xl border border-indigo-100 p-6 sm:p-8 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-sm font-bold text-indigo-600 uppercase tracking-widest mb-1">✨ 단어장 추가 추천</p>
+              <p class="text-xs sm:text-sm text-gray-500 break-keep">아직 내 단어장에 없는 관련 단어들이에요. 클릭해서 바로 추가하세요!</p>
+            </div>
+          </div>
+          <div id="ar-recommendations" class="flex flex-wrap gap-3 mt-4"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /wrapper -->
+
+<!-- 삭제 확인 모달 -->
+<div id="delete-modal" class="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200" id="delete-modal-content">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-4">🗑️</div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">정말 삭제하시겠습니까?</h3>
+      <p class="text-sm text-gray-500">삭제한 단어는 복구할 수 없습니다.</p>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 active:scale-95 transition-all">No</button>
+      <button onclick="executeDelete()" class="flex-1 bg-rose-500 text-white font-bold py-3.5 rounded-xl hover:bg-rose-600 active:scale-95 transition-all shadow-md">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- 수정 모달 -->
+<div id="edit-modal" class="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200" id="edit-modal-content">
+    <div class="text-center mb-5">
+      <div class="text-5xl mb-3">✏️</div>
+      <h3 class="text-xl font-bold text-gray-800">단어 수정</h3>
+    </div>
+    <div class="flex flex-col gap-3 mb-6">
+      <input id="edit-en" type="text" placeholder="영어 단어" class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all font-bold">
+      <input id="edit-ko" type="text" placeholder="한국어 뜻" class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all" onkeypress="if(event.key==='Enter')saveEditWord()">
+    </div>
+    <div class="flex gap-3">
+      <button onclick="closeEditModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 active:scale-95 transition-all">취소</button>
+      <button onclick="saveEditWord()" class="flex-1 bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 active:scale-95 transition-all shadow-md">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 설명서 모달 (Info Modal) -->
+<div id="info-modal" class="fixed inset-0 bg-black/40 z-[250] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] mx-4 shadow-2xl transform scale-95 transition-transform duration-200 flex flex-col overflow-hidden" id="info-modal-content">
+    <div class="flex justify-between items-center p-5 border-b border-gray-100 bg-indigo-50">
+      <h2 class="text-lg font-bold text-indigo-800 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        나만의 영단어장 설명서
+      </h2>
+      <button onclick="closeInfoModal()" class="text-gray-400 hover:text-rose-500 transition-colors p-1" title="닫기">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+    
+    <div class="p-6 overflow-y-auto no-scrollbar text-gray-700 space-y-6 leading-relaxed text-sm">
+      <p> <strong>나만의 영단어장</strong> 은 사용자가 직접 단어를 관리하고, AI 의미 유사도 알고리즘과 오픈 API 연동으로 입체적인 어휘 학습을 돕는 스마트 웹 애플리케이션입니다. 단순 암기를 넘어, 취약점 분석과 실생활 예문으로 단어를 깊이 있게 이해하도록 설계되었습니다.</p>
+      
+      <h4 class="text-base font-bold text-indigo-600 border-b pb-2">🌟 주요 기능 안내</h4>
+      <div class="space-y-4">
+        <div>
+          <p class="font-bold text-gray-800">📝 1. 단어 (관리 탭)</p>
+          <ul class="list-disc list-inside ml-2 text-gray-600 mt-1">
+            <li><strong>추가/수정/삭제:</strong> 영단어와 뜻을 쉽게 추가하고, 수정 및 삭제 모달을 제공합니다.</li>
+            <li><strong>검색 및 정렬:</strong> 단어를 즉시 찾고, '최신순' 또는 '오답순' 정렬이 가능합니다.</li>
+            <li><strong>데이터 백업:</strong> 파일 형태의 내보내기/불러오기를 통해 데이터를 보관합니다.</li>
+          </ul>
+        </div>
+        
+        <div>
+          <p class="font-bold text-gray-800">🎲 2. 학습 (플래시카드 탭)</p>
+          <ul class="list-disc list-inside ml-2 text-gray-600 mt-1">
+            <li><strong>맞춤형 복습:</strong> '전체 복습' 및 '틀린 단어 복습' 모드를 지원합니다.</li>
+            <li><strong>직관적 피드백:</strong> 정답 확인 후 알았어요/몰랐어요 로 평가하며, 오답은 자동 누적됩니다.</li>
+          </ul>
+        </div>
+        
+        <div>
+          <p class="font-bold text-gray-800">🎯 3. 사지선다 (객관식 퀴즈 탭)</p>
+          <ul class="list-disc list-inside ml-2 text-gray-600 mt-1">
+            <li><strong>스마트 오답 선지:</strong> 알고리즘과 혼동 기록을 분석해 헷갈리기 쉬운 매력적인 오답을 자동 구성합니다.</li>
+          </ul>
+        </div>
+        
+        <div>
+          <p class="font-bold text-gray-800">✏️ 4. 빈칸 (예문 학습 탭)</p>
+          <ul class="list-disc list-inside ml-2 text-gray-600 mt-1">
+            <li><strong>실생활 예문 활용:</strong> 외부 API를 통해 원어민 예문을 실시간으로 불러옵니다.</li>
+            <li><strong>문맥 추론 훈련:</strong> 빈칸에 알맞은 단어를 선택하며 독해력과 문맥 파악 능력을 향상시킵니다.</li>
+          </ul>
+        </div>
+        
+        <div>
+          <p class="font-bold text-gray-800">🔬 5. 분석 (심층 학습 탭)</p>
+          <ul class="list-disc list-inside ml-2 text-gray-600 mt-1">
+            <li><strong>상세 정보 제공:</strong> 원어민 음성 발음, 영영 정의, 실생활 예문을 제공합니다.</li>
+            <li><strong>관계어 확장:</strong> 유의어, 반의어, 연관어, 빈출 동반어를 한눈에 보여줍니다.</li>
+            <li><strong>유사도 비교 및 추천:</strong> 내 단어장 내 유사 단어를 매칭해주며, 한글 뜻 번역도 제공됩니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h4 class="text-base font-bold text-indigo-600 border-b pb-2">🛠 기술 및 환경적 특징</h4>
+      <ul class="list-disc list-inside ml-2 text-gray-600">
+        <li><strong>다중 API 연동:</strong> Dictionary, Datamuse, Google Translate 데이터를 병합해 제공합니다.</li>
+        <li><strong>서버리스(Serverless):</strong> 별도 회원가입 없이 로컬 스토리지를 활용하여 동작합니다.</li>
+        <li><strong>데스크탑 최적화 UI:</strong> 컴퓨터 화면에 맞춘 쾌적한 윈도우 레이아웃을 지원합니다.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// 전역
+// ================================================================
+let words=[], currentPage=1;
+// 그리드 레이아웃에 맞춰 한 페이지 아이템 개수를 12개로 변경 (1,2,3열 모두 깔끔하게 떨어짐)
+const IPP=12;
+
+// 퀴즈
+let quizQ=0,quizS=0,quizWord=null,quizQueue=[],quizIdx=0;
+// 학습
+let testQueue=[],testPool=[],testIdx=0,testCorrect=0;
+// 빈칸
+let fillQuestions=[],fillIdx=0,fillScore=0,fillTotal=10;
+let fillCurrentQ=null;
+// 분석
+let analysisWord=null,audioUrl=null;
+
+const SIM_DUP=75,SIM_CONF=50;
+let simMatrix={},confMatrix={};
+
+// ================================================================
+// 유틸
+// ================================================================
+function showToast(msg,type='info'){
+  const t=document.createElement('div');
+  t.className=`fixed bottom-10 left-1/2 -translate-x-1/2 ${type==='error'?'bg-rose-500':'bg-gray-800'} text-white px-8 py-4 rounded-full shadow-2xl z-[100] font-bold text-base`;
+  t.style.cssText='opacity:0;transform:translate(-50%,20px);transition:all .3s';
+  t.textContent=msg; document.body.appendChild(t);
+  requestAnimationFrame(()=>{t.style.opacity='1';t.style.transform='translate(-50%,0)';});
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translate(-50%,-20px)';setTimeout(()=>t.remove(),300);},2300);
+}
+function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// 설명서 모달 기능
+function openInfoModal(){
+  const modal = document.getElementById('info-modal');
+  const content = document.getElementById('info-modal-content');
+  modal.classList.remove('hidden');
+  void modal.offsetWidth;
+  modal.classList.remove('opacity-0');
+  content.classList.remove('scale-95');
+}
+function closeInfoModal(){
+  const modal = document.getElementById('info-modal');
+  const content = document.getElementById('info-modal-content');
+  modal.classList.add('opacity-0');
+  content.classList.add('scale-95');
+  setTimeout(() => modal.classList.add('hidden'), 200);
+}
+
+// ================================================================
+// 데이터
+// ================================================================
+function loadData(){
+  const raw=localStorage.getItem('myWordbook');
+  if(raw){try{words=JSON.parse(raw);}catch{words=[];}}
+  else{
+    words=[
+      {id:1,en:'Accomplish',ko:'성취하다, 완수하다',wrongCount:0},
+      {id:2,en:'Fail',ko:'실패하다',wrongCount:1},
+      {id:3,en:'Diligent',ko:'근면한, 성실한',wrongCount:3},
+      {id:4,en:'Lazy',ko:'게으른',wrongCount:0},
+      {id:5,en:'Happy',ko:'행복한, 즐거운',wrongCount:0},
+      {id:6,en:'Sad',ko:'슬픈',wrongCount:0},
+      {id:7,en:'Fast',ko:'빠른, 신속한',wrongCount:0},
+      {id:8,en:'Slow',ko:'느린',wrongCount:0},
+      {id:9,en:'Bright',ko:'밝은, 총명한',wrongCount:0},
+      {id:10,en:'Dark',ko:'어두운',wrongCount:0},
+    ];
+    saveData();
+  }
+  renderWords();
+}
+function saveData(){localStorage.setItem('myWordbook',JSON.stringify(words));}
+function loadConf(){try{confMatrix=JSON.parse(localStorage.getItem('confMatrix')||'{}');}catch{confMatrix={};}}
+function saveConf(){localStorage.setItem('confMatrix',JSON.stringify(confMatrix));}
+
+document.addEventListener('DOMContentLoaded',()=>{loadData();loadConf();buildSimMatrix();});
+
+// ================================================================
+// 탭
+// ================================================================
+const ALL_TABS=['manage','test','quiz','fill','analysis'];
+function switchTab(name){
+  ALL_TABS.forEach(t=>{
+    const btn=document.getElementById(`tab-${t}`),view=document.getElementById(`view-${t}`);
+    if(t===name){
+      btn.className='flex-1 py-3 font-bold text-indigo-600 border-b-4 border-indigo-600 bg-white';
+      view.classList.remove('hidden');
+    } else {
+      btn.className='flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600';
+      view.classList.add('hidden');
+    }
+  });
+  if(name!=='test')     resetTestView();
+  if(name!=='quiz')     resetQuizView();
+  if(name!=='fill')     { /* keep fill state */ }
+  if(name!=='analysis') document.getElementById('analysis-dropdown').classList.add('hidden');
+}
+
+// ================================================================
+// 관리 탭
+// ================================================================
+function addWord(){
+  const enEl=document.getElementById('input-en'),koEl=document.getElementById('input-ko');
+  const en=enEl.value.trim(),ko=koEl.value.trim();
+  if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
+  words.push({id:Date.now(),en,ko,wrongCount:0});
+  saveData();buildSimMatrix();currentPage=1;renderWords();
+  enEl.value='';koEl.value='';enEl.focus();
+  showToast('단어 추가 완료! ✨');
+}
+
+// 삭제 모달 기능
+let pendingDeleteId = null;
+function confirmDelete(id){
+  pendingDeleteId = id;
+  const modal = document.getElementById('delete-modal');
+  const content = document.getElementById('delete-modal-content');
+  modal.classList.remove('hidden');
+  void modal.offsetWidth;
+  modal.classList.remove('opacity-0');
+  content.classList.remove('scale-95');
+}
+function closeDeleteModal(){
+  const modal = document.getElementById('delete-modal');
+  const content = document.getElementById('delete-modal-content');
+  modal.classList.add('opacity-0');
+  content.classList.add('scale-95');
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    pendingDeleteId = null;
+  }, 200);
+}
+function executeDelete(){
+  if(pendingDeleteId !== null) {
+    words = words.filter(w => w.id !== pendingDeleteId);
+    saveData();buildSimMatrix();renderWords();
+    showToast('삭제되었습니다.');
+    closeDeleteModal();
+  }
+}
+
+// 수정 모달 기능
+let editingWordId = null;
+function openEditModal(id) {
+  const w = words.find(x => x.id === id);
+  if(!w) return;
+  editingWordId = id;
+  document.getElementById('edit-en').value = w.en;
+  document.getElementById('edit-ko').value = w.ko;
+  const modal = document.getElementById('edit-modal');
+  const content = document.getElementById('edit-modal-content');
+  modal.classList.remove('hidden');
+  void modal.offsetWidth;
+  modal.classList.remove('opacity-0');
+  content.classList.remove('scale-95');
+}
+function closeEditModal() {
+  const modal = document.getElementById('edit-modal');
+  const content = document.getElementById('edit-modal-content');
+  modal.classList.add('opacity-0');
+  content.classList.add('scale-95');
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    editingWordId = null;
+  }, 200);
+}
+function saveEditWord() {
+  const en = document.getElementById('edit-en').value.trim();
+  const ko = document.getElementById('edit-ko').value.trim();
+  if(!en || !ko) return showToast('영어 단어와 뜻을 모두 입력해주세요.', 'error');
+  
+  const idx = words.findIndex(w => w.id === editingWordId);
+  if(idx !== -1) {
+    words[idx].en = en;
+    words[idx].ko = ko;
+    saveData(); 
+    buildSimMatrix(); // 뜻이 바뀌었을 수 있으므로 유사도 매트릭스 재계산
+    renderWords();
+    showToast('수정되었습니다. ✏️');
+    closeEditModal();
+  }
+}
+
+function changePage(d){currentPage+=d;renderWords();document.getElementById('word-list').scrollTop=0;}
+function renderWords(){
+  const list=document.getElementById('word-list');
+  const query = document.getElementById('search-manage').value.toLowerCase().trim();
+  
+  // 검색 필터링 적용
+  let disp=[...words];
+  if(query) {
+    disp = disp.filter(w => w.en.toLowerCase().includes(query) || w.ko.includes(query));
+  }
+  
+  document.getElementById('word-count').textContent=disp.length;
+  list.innerHTML='';
+  
+  if(!disp.length){
+    list.innerHTML='<div class="col-span-full flex flex-col items-center justify-center text-gray-400 py-20"><span class="text-4xl mb-4">📭</span><p>조건에 맞는 단어가 없습니다.</p></div>';
+    document.getElementById('pagination-controls').classList.add('hidden');
+    return;
+  }
+  
+  if(document.getElementById('sort-select').value==='wrongCount') disp.sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0));
+  else disp.reverse();
+  
+  const total=Math.max(1,Math.ceil(disp.length/IPP));
+  currentPage=Math.max(1,Math.min(currentPage,total));
+  disp.slice((currentPage-1)*IPP,currentPage*IPP).forEach(w=>{
+    const simRow=simMatrix[w.id]||{};
+    const dupes=words.filter(x=>x.id!==w.id&&(simRow[x.id]||0)>=SIM_DUP);
+    const wBadge=w.wrongCount>0?`<span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-bold rounded-full">오답 ${w.wrongCount}회</span>`:'';
+    const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-100 text-amber-600 text-[10px] font-bold rounded-full">⚠️ 중복 의심</span>`:'';
+    const li=document.createElement('li');
+    li.className='bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center fade-in hover:border-indigo-200 hover:shadow-md transition-all h-max';
+    li.innerHTML=`<div class="flex flex-col flex-1 pr-3 min-w-0">
+        <span class="font-bold text-xl text-gray-800 mb-1 truncate">${w.en}</span>
+        <span class="text-gray-500 text-sm truncate">${w.ko}</span>
+        <div class="flex gap-1.5 mt-2 flex-wrap">${wBadge}${dBadge}</div>
+      </div>
+      <div class="flex gap-2 flex-shrink-0">
+        <button onclick="openEditModal(${w.id})" class="text-emerald-400 hover:text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-2.5 rounded-xl transition-colors" title="단어 수정">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+        </button>
+        <button onclick="openAnalysis(${w.id})" class="text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 p-2.5 rounded-xl transition-colors" title="단어 분석">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </button>
+        <button onclick="confirmDelete(${w.id})" class="text-rose-300 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 p-2.5 rounded-xl transition-colors" title="삭제">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      </div>`;
+    list.appendChild(li);
+  });
+  const pgCtrl=document.getElementById('pagination-controls');
+  if(total>1){
+    pgCtrl.classList.remove('hidden');
+    document.getElementById('page-info').textContent=`${currentPage} / ${total}`;
+    document.getElementById('btn-prev').disabled=currentPage===1;
+    document.getElementById('btn-next').disabled=currentPage===total;
+  } else pgCtrl.classList.add('hidden');
+}
+function exportData(){
+  if(!words.length)return showToast('저장할 단어가 없습니다.','error');
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'})),download:`영단어장_${new Date().toISOString().slice(0,10)}.json`});
+  document.body.appendChild(a);a.click();a.remove();
+  showToast('단어장 백업을 완료했습니다 💾');
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;let cnt=0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0});cnt++;}});saveData();buildSimMatrix();currentPage=1;renderWords();showToast(`${cnt}개의 단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};
+  r.readAsText(file);e.target.value='';
+}
+
+// ================================================================
+// 학습 탭
+// ================================================================
+function resetTestView(){testQueue=[];testPool=[];testIdx=0;testCorrect=0;['test-intro','test-active','test-result'].forEach((id,i)=>document.getElementById(id).classList[i===0?'remove':'add']('hidden'));}
+function startTest(mode){
+  if(!words.length)return showToast('학습할 단어가 없습니다!','error');
+  let pool=[...words];
+  if(mode==='wrong'){pool=pool.filter(w=>(w.wrongCount||0)>0);if(!pool.length)return showToast('틀린 단어가 없습니다! 대단해요 🎉');}
+  testPool=pool;testQueue=shuffle(pool);testIdx=testCorrect=0;
+  document.getElementById('test-intro').classList.add('hidden');
+  document.getElementById('test-active').classList.remove('hidden');
+  loadTestCard();
+}
+function loadTestCard(){
+  if(testIdx>=testQueue.length){testQueue=shuffle(testPool);testIdx=0;showToast('단어 목록을 다시 한 바퀴 돕니다! 🔁');}
+  const w=testQueue[testIdx];
+  document.getElementById('test-progress').textContent=`${testIdx+1}/${testQueue.length}`;
+  document.getElementById('test-score').textContent=testCorrect;
+  document.getElementById('test-word-en').textContent=w.en;
+  document.getElementById('test-word-ko').textContent=w.ko;
+  document.getElementById('test-word-ko').classList.add('hidden');
+  document.getElementById('btn-reveal').classList.remove('hidden');
+  document.getElementById('test-actions').classList.add('hidden');
+}
+function revealAnswer(){document.getElementById('btn-reveal').classList.add('hidden');document.getElementById('test-word-ko').classList.remove('hidden');document.getElementById('test-actions').classList.remove('hidden');}
+function markAnswer(ok){
+  const w=testQueue[testIdx];
+  if(ok)testCorrect++;else{const i=words.findIndex(x=>x.id===w.id);if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}}
+  testIdx++;
+  if(testIdx>=testQueue.length){document.getElementById('test-active').classList.add('hidden');document.getElementById('test-result').classList.remove('hidden');renderWords();}
+  else{const c=document.getElementById('test-word-en').parentElement;c.style.opacity='0';setTimeout(()=>{loadTestCard();c.style.opacity='1';},180);}
+}
+
+// ================================================================
+// 의미 유사도 엔진
+// ================================================================
+const KO_SUF=['스럽다','스러운','하다','하는','하여','하게','한','함','히','이다','이란','되다','되는','된','됨','적인','적으로','적','롭다','로운','없다','없는','있다','있는','지다','진','ㄴ','는','을','를','이','가','의','에','로','과','와','도'].sort((a,b)=>b.length-a.length);
+function tokenize(str){
+  const tokens=new Set();
+  str.split(/[,\/\s]+/).map(s=>s.trim()).filter(Boolean).forEach(c=>{
+    let stem=c;for(const suf of KO_SUF){if(stem.length>suf.length&&stem.endsWith(suf)){stem=stem.slice(0,-suf.length);break;}}
+    if(stem.length>=1)tokens.add(stem);
+  });
+  return tokens;
+}
+function semSim(a,b){
+  const tA=tokenize(a),tB=tokenize(b);if(!tA.size||!tB.size)return 0;
+  let ex=0;tA.forEach(t=>{if(tB.has(t))ex++;});
+  const jac=ex/new Set([...tA,...tB]).size;
+  let part=0;tA.forEach(a=>tB.forEach(b=>{if(a!==b&&(a.includes(b)||b.includes(a)))part+=0.3;}));
+  const cA=new Set([...a.replace(/[,\/\s]/g,'')]),cB=new Set([...b.replace(/[,\/\s]/g,'')]);
+  let co=0;cA.forEach(c=>{if(cB.has(c))co++;});
+  return Math.min(100,jac*70+part*15+(co/Math.max(cA.size,cB.size))*15);
+}
+function buildSimMatrix(){
+  simMatrix={};
+  for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++){
+    if(i===j)continue;const a=words[i],b=words[j];
+    if(!simMatrix[a.id])simMatrix[a.id]={};
+    simMatrix[a.id][b.id]=semSim(a.ko,b.ko);
+  }
+}
+
+// ================================================================
+// 사지선다 탭
+// ================================================================
+function resetQuizView(){quizQueue=[];quizIdx=0;document.getElementById('quiz-intro').classList.remove('hidden');document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.add('hidden');}
+function startQuiz(){
+  if(words.length<4){showToast('선택지를 만들기 위해 단어가 4개 이상 필요합니다!','error');return;}
+  quizQ=0;quizS=0;
+  quizQueue=buildWQ(words);quizIdx=0;
+  document.getElementById('quiz-intro').classList.add('hidden');
+  document.getElementById('quiz-result').classList.add('hidden');
+  document.getElementById('quiz-active').classList.remove('hidden');
+  nextQuiz();
+}
+function buildWQ(pool){
+  let bag=[];pool.forEach(w=>{const c=Math.min(4,1+(w.wrongCount||0));for(let i=0;i<c;i++)bag.push(w);});return shuffle(bag);
+}
+function updateConf(cid,wid){
+  if(!confMatrix[cid])confMatrix[cid]={};
+  confMatrix[cid][wid]=Math.min(20,(confMatrix[cid][wid]||0)+1);saveConf();
+}
+function getDistractors(target){
+  const mat=confMatrix[target.id]||{},sim=simMatrix[target.id]||{};
+  const cands=words.filter(w=>w.id!==target.id&&(sim[w.id]||0)<SIM_DUP);
+  return cands.map(w=>({word:w,score:(sim[w.id]||0)*5+(mat[w.id]||0)*10+Math.random()*3}))
+    .sort((a,b)=>b.score-a.score).slice(0,3).map(s=>s.word);
+}
+function nextQuiz(){
+  if(quizIdx>=quizQueue.length){quizQueue=buildWQ(words);quizIdx=0;showToast('문제 목록을 다시 돕니다! 🔁');}
+  quizQ++;
+  document.getElementById('quiz-progress').textContent=`${quizQ}번째`;
+  document.getElementById('quiz-score').textContent=quizS;
+  quizWord=quizQueue[quizIdx++];
+  document.getElementById('quiz-word-en').textContent=quizWord.en;
+  renderQuizOpts(getDistractors(quizWord));
+}
+function renderQuizOpts(distractors){
+  const con=document.getElementById('quiz-options');con.innerHTML='';
+  const sim=simMatrix[quizWord.id]||{};
+  const dupes=words.filter(w=>w.id!==quizWord.id&&(sim[w.id]||0)>=SIM_DUP);
+  
+  if(dupes.length){
+    const d=document.createElement('div');
+    // 그리드 안에서 전체 너비를 차지하게 설정
+    d.className='col-span-full bg-amber-50 border border-amber-200 text-amber-700 text-sm font-semibold rounded-xl px-4 py-3 mb-2 flex gap-2 items-center';
+    d.innerHTML=`<span class="text-xl">⚠️</span><span>${dupes.map(d=>`"${d.en}"`).join(', ')}와(과) 의미가 중복되어 선택지에서 제외했습니다.</span>`;
+    con.appendChild(d);
+  }
+  
+  const hasSem=distractors.some(w=>(sim[w.id]||0)>=SIM_CONF);
+  const hasLrn=Object.keys(confMatrix[quizWord.id]||{}).length>0;
+  if(hasSem||hasLrn){
+    const b=document.createElement('div');
+    b.className='col-span-full text-right text-sm font-semibold mb-2 pr-2 '+(hasLrn&&hasSem?'text-purple-500':hasLrn?'text-emerald-500':'text-indigo-500');
+    b.textContent=hasLrn&&hasSem?'🧠 의미 유사도 + 과거 오답 혼동 맞춤 출제':hasLrn?'🧠 과거 자주 헷갈린 단어 위주 출제':'🔍 AI 의미 유사도 기반 난이도 상향';
+    con.appendChild(b);
+  }
+  
+  shuffle([{word:quizWord,ok:true},...distractors.map(w=>({word:w,ok:false}))]).forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='game-btn w-full bg-white border-2 border-gray-200 text-gray-700 font-bold py-6 rounded-2xl text-xl hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 shadow-sm transition-all';
+    btn.textContent=opt.word.ko;
+    btn.dataset.correct=opt.ok?'true':'false';
+    btn.dataset.wid=opt.word.id;
+    btn.onclick=()=>selectQuiz(btn,opt.ok,opt.word.id);
+    con.appendChild(btn);
+  });
+}
+function selectQuiz(btn,ok,selId){
+  document.querySelectorAll('#quiz-options button').forEach(b=>b.disabled=true);
+  if(ok){quizS++;btn.classList.add('correct-answer');}
+  else{
+    btn.classList.add('wrong-answer');
+    document.querySelectorAll('#quiz-options button').forEach(b=>{
+      if(b.dataset.correct==='true'){
+        b.classList.add('correct-answer');
+        b.classList.remove('border-gray-200','text-gray-700');
+      }
+    });
+    const i=words.findIndex(w=>w.id===quizWord.id);
+    if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
+    updateConf(quizWord.id,selId);
+  }
+  document.getElementById('quiz-score').textContent=quizS;
+  setTimeout(()=>{
+    const wb=document.getElementById('quiz-word-en').parentElement,ob=document.getElementById('quiz-options');
+    wb.style.opacity='0';ob.style.opacity='0';
+    setTimeout(()=>{nextQuiz();wb.style.opacity='1';ob.style.opacity='1';},200);
+  },1200);
+}
+function showQuizResult(){
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-result').classList.remove('hidden');
+  const total=Math.max(0,quizQ-1);
+  document.getElementById('quiz-final-score').textContent=quizS;
+  document.getElementById('quiz-total-score').textContent=total;
+  const r=total===0?0:quizS/total;
+  const[em,fb]=r===1?['🏆','퍼펙트! 헷갈리는 선지들도 완벽히 방어했어요!']:r>=0.7?['👍','훌륭합니다! 좋은 성적이에요.']:total===0?['🤔','문제를 풀지 않으셨어요.']:['💪','선지가 많이 헷갈렸나요? 틀린 단어를 복습해보세요!'];
+  document.getElementById('quiz-result-emoji').textContent=em;
+  document.getElementById('quiz-feedback').textContent=fb;
+  renderWords();
+}
+
+// ================================================================
+// 빈칸 넣기 탭
+// ================================================================
+function resetFillView(){
+  fillQuestions=[];fillIdx=0;fillScore=0;fillCurrentQ=null;
+  document.getElementById('fill-intro').classList.remove('hidden');
+  document.getElementById('fill-loading').classList.add('hidden');
+  document.getElementById('fill-active').classList.add('hidden');
+  document.getElementById('fill-result').classList.add('hidden');
+}
+
+async function startFill(n=10){
+  if(words.length<4){showToast('문제를 출제하기 위해 단어가 4개 이상 필요합니다!','error');return;}
+  fillTotal=n;fillScore=0;fillIdx=0;fillQuestions=[];
+  document.getElementById('fill-intro').classList.add('hidden');
+  document.getElementById('fill-loading').classList.remove('hidden');
+  document.getElementById('fill-loading').classList.add('flex');
+
+  // 출제할 단어 선택: wrongCount 가중치 적용, 최대 n개
+  const pool=buildWQ(words).slice(0,n*2); // 여유있게 후보 확보
+  const selected=[];const seen=new Set();
+  for(const w of pool){if(!seen.has(w.id)){seen.add(w.id);selected.push(w);}if(selected.length>=n)break;}
+  // 부족하면 랜덤으로 채움
+  if(selected.length<n){const rest=shuffle(words.filter(w=>!seen.has(w.id)));for(const w of rest){selected.push(w);if(selected.length>=n)break;}}
+
+  // 각 단어에 대해 예문 fetch (병렬, 최대 n개)
+  const results=await Promise.all(selected.map(w=>buildFillQuestion(w)));
+  fillQuestions=results.filter(Boolean).slice(0,n);
+
+  document.getElementById('fill-loading').classList.add('hidden');
+  document.getElementById('fill-loading').classList.remove('flex');
+
+  if(fillQuestions.length<2){showToast('API 서버에서 예문을 불러올 수 없습니다. 네트워크를 확인해주세요.','error');resetFillView();return;}
+  fillTotal=fillQuestions.length;
+  document.getElementById('fill-active').classList.remove('hidden');
+  showFillQuestion();
+}
+
+async function buildFillQuestion(targetWord){
+  try{
+    document.getElementById('fill-loading-word').textContent=`"${targetWord.en}"의 원어민 예문을 찾는 중...`;
+    
+    let sentence=null;
+
+    // 1) Dictionary API에서 예문 가져오기
+    const dictData=await fetchDict(targetWord.en);
+    const examples=[];
+    if(dictData){
+      dictData.meanings?.forEach(m=>{
+        m.definitions?.forEach(d=>{if(d.example)examples.push(d.example);});
+      });
+    }
+    if(examples.length>0){
+      sentence=examples[Math.floor(Math.random()*examples.length)];
+    }
+
+    // 2) 예문이 없으면 Datamuse 사용
+    if(!sentence){
+      const res=await fetch(`https://api.datamuse.com/words?sp=${encodeURIComponent(targetWord.en)}&md=d&max=1`);
+      const data=await res.json();
+      if(data[0]?.defs?.[0]){
+        const def=data[0].defs[0].replace(/^\w+\t/,'');
+        sentence=`She decided to ${targetWord.en} her goals. "${def}"`;
+      }
+    }
+
+    // 3) 그래도 없으면 기본 템플릿
+    if(!sentence){
+      const templates=[
+        `The student tried to ${targetWord.en} in every possible way.`,
+        `It is important to understand what it means to ${targetWord.en}.`,
+        `They were amazed by how well he could ${targetWord.en}.`,
+      ];
+      sentence=templates[Math.floor(Math.random()*templates.length)];
+    }
+
+    const regex=new RegExp(`\\b${targetWord.en}\\b`,'gi');
+    if(!regex.test(sentence)){
+      sentence=`To ${targetWord.en} means to achieve or complete something successfully. Can you use "${targetWord.en}" in a sentence?`;
+    }
+
+    const blankSentence=sentence.replace(new RegExp(`\\b${targetWord.en}\\b`,'gi'),'___');
+    const fullSentence=sentence;
+
+    const sim=simMatrix[targetWord.id]||{};
+    const distractorWords=words
+      .filter(w=>w.id!==targetWord.id&&(sim[w.id]||0)<SIM_DUP)
+      .map(w=>({word:w,score:(sim[w.id]||0)*3+Math.random()*5}))
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,3)
+      .map(s=>s.word);
+
+    while(distractorWords.length<3){
+      const rand=words.find(w=>w.id!==targetWord.id&&!distractorWords.some(d=>d.id===w.id));
+      if(rand)distractorWords.push(rand);else break;
+    }
+
+    return {
+      word:targetWord,
+      blank:blankSentence,
+      full:fullSentence,
+      options:shuffle([targetWord,...distractorWords.slice(0,3)]),
+    };
+  }catch(e){return null;}
+}
+
+function showFillQuestion(){
+  if(fillIdx>=fillQuestions.length){showFillResult();return;}
+  fillCurrentQ=fillQuestions[fillIdx];
+  const q=fillCurrentQ;
+
+  const pct=Math.round((fillIdx/fillTotal)*100);
+  document.getElementById('fill-progress-bar').style.width=pct+'%';
+  document.getElementById('fill-progress-text').textContent=`${fillIdx+1} / ${fillTotal}`;
+  document.getElementById('fill-score').textContent=fillScore;
+
+  const sentEl=document.getElementById('fill-sentence');
+  sentEl.innerHTML=q.blank.replace(/___/g,'<span class="fill-blank px-6 mx-1">　　</span>');
+
+  const fb=document.getElementById('fill-feedback');fb.classList.add('hidden');
+  document.getElementById('fill-next-btn').classList.add('hidden');
+
+  const opts=document.getElementById('fill-options');
+  opts.innerHTML='';
+  q.options.forEach(w=>{
+    const btn=document.createElement('button');
+    btn.className='fill-opt bg-white border-2 border-gray-200 rounded-2xl p-5 text-xl font-bold text-gray-700 text-center active:scale-95 transition-all shadow-sm';
+    btn.textContent=w.en;
+    btn.onclick=()=>selectFill(btn,w.id===q.word.id,w,q);
+    opts.appendChild(btn);
+  });
+}
+
+function selectFill(btn,isCorrect,selectedWord,q){
+  document.getElementById('fill-options').querySelectorAll('button').forEach(b=>b.disabled=true);
+
+  if(isCorrect){
+    btn.classList.add('correct');
+    fillScore++;
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('fill-options').querySelectorAll('button').forEach(b=>{
+      if(b.textContent===q.word.en)b.classList.add('correct');
+    });
+  }
+
+  const sentEl=document.getElementById('fill-sentence');
+  sentEl.innerHTML=q.blank.replace(/___/g,`<span class="fill-blank px-4 mx-1 ${isCorrect?'text-emerald-600 border-emerald-500':'text-rose-500 border-rose-500'}">${q.word.en}</span>`);
+
+  const fb=document.getElementById('fill-feedback');
+  fb.classList.remove('hidden');
+  if(isCorrect){
+    fb.className='rounded-2xl p-6 border-2 bg-emerald-50 border-emerald-200 fade-in';
+    document.getElementById('fill-feedback-text').className='font-bold text-lg mb-1 text-emerald-700';
+    document.getElementById('fill-feedback-text').textContent='✅ 정확히 맞히셨습니다!';
+  } else {
+    fb.className='rounded-2xl p-6 border-2 bg-rose-50 border-rose-200 fade-in';
+    document.getElementById('fill-feedback-text').className='font-bold text-lg mb-1 text-rose-700';
+    document.getElementById('fill-feedback-text').textContent=`❌ 오답입니다. 문맥상 알맞은 정답은 "${q.word.en}" 입니다.`;
+    const i=words.findIndex(w=>w.id===q.word.id);if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
+  }
+  document.getElementById('fill-full-sentence').textContent=q.full;
+
+  document.getElementById('fill-score').textContent=fillScore;
+  document.getElementById('fill-next-btn').classList.remove('hidden');
+}
+
+function nextFillQuestion(){
+  fillIdx++;
+  if(fillIdx>=fillQuestions.length)showFillResult();
+  else showFillQuestion();
+}
+
+function showFillResult(){
+  document.getElementById('fill-active').classList.add('hidden');
+  document.getElementById('fill-result').classList.remove('hidden');
+  document.getElementById('fill-final-score').textContent=fillScore;
+  document.getElementById('fill-final-total').textContent=fillTotal;
+  const r=fillTotal===0?0:fillScore/fillTotal;
+  const[em,msg]=r===1?['🏆','퍼펙트! 완벽하게 문맥을 이해하고 있어요!']:r>=0.8?['🎉','훌륭해요! 조금만 더 하면 완벽합니다.']:r>=0.6?['👍','잘했어요! 예문을 통해 단어의 쓰임새를 더 익혀보세요.']:r>=0.4?['💪','실제 예문이라 조금 까다로울 수 있어요. 계속 도전하세요!']:['📚','단어의 뜻뿐만 아니라 예문도 꼼꼼히 공부해보세요!'];
+  document.getElementById('fill-result-emoji').textContent=em;
+  document.getElementById('fill-result-msg').textContent=msg;
+  renderWords();
+}
+
+// ================================================================
+// 분석 탭
+// ================================================================
+function openAnalysis(id){const w=words.find(x=>x.id===id);if(!w)return;switchTab('analysis');setTimeout(()=>selectAnalysisWord(w),60);}
+function filterAnalysisWords(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
+function showAnalysisDropdown(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
+function renderAnalysisDD(q=''){
+  const dd=document.getElementById('analysis-dropdown');
+  const filtered=words.filter(w=>w.en.toLowerCase().includes(q)||w.ko.includes(q));
+  if(!filtered.length){dd.classList.add('hidden');return;}
+  dd.innerHTML=filtered.map(w=>`<button class="w-full text-left px-5 py-4 hover:bg-indigo-50 flex justify-between gap-4 transition-colors" onclick="selectAnalysisWord(words.find(x=>x.id===${w.id}))"><span class="font-bold text-gray-800 text-lg">${w.en}</span><span class="text-sm text-gray-500 truncate">${w.ko}</span></button>`).join('<div class="border-t border-gray-100 mx-3"></div>');
+  dd.classList.remove('hidden');
+}
+function selectAnalysisWord(w){
+  if(!w)return;
+  analysisWord=w;
+  document.getElementById('analysis-search').value=''; // 검색어 지우기 (선택되었으므로)
+  document.getElementById('analysis-dropdown').classList.add('hidden');
+  document.getElementById('analysis-word-en-display').textContent=w.en;
+  document.getElementById('analysis-word-ko-display').textContent=w.ko;
+  document.getElementById('analysis-selected-word').classList.remove('hidden');
+  runAnalysis(w);
+}
+function clearAnalysisWord(){
+  analysisWord=null;
+  document.getElementById('analysis-search').value='';
+  document.getElementById('analysis-selected-word').classList.add('hidden');
+  document.getElementById('analysis-result').classList.add('hidden');
+  document.getElementById('analysis-loading').classList.add('hidden');
+  document.getElementById('analysis-placeholder').classList.remove('hidden');
+}
+
+async function runAnalysis(word){
+  document.getElementById('analysis-placeholder').classList.add('hidden');
+  document.getElementById('analysis-result').classList.add('hidden');
+  document.getElementById('analysis-loading').classList.remove('hidden');
+
+  const[dictData,syns,ants,rels,jjas,jjbs]=await Promise.all([
+    fetchDict(word.en),
+    fetchDatamuse('ml',word.en,14),
+    fetchDatamuse('rel_ant',word.en,8),
+    fetchDatamuse('rel_trg',word.en,12),
+    fetchDatamuse('rel_jja',word.en,8),
+    fetchDatamuse('rel_jjb',word.en,8),
+  ]);
+
+  document.getElementById('analysis-loading').classList.add('hidden');
+  document.getElementById('analysis-result').classList.remove('hidden');
+
+  // Dictionary API에서 추가로 추출할 유의어, 반의어, 품사 목록
+  let dictSynonyms = [];
+  let dictAntonyms = [];
+
+  // ① 기본 정보
+  document.getElementById('ar-word').textContent=word.en;
+  const examplesEl=document.getElementById('ar-examples');
+  examplesEl.innerHTML='';
+
+  if(dictData){
+    const ph=dictData.phonetics?.find(p=>p.text)?.text||'';
+    document.getElementById('ar-phonetic').textContent=ph;
+    audioUrl=dictData.phonetics?.find(p=>p.audio?.startsWith('http'))?.audio||null;
+    const aBtn=document.getElementById('ar-audio-btn');
+    if(audioUrl){aBtn.classList.remove('hidden');aBtn.onclick=()=>new Audio(audioUrl).play();}
+    else aBtn.classList.add('hidden');
+
+    // 품사 (단어가 속한 모든 품사 취합)
+    const posSet = new Set();
+    dictData.meanings?.forEach(m => {
+      if(m.partOfSpeech) posSet.add(m.partOfSpeech);
+      if(m.synonyms) dictSynonyms.push(...m.synonyms);
+      if(m.antonyms) dictAntonyms.push(...m.antonyms);
+    });
+    
+    const posString = Array.from(posSet).join(', ');
+    const posEl=document.getElementById('ar-partOfSpeech');
+    posEl.textContent=posString;
+    posEl.style.display=posString?'':'none';
+
+    // 정의 (가장 첫 번째 대표 정의 사용)
+    const def=dictData.meanings?.[0]?.definitions?.[0];
+    document.getElementById('ar-definition').textContent=def?.definition||'해당 단어의 영영사전 정의를 찾을 수 없습니다.';
+
+    // 예문 최대 3개
+    const allExamples=[];
+    dictData.meanings?.forEach(m=>{
+      m.definitions?.forEach(d=>{if(d.example&&allExamples.length<3)allExamples.push({example:d.example,partOfSpeech:m.partOfSpeech});});
+    });
+    if(allExamples.length){
+      examplesEl.innerHTML=allExamples.map((ex,i)=>`
+        <div class="flex gap-4 items-start bg-gray-50 p-4 rounded-xl border border-gray-100">
+          <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-700 text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span>
+          <p class="text-base text-gray-700 italic leading-relaxed">"${ex.example}"</p>
+        </div>`).join('');
+    } else {
+      examplesEl.innerHTML='<p class="text-sm text-gray-400 italic bg-gray-50 p-4 rounded-xl">이 단어가 포함된 예문을 찾을 수 없습니다.</p>';
+    }
+  } else {
+    document.getElementById('ar-phonetic').textContent='';
+    document.getElementById('ar-partOfSpeech').textContent='';
+    document.getElementById('ar-partOfSpeech').style.display='none';
+    document.getElementById('ar-definition').textContent='사전 정보를 불러올 수 없습니다. (네트워크 연결 상태를 확인해주세요)';
+    examplesEl.innerHTML='<p class="text-sm text-gray-400">예문을 불러올 수 없습니다.</p>';
+    document.getElementById('ar-audio-btn').classList.add('hidden');
+  }
+
+  // ② 단어장 내 유사도
+  const simRow=simMatrix[word.id]||{};
+  const internals=words.filter(w=>w.id!==word.id).map(w=>({word:w,sim:simRow[w.id]||0}))
+    .filter(x=>x.sim>8).sort((a,b)=>b.sim-a.sim).slice(0,7);
+  const intEl=document.getElementById('ar-internal-list');
+  if(internals.length){
+    intEl.innerHTML=internals.map(({word:w,sim})=>{
+      const pct=Math.round(sim);
+      const bar=pct>=SIM_DUP?'bg-amber-400':pct>=SIM_CONF?'bg-violet-400':'bg-indigo-300';
+      const lbl=pct>=SIM_DUP?'<span class="text-[10px] bg-amber-100 text-amber-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">⚠️ 중복</span>':
+                pct>=SIM_CONF?'<span class="text-[10px] bg-violet-100 text-violet-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">혼동 주의</span>':'';
+      return `<div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100"><div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-1"><span class="font-bold text-base text-gray-800">${w.en}</span><span class="text-xs text-gray-500 truncate">${w.ko}</span>${lbl}</div>
+        <div class="flex items-center gap-3"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="${bar} h-2 rounded-full transition-all duration-700" style="width:${pct}%"></div></div><span class="text-xs text-gray-400 font-mono w-8 text-right font-bold">${pct}%</span></div>
+      </div></div>`;
+    }).join('');
+  } else intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-3xl mb-2">🤷‍♂️</span><p class="text-sm text-gray-400">단어장 내에 의미가 비슷한 단어가 아직 없습니다.</p></div>';
+
+  // ③④⑤⑥ 칩 (Datamuse 결과와 Dictionary 결과를 병합)
+  const existingEn=new Set(words.map(w=>w.en.toLowerCase()));
+  const newCands=new Set();
+
+  function renderChips(elId,items,cls){
+    const el=document.getElementById(elId);
+    if(!items.length){el.innerHTML='<span class="text-sm text-gray-400">검색 결과 없음</span>';return;}
+    el.innerHTML='';
+    items.forEach(item=>{
+      const inBook=existingEn.has(item.word.toLowerCase());
+      if(!inBook)newCands.add(item.word);
+
+      const span=document.createElement('span');
+      span.className='chip '+cls;
+      span.onclick=()=>onChipClick(item.word);
+
+      const inBookWord=words.find(w=>w.en.toLowerCase()===item.word.toLowerCase());
+      const knownKo=inBookWord?inBookWord.ko:null;
+
+      const wordLabel=document.createTextNode((inBook?'✅ ':'')+item.word);
+      span.appendChild(wordLabel);
+
+      const tooltip=document.createElement('span');
+      tooltip.className='chip-tooltip'+(knownKo?'':' loading');
+      tooltip.textContent=knownKo||'뜻 번역 중...';
+      span.appendChild(tooltip);
+
+      if(!knownKo){
+        let fetched=false;
+        span.addEventListener('mouseenter',async()=>{
+          if(fetched)return;
+          fetched=true;
+          try{
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(item.word)}`;
+            const r = await fetch(url);
+            const data = await r.json();
+            const koDef = data[0][0][0]; 
+            
+            tooltip.textContent = koDef || '뜻 정보 없음';
+            tooltip.classList.remove('loading');
+          }catch{tooltip.textContent='번역 실패';}
+        });
+      }
+      el.appendChild(span);
+    });
+  }
+
+  // 중복 제거 및 Datamuse/Dictionary 통합
+  const mergedSynonyms = new Map();
+  syns.forEach(s => mergedSynonyms.set(s.word.toLowerCase(), s));
+  dictSynonyms.forEach(s => {
+    if(!mergedSynonyms.has(s.toLowerCase())) mergedSynonyms.set(s.toLowerCase(), {word: s});
+  });
+  const finalSynonyms = Array.from(mergedSynonyms.values()).slice(0, 14);
+
+  const mergedAntonyms = new Map();
+  ants.forEach(a => mergedAntonyms.set(a.word.toLowerCase(), a));
+  dictAntonyms.forEach(a => {
+    if(!mergedAntonyms.has(a.toLowerCase())) mergedAntonyms.set(a.toLowerCase(), {word: a});
+  });
+  const finalAntonyms = Array.from(mergedAntonyms.values()).slice(0, 14);
+
+  renderChips('ar-synonyms', finalSynonyms, 'chip-syn');
+  renderChips('ar-antonyms', finalAntonyms, 'chip-ant');
+  renderChips('ar-related', rels, 'chip-rel');
+  renderChips('ar-collocations', [...jjas,...jjbs].slice(0,12), 'chip-freq');
+
+  // ⑦ 추천
+  const recEl=document.getElementById('ar-recommendations');
+  const recs=[...newCands].slice(0,18);
+  recEl.innerHTML=recs.length?recs.map(w=>`<button class="chip chip-new shadow-sm border border-blue-100" onclick="quickAdd('${w.replace(/'/g,"\\'")}')">+ ${w}</button>`).join(''):'<span class="text-sm text-gray-400">추천할 새 단어가 없습니다.</span>';
+
+  // 스크롤 맨 위로 (컨테이너 요소 찾아서 처리)
+  const scrollContainer = document.getElementById('analysis-result').parentElement;
+  if (scrollContainer) scrollContainer.scrollTop = 0;
+}
+
+function onChipClick(en){
+  const found=words.find(w=>w.en.toLowerCase()===en.toLowerCase());
+  if(found)selectAnalysisWord(found);else showToast(`"${en}" 단어장에 없는 단어입니다. 아래 [추천 단어]에서 눌러 바로 추가해보세요!`);
+}
+function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();showToast(`"${en}" 추가 모드로 이동! 한국어 뜻을 입력해주세요.`);}
+
+// ================================================================
+// 무료 API
+// ================================================================
+async function fetchDict(word){
+  try{const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);if(!r.ok)return null;const d=await r.json();return Array.isArray(d)?d[0]:null;}catch{return null;}
+}
+async function fetchDatamuse(rel,word,max=10){
+  try{
+    const param=rel==='ml'?`ml=${encodeURIComponent(word)}`:`${rel}=${encodeURIComponent(word)}`;
+    const r=await fetch(`https://api.datamuse.com/words?${param}&max=${max}`);
+    if(!r.ok)return[];return await r.json();
+  }catch{return[];}
+}
+</script>
+</body>
+</html>
