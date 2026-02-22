@@ -609,10 +609,10 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
 <!-- ========================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  // ✅ 팝업 로그인 방식인 signInWithPopup 사용으로 변경
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  // 직접 발급받은 Firebase 설정값 넣기
   const firebaseConfig = {
     apiKey: "AIzaSyDlMAr0qMwr3uRL_bodm8gkyewo85OlTlc",
     authDomain: "myvocaapp-d418d.firebaseapp.com",
@@ -642,20 +642,14 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       cloudStatusText.textContent = text;
   };
 
-  // Google 로그인 함수 - 모바일 및 PWA 호환성을 위해 리다이렉트(Redirect) 방식 사용
+  // Google 로그인 함수 (팝업 방식 적용 - 쿠키 차단 우회)
   window.loginWithGoogle = () => {
-      window.showToast("구글 로그인 화면으로 이동합니다...", "info");
-      signInWithRedirect(auth, provider).catch(error => {
-          console.error("로그인 이동 에러:", error);
-          window.showToast("로그인 이동 실패: " + error.message, "error");
+      window.showToast("구글 로그인 진행 중...", "info");
+      signInWithPopup(auth, provider).catch(error => {
+          console.error("로그인 에러:", error);
+          window.showToast("로그인 실패: " + error.message, "error");
       });
   };
-
-  // 리다이렉트 후 돌아왔을 때 결과 처리
-  getRedirectResult(auth).catch(error => {
-      console.error("리다이렉트 로그인 에러:", error);
-      window.showToast("로그인 실패: " + error.message, "error");
-  });
 
   // 로그아웃 함수
   window.logoutGoogle = () => {
