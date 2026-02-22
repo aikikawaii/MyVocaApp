@@ -65,6 +65,7 @@
 <body class="bg-black text-gray-200 font-sans h-screen w-screen flex items-center justify-center p-2 sm:p-6 overflow-hidden">
 <div class="w-full max-w-7xl h-full max-h-[96vh] min-h-[700px] bg-gray-900 shadow-[0_0_40px_rgba(0,0,0,0.8)] rounded-3xl flex flex-col overflow-hidden border border-gray-800 relative">
 
+<!-- 헤더 -->
 <header class="bg-indigo-900 text-gray-100 px-5 py-4 flex justify-between items-center shadow-lg z-10 flex-shrink-0 relative border-b border-indigo-800/50">
   <button onclick="openInfoModal()" class="text-indigo-300 hover:text-white transition-colors flex-shrink-0" title="프로그램 설명서 보기">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -73,6 +74,7 @@
   <div class="w-6"></div>
 </header>
 
+<!-- 탭 -->
 <div class="flex border-b border-gray-800 bg-gray-900 z-10 flex-shrink-0 overflow-x-auto no-scrollbar" style="font-size:14px">
   <button id="tab-manage"   class="flex-1 min-w-[80px] py-3.5 font-bold text-indigo-400 border-b-4 border-indigo-500 bg-gray-800 transition-colors whitespace-nowrap" onclick="switchTab('manage')">단어 📝</button>
   <button id="tab-test"     class="flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300 whitespace-nowrap" onclick="switchTab('test')">학습 🎲</button>
@@ -82,16 +84,18 @@
   <button id="tab-stats"    class="flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300 whitespace-nowrap" onclick="switchTab('stats')">통계 📊</button>
 </div>
 
+<!-- ===== 1. 관리 ===== -->
 <div id="view-manage" class="flex-1 flex flex-col p-4 sm:p-6 overflow-hidden fade-in bg-black">
-  <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl mb-4 flex-shrink-0 shadow-sm border border-gray-700">
-    <div class="flex flex-col sm:flex-row gap-4">
-      <input id="input-en" type="text" placeholder="영어 단어 (예: Apple)" class="flex-1 border border-gray-600 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 focus:bg-black text-gray-100 placeholder-gray-500 transition-all font-bold">
-      <input id="input-ko" type="text" placeholder="한국어 뜻 (예: 사과)" class="flex-1 border border-gray-600 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 focus:bg-black text-gray-100 placeholder-gray-500 transition-all" onkeypress="if(event.key==='Enter')addWord()">
-      <button onclick="addWord()" class="bg-indigo-600 text-white font-bold py-3.5 px-8 rounded-xl hover:bg-indigo-500 active:scale-95 transition-all shadow-md whitespace-nowrap">단어 추가하기 ➕</button>
+  <div class="bg-gray-800 p-4 rounded-2xl mb-4 flex-shrink-0 shadow-sm border border-gray-700">
+    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+      <!-- 💡 한/영 키보드 힌트 적용 (lang="en", lang="ko", ime-mode) -->
+      <input id="input-en" type="text" lang="en" style="ime-mode: inactive;" placeholder="영어 단어 (예: Apple)" class="flex-1 border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 focus:bg-black text-gray-100 placeholder-gray-500 transition-all font-bold">
+      <input id="input-ko" type="text" lang="ko" style="ime-mode: active;" placeholder="한국어 뜻 (예: 사과)" class="flex-1 border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 focus:bg-black text-gray-100 placeholder-gray-500 transition-all" onkeypress="if(event.key==='Enter')addWord()">
+      <button onclick="addWord()" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-indigo-500 active:scale-95 transition-all shadow-md whitespace-nowrap">단어 추가하기 ➕</button>
     </div>
   </div>
   
-  <div class="flex flex-col sm:flex-row justify-between items-center mb-5 gap-4 text-sm px-2 flex-shrink-0">
+  <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4 text-sm px-2 flex-shrink-0">
     <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
       <span class="font-semibold text-gray-400 text-base whitespace-nowrap">총 <span id="word-count" class="text-indigo-400 font-black text-lg">0</span>단어</span>
       
@@ -106,8 +110,8 @@
       </select>
     </div>
     <div class="relative w-full sm:max-w-sm flex-1">
-      <input id="search-manage" type="text" placeholder="입력한 단어 찾기..." oninput="currentPage=1;renderWords()" class="w-full border border-gray-700 rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 text-gray-200 placeholder-gray-500 shadow-sm transition-all text-sm">
-      <span class="absolute left-3.5 top-3 text-gray-500 text-base">🔍</span>
+      <input id="search-manage" type="text" placeholder="입력한 단어 찾기..." oninput="currentPage=1;renderWords()" class="w-full border border-gray-700 rounded-xl py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 text-gray-200 placeholder-gray-500 shadow-sm transition-all text-sm">
+      <span class="absolute left-3.5 top-2.5 text-gray-500 text-base">🔍</span>
     </div>
     <div class="flex gap-2 w-full sm:w-auto justify-end">
       <button onclick="exportData()" class="text-indigo-300 bg-indigo-900/40 border border-indigo-800/50 px-4 py-2 rounded-xl text-sm font-bold hover:bg-indigo-900/70 transition-colors whitespace-nowrap">내보내기 📤</button>
@@ -117,17 +121,19 @@
     </div>
   </div>
   
-  <ul id="word-list" class="flex-1 overflow-y-auto no-scrollbar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-2 content-start px-1"></ul>
+  <!-- 💡 스크롤 방지를 위해 gap-3 으로 조정 -->
+  <ul id="word-list" class="flex-1 overflow-y-auto no-scrollbar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-2 content-start px-1"></ul>
   
-  <div id="pagination-controls" class="flex justify-between items-center pt-5 border-t border-gray-800 hidden flex-shrink-0 mt-2">
-    <button onclick="changePage(-1)" id="btn-prev" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all" disabled>이전</button>
-    <select id="page-select" onchange="jumpToPage(this.value)" title="페이지 이동" class="appearance-none text-base text-gray-400 font-bold bg-gray-900 px-6 py-2 rounded-full shadow-inner border border-gray-800 hover:text-indigo-300 hover:border-indigo-500/50 transition-all cursor-pointer focus:outline-none text-center-last">
+  <div id="pagination-controls" class="flex justify-between items-center pt-4 border-t border-gray-800 hidden flex-shrink-0 mt-1">
+    <button onclick="changePage(-1)" id="btn-prev" class="px-6 py-2 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all" disabled>이전</button>
+    <select id="page-select" onchange="jumpToPage(this.value)" title="페이지 이동" class="appearance-none text-base text-gray-400 font-bold bg-gray-900 px-6 py-1.5 rounded-full shadow-inner border border-gray-800 hover:text-indigo-300 hover:border-indigo-500/50 transition-all cursor-pointer focus:outline-none text-center-last">
       <option value="1">1 / 1</option>
     </select>
-    <button onclick="changePage(1)"  id="btn-next" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all">다음</button>
+    <button onclick="changePage(1)"  id="btn-next" class="px-6 py-2 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all">다음</button>
   </div>
 </div>
 
+<!-- ===== 2. 학습 ===== -->
 <div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div id="test-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="bg-gray-800 p-8 sm:p-10 rounded-[2.5rem] shadow-lg border border-gray-700 w-full max-w-2xl text-center">
@@ -180,6 +186,7 @@
   </div>
 </div>
 
+<!-- ===== 3. 사지선다 ===== -->
 <div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="bg-gray-800 p-10 rounded-[2.5rem] shadow-lg text-center border border-gray-700 w-full max-w-2xl">
@@ -220,6 +227,7 @@
   </div>
 </div>
 
+<!-- ===== 4. 분석 ===== -->
 <div id="view-analysis" class="flex-1 flex flex-col hidden bg-black overflow-hidden">
   <div class="p-4 sm:p-6 bg-gray-900 border-b border-gray-800 flex-shrink-0 shadow-lg z-20">
     <div class="max-w-4xl mx-auto w-full">
@@ -250,12 +258,14 @@
 
   <div class="flex-1 overflow-y-auto no-scrollbar relative p-4 sm:p-6">
     <div class="max-w-4xl mx-auto w-full">
+      <!-- 로딩 -->
       <div id="analysis-loading" class="space-y-6 hidden">
         <div class="bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-700 space-y-5">
           <div class="skeleton h-12 w-64 mb-8"></div>
           <div class="skeleton h-6 w-48"></div><div class="skeleton h-6 w-full"></div>
         </div>
       </div>
+      <!-- 결과 -->
       <div id="analysis-result" class="space-y-6 hidden pb-8 fade-in">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-2 bg-gray-800 rounded-[2.5rem] shadow-lg border border-gray-700 p-8">
@@ -307,6 +317,7 @@
   </div>
 </div>
 
+<!-- ===== 5. 그룹핑 ===== -->
 <div id="view-group" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 px-2 flex-shrink-0">
       <div>
@@ -349,6 +360,7 @@
   </div>
 </div>
 
+<!-- ===== 6. 통계 ===== -->
 <div id="view-stats" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div class="mb-8 px-2 flex-shrink-0">
       <h2 class="text-2xl sm:text-3xl font-black text-gray-100 tracking-tight flex items-center gap-2">학습 통계 📊</h2>
@@ -396,7 +408,10 @@
       </div>
   </div>
 </div>
-</div><div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+</div><!-- /wrapper -->
+
+<!-- 모달 영역 -->
+<div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
   <div class="bg-gray-800 rounded-[2rem] p-8 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200 border border-gray-700" id="delete-modal-content">
     <div class="text-center mb-8"><div class="text-6xl mb-5">🗑️</div><h3 class="text-2xl font-black text-gray-100 mb-2 tracking-tight">정말 삭제할까요?</h3></div>
     <div class="flex gap-4">
@@ -445,16 +460,13 @@
 </div>
 
 <script>
-// 💡 번역 캐싱 스토리지 세팅
 let transCache = {};
 try { transCache = JSON.parse(localStorage.getItem('myWordbook_transCache') || '{}'); } catch(e) { transCache = {}; }
 function saveTransCache() { localStorage.setItem('myWordbook_transCache', JSON.stringify(transCache)); }
 
-// 💡 안전한 번역 함수 (캐싱 적용)
 async function getTranslationSafe(word) {
     const lw = word.toLowerCase();
-    if (transCache[lw]) return transCache[lw]; // 캐시에 있으면 API 호출 안 함
-
+    if (transCache[lw]) return transCache[lw]; 
     try {
         const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(word)}`);
         const data = await res.json();
@@ -464,19 +476,17 @@ async function getTranslationSafe(word) {
             saveTransCache();
             return meaning;
         }
-    } catch (e) {
-        console.error("번역 API 오류:", e);
-        return '번역 실패';
-    }
+    } catch (e) { return '번역 실패'; }
     return '뜻 정보 없음';
 }
 
 const ALL_TABS = ['manage', 'test', 'quiz', 'analysis', 'group', 'stats'];
 
 let words=[], currentPage=1;
-const IPP=12;
+const IPP=12; 
 
-let quizQ=0,quizS=0,quizWord=null,quizQueue=[],quizIdx=0;
+// 💡 퀴즈 관련 변수에 답변한 횟수(quizAnswered)와 타이머(quizTimer) 추가
+let quizQ=0, quizS=0, quizAnswered=0, quizWord=null, quizQueue=[], quizIdx=0, quizTimer=null;
 let testQueue=[],testPool=[],testIdx=0,testCorrect=0,testMode='all'; 
 let analysisWord=null,audioUrl=null;
 const SIM_DUP=75,SIM_CONF=50;
@@ -600,7 +610,7 @@ function executeDelete(){
 
 function confirmClearAll() {if(words.length===0)return showToast('삭제할 단어가 없습니다.','info');document.getElementById('clear-all-modal').classList.remove('hidden','opacity-0');document.getElementById('clear-all-modal-content').classList.remove('scale-95');}
 function closeClearAllModal() {document.getElementById('clear-all-modal').classList.add('opacity-0');document.getElementById('clear-all-modal-content').classList.add('scale-95');setTimeout(()=>document.getElementById('clear-all-modal').classList.add('hidden'),200);}
-function executeClearAll() {words=[];buildSimMatrix();saveData();closeClearAllModal();showToast('모든 단어가 영구적으로 삭제되었습니다. 🗑️');}
+function executeClearAll() {words=[];buildSimMatrix();saveData();closeClearAllModal();showToast('모든 단어가 영구 삭제되었습니다. 🗑️');}
 
 let editingWordId = null;
 function openEditModal(id) {const w=words.find(x=>x.id===id);if(!w)return;editingWordId=id;document.getElementById('edit-en').value=w.en;document.getElementById('edit-ko').value=w.ko;document.getElementById('edit-modal').classList.remove('hidden','opacity-0');document.getElementById('edit-modal-content').classList.remove('scale-95');}
@@ -634,7 +644,7 @@ function renderWords(){
   if(query) disp = disp.filter(w => w.en.toLowerCase().includes(query) || w.ko.includes(query));
   document.getElementById('word-count').textContent=disp.length;
   list.innerHTML='';
-  if(!disp.length){list.innerHTML='<div class="col-span-full flex flex-col items-center justify-center text-gray-500 py-20"><span class="text-5xl mb-4 opacity-50">📭</span><p class="font-bold">단어가 없습니다.</p></div>';document.getElementById('pagination-controls').classList.add('hidden');return;}
+  if(!disp.length){list.innerHTML='<div class="col-span-full flex flex-col items-center justify-center text-gray-500 py-16"><span class="text-5xl mb-4 opacity-50">📭</span><p class="font-bold">단어가 없습니다.</p></div>';document.getElementById('pagination-controls').classList.add('hidden');return;}
   
   if(document.getElementById('sort-select').value==='wrongCount') {
       disp.sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0)); 
@@ -650,22 +660,23 @@ function renderWords(){
     const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 border border-amber-800 text-[10px] font-bold rounded-full whitespace-nowrap tracking-wide">⚠️ 중복</span>`:'';
     const li=document.createElement('li');
     
-    li.className='bg-gray-800 p-4 rounded-2xl shadow-md border border-gray-700 flex justify-between items-center hover:border-indigo-500 transition-all h-full min-h-[96px]';
+    // 💡 깜빡임 방지: fade-in 클래스 제거. 스크롤 방지: p-3.5 및 min-h-[84px] 로 패딩/여백 축소
+    li.className='bg-gray-800 p-3.5 rounded-2xl shadow-md border border-gray-700 flex justify-between items-center hover:border-indigo-500 transition-all h-full min-h-[84px]';
     li.innerHTML=`
-      <div class="flex flex-col flex-1 pr-4 min-w-0 word-en-container overflow-hidden justify-center">
-        <span class="font-black text-2xl text-gray-100 mb-1.5 leading-none whitespace-nowrap inline-block w-max word-en-text origin-left transition-transform duration-200">${w.en}</span>
-        <span class="text-gray-400 text-sm whitespace-normal break-words font-medium">${w.ko}</span>
-        <div class="flex gap-2 mt-2 flex-wrap">${wBadge}${dBadge}</div>
+      <div class="flex flex-col flex-1 pr-3 min-w-0 word-en-container overflow-hidden justify-center">
+        <span class="font-black text-xl text-gray-100 mb-1 leading-none whitespace-nowrap inline-block w-max word-en-text origin-left transition-transform duration-200">${w.en}</span>
+        <span class="text-gray-400 text-xs whitespace-normal break-words font-medium">${w.ko}</span>
+        <div class="flex gap-1.5 mt-1.5 flex-wrap">${wBadge}${dBadge}</div>
       </div>
-      <div class="flex gap-2 flex-shrink-0 items-center">
-        <button onclick="openEditModal(${w.id})" class="text-emerald-400 hover:text-emerald-300 bg-emerald-900/30 hover:bg-emerald-900/50 border border-emerald-800/30 p-3 rounded-xl transition-colors" title="단어 수정">
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+      <div class="flex gap-1.5 flex-shrink-0 items-center">
+        <button onclick="openEditModal(${w.id})" class="text-emerald-400 hover:text-emerald-300 bg-emerald-900/30 hover:bg-emerald-900/50 border border-emerald-800/30 p-2.5 rounded-xl transition-colors" title="단어 수정">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
         </button>
-        <button onclick="openAnalysis(${w.id})" class="text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 hover:bg-indigo-900/50 border border-indigo-800/30 p-3 rounded-xl transition-colors" title="단어 분석">
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <button onclick="openAnalysis(${w.id})" class="text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 hover:bg-indigo-900/50 border border-indigo-800/30 p-2.5 rounded-xl transition-colors" title="단어 분석">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         </button>
-        <button onclick="confirmDelete(${w.id})" class="text-rose-400 hover:text-rose-300 bg-rose-900/30 hover:bg-rose-900/50 border border-rose-800/30 p-3 rounded-xl transition-colors" title="삭제">
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <button onclick="confirmDelete(${w.id})" class="text-rose-400 hover:text-rose-300 bg-rose-900/30 hover:bg-rose-900/50 border border-rose-800/30 p-2.5 rounded-xl transition-colors" title="삭제">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         </button>
       </div>`;
     list.appendChild(li);
@@ -788,11 +799,18 @@ function tokenize(str){const tokens=new Set();str.split(/[,\/\s]+/).map(s=>s.tri
 function semSim(a,b){const tA=tokenize(a),tB=tokenize(b);if(!tA.size||!tB.size)return 0;let ex=0;tA.forEach(t=>{if(tB.has(t))ex++;});const jac=ex/new Set([...tA,...tB]).size;let part=0;tA.forEach(a=>tB.forEach(b=>{if(a!==b&&(a.includes(b)||b.includes(a)))part+=0.3;}));const cA=new Set([...a.replace(/[,\/\s]/g,'')]),cB=new Set([...b.replace(/[,\/\s]/g,'')]);let co=0;cA.forEach(c=>{if(cB.has(c))co++;});return Math.min(100,jac*70+part*15+(co/Math.max(cA.size,cB.size))*15);}
 function buildSimMatrix(){simMatrix={};for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++){if(i===j)continue;const a=words[i],b=words[j];if(!simMatrix[a.id])simMatrix[a.id]={};simMatrix[a.id][b.id]=semSim(a.ko,b.ko);}}
 
-function resetQuizView(){quizQueue=[];quizIdx=0;document.getElementById('quiz-intro').classList.remove('hidden');document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.add('hidden');}
+// 💡 퀴즈 종료 버그 수정: 타이머를 해제할 수 있도록 개선
+function resetQuizView(){
+    if(quizTimer) clearTimeout(quizTimer); // 타이머 초기화
+    quizQueue=[];quizIdx=0;
+    document.getElementById('quiz-intro').classList.remove('hidden');
+    document.getElementById('quiz-active').classList.add('hidden');
+    document.getElementById('quiz-result').classList.add('hidden');
+}
 
 function startQuiz(){
     if(words.length<4)return showToast('단어가 4개 이상 필요합니다!','error');
-    quizQ=0;quizS=0;
+    quizQ=0; quizS=0; quizAnswered=0; // 푼 문제 수 초기화
     quizQueue = [...words].sort((a,b) => {
         const scoreA = (a.wrongCount||0)*5 - (a.quizCount||0)*2 + Math.random()*5;
         const scoreB = (b.wrongCount||0)*5 - (b.quizCount||0)*2 + Math.random()*5;
@@ -831,6 +849,7 @@ function nextQuiz(){
 
 function selectQuiz(btn,ok,selId){
     document.querySelectorAll('#quiz-options button').forEach(b=>b.disabled=true);
+    quizAnswered++; // 💡 푼 문제 수 기록
     if(ok){
         quizS++;
         btn.classList.add('correct-answer');
@@ -846,7 +865,19 @@ function selectQuiz(btn,ok,selId){
     }
     document.getElementById('quiz-score').textContent=quizS;
     logActivity('quizzed'); 
-    setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
+    
+    // 💡 타이머 ID 저장 (종료 버튼 클릭 시 취소하기 위함)
+    quizTimer = setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
+}
+
+// 💡 사지선다 종료 로직 수정: 타이머 즉시 정지 및 정확한 점수 표시
+function showQuizResult(){
+    if(quizTimer) clearTimeout(quizTimer); // 백그라운드 전환 정지
+    document.getElementById('quiz-active').classList.add('hidden');
+    document.getElementById('quiz-result').classList.remove('hidden');
+    document.getElementById('quiz-final-score').textContent=quizS;
+    document.getElementById('quiz-total-score').textContent=quizAnswered; // 노출 횟수가 아닌 정확한 푼 문제수로 반영
+    renderWords();
 }
 
 function getStem(w) {
@@ -1028,7 +1059,6 @@ function renderAnalysisDD(q=''){const dd=document.getElementById('analysis-dropd
 function selectAnalysisWord(w){if(!w)return;analysisWord=w;document.getElementById('analysis-search').value='';document.getElementById('analysis-dropdown').classList.add('hidden');document.getElementById('analysis-word-en-display').textContent=w.en;document.getElementById('analysis-word-ko-display').textContent=w.ko;document.getElementById('analysis-selected-word').classList.remove('hidden');runAnalysis(w);}
 function clearAnalysisWord(){analysisWord=null;document.getElementById('analysis-selected-word').classList.add('hidden');document.getElementById('analysis-result').classList.add('hidden');document.getElementById('analysis-loading').classList.add('hidden');document.getElementById('analysis-placeholder').classList.remove('hidden');}
 
-// 💡 발음 듣기 버튼 제어 (TTS Fallback 적용)
 async function runAnalysis(w){
   document.getElementById('analysis-placeholder').classList.add('hidden');
   document.getElementById('analysis-result').classList.add('hidden');
@@ -1049,7 +1079,6 @@ async function runAnalysis(w){
     document.getElementById('ar-definition').textContent=dictData.meanings?.[0]?.definitions?.[0]?.definition||'사전 정보 없음';
     document.getElementById('ar-phonetic').textContent=dictData.phonetics?.find(p=>p.text)?.text||'';
     
-    // TTS Fallback
     const aUrl = dictData.phonetics?.find(p=>p.audio)?.audio||null;
     const aBtn = document.getElementById('ar-audio-btn');
     
@@ -1085,7 +1114,6 @@ async function runAnalysis(w){
     document.getElementById('ar-phonetic').textContent='';
     document.getElementById('ar-partOfSpeech').style.display='none';
     
-    // 사전 정보가 아예 없더라도 TTS는 지원하도록 설정
     const aBtn = document.getElementById('ar-audio-btn');
     aBtn.classList.remove('hidden');
     aBtn.innerHTML = '🤖 <span class="hidden sm:inline">TTS 발음</span>';
@@ -1129,7 +1157,6 @@ async function runAnalysis(w){
       tooltip.textContent=knownKo||'뜻 번역 중...';
       span.appendChild(tooltip);
       
-      // 💡 안전한 캐싱 함수로 번역 로직 변경
       span.onclick = async () => {
           const found = words.find(x => x.en.toLowerCase() === item.word.toLowerCase());
           if (found) {
