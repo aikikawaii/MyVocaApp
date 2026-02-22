@@ -12,287 +12,295 @@
   .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
   .game-btn{transition:all .2s}
   .game-btn:active{transform:scale(.97)}
-  .correct-answer{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
-  .wrong-answer{background:#f43f5e!important;color:#fff!important;border-color:#f43f5e!important}
-  /* chips */
+  
+  /* 야간 모드 전용 정답/오답 컬러 */
+  .correct-answer{background:#059669!important;color:#fff!important;border-color:#059669!important}
+  .wrong-answer{background:#e11d48!important;color:#fff!important;border-color:#e11d48!important}
+  
+  /* 야간 모드 전용 칩(Chip) 컬러 */
   .chip{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:9999px;
-        font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s;border:2px solid transparent;
+        font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s;border:1px solid transparent;
         position:relative}
-  .chip:hover{filter:brightness(.92);transform:scale(1.04)}
+  .chip:hover{filter:brightness(1.15);transform:scale(1.04)}
+  .chip-syn{background:#4c1d95;color:#ddd6fe;border-color:#5b21b6}
+  .chip-ant{background:#7f1d1d;color:#fecaca;border-color:#991b1b}
+  .chip-rel{background:#064e3b;color:#a7f3d0;border-color:#065f46}
+  .chip-freq{background:#713f12;color:#fef08a;border-color:#854d0e}
+  .chip-new{background:#0c4a6e;color:#bae6fd;border-color:#075985}
+
   /* 호버 툴팁 */
   .chip-tooltip{
     position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
-    background:#1e1b4b;color:#fff;font-size:.72rem;font-weight:600;white-space:nowrap;
+    background:#e0e7ff;color:#312e81;font-size:.72rem;font-weight:700;white-space:nowrap;
     padding:4px 10px;border-radius:8px;pointer-events:none;
     opacity:0;transition:opacity .15s;z-index:50;letter-spacing:.01em;
-    box-shadow:0 4px 12px rgba(0,0,0,.25);
+    box-shadow:0 4px 12px rgba(0,0,0,.5);
   }
   .chip-tooltip::after{
     content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
-    border:5px solid transparent;border-top-color:#1e1b4b;
+    border:5px solid transparent;border-top-color:#e0e7ff;
   }
   .chip:hover .chip-tooltip, .chip.force-tooltip .chip-tooltip {opacity:1;}
-  .chip-tooltip.loading{color:#a5b4fc;}
-  .chip-syn{background:#ede9fe;color:#7c3aed}
-  .chip-ant{background:#fee2e2;color:#dc2626}
-  .chip-rel{background:#d1fae5;color:#059669}
-  .chip-freq{background:#fef9c3;color:#b45309}
-  .chip-new{background:#e0f2fe;color:#0369a1}
-  /* skeleton */
+  .chip-tooltip.loading{color:#818cf8;}
+  
+  /* skeleton (Dark mode) */
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .skeleton{animation:pulse 1.5s infinite;background:#e5e7eb;border-radius:8px}
+  .skeleton{animation:pulse 1.5s infinite;background:#374151;border-radius:8px}
   .sim-bar{height:6px;border-radius:9999px;transition:width .5s ease}
-  /* fill blank */
-  .fill-blank{display:inline-block;min-width:80px;border-bottom:3px solid #6366f1;
-              color:#6366f1;font-weight:900;text-align:center;padding:0 6px;letter-spacing:.05em}
-  .fill-opt{transition:all .2s;border:2px solid #e5e7eb}
-  .fill-opt:hover:not(:disabled){border-color:#6366f1;background:#eef2ff}
-  .fill-opt.correct{background:#d1fae5!important;border-color:#10b981!important;color:#065f46!important}
-  .fill-opt.wrong{background:#fee2e2!important;border-color:#f43f5e!important;color:#9f1239!important}
+  
+  /* fill blank (Dark mode) */
+  .fill-blank{display:inline-block;min-width:80px;border-bottom:3px solid #818cf8;
+              color:#818cf8;font-weight:900;text-align:center;padding:0 6px;letter-spacing:.05em}
+  .fill-opt{transition:all .2s;}
+  .fill-opt.correct{background:#064e3b!important;border-color:#10b981!important;color:#a7f3d0!important}
+  .fill-opt.wrong{background:#7f1d1d!important;border-color:#f43f5e!important;color:#fecaca!important}
+
+  /* 텍스트 크기 자동 조절을 위한 기준점 설정 */
+  .origin-left { transform-origin: left center; }
 </style>
 </head>
-<body class="bg-gray-200 text-gray-800 font-sans h-screen w-screen flex items-center justify-center p-4 sm:p-8 overflow-hidden">
-<!-- 데스크탑 비율 중앙 배치 창 -->
-<div class="w-full max-w-5xl h-full max-h-[85vh] min-h-[600px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-gray-300 relative">
+<body class="bg-black text-gray-200 font-sans h-screen w-screen flex items-center justify-center p-2 sm:p-6 overflow-hidden">
+<!-- 화면을 넓게 쓰기 위해 max-w-7xl, max-h-[96vh] 로 확장 -->
+<div class="w-full max-w-7xl h-full max-h-[96vh] min-h-[700px] bg-gray-900 shadow-[0_0_40px_rgba(0,0,0,0.8)] rounded-3xl flex flex-col overflow-hidden border border-gray-800 relative">
 
-<!-- 헤더 (로그아웃 버튼 제거됨) -->
-<header class="bg-indigo-600 text-white px-5 py-4 flex justify-between items-center shadow-md z-10 flex-shrink-0 relative">
-  <button onclick="openInfoModal()" class="text-white/80 hover:text-white transition-colors flex-shrink-0" title="프로그램 설명서 보기">
+<!-- 헤더 -->
+<header class="bg-indigo-900 text-gray-100 px-5 py-4 flex justify-between items-center shadow-lg z-10 flex-shrink-0 relative border-b border-indigo-800/50">
+  <button onclick="openInfoModal()" class="text-indigo-300 hover:text-white transition-colors flex-shrink-0" title="프로그램 설명서 보기">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
   </button>
-  <h1 class="text-xl font-bold tracking-wide absolute left-1/2 -translate-x-1/2">나만의 영단어장 📚</h1>
+  <h1 class="text-xl font-black tracking-wide absolute left-1/2 -translate-x-1/2 text-indigo-100">나만의 영단어장 📚</h1>
   <div class="w-6"></div> <!-- 레이아웃 균형용 빈 공간 -->
 </header>
 
-<!-- 탭 -->
-<div class="flex border-b border-gray-200 bg-white z-10 flex-shrink-0" style="font-size:14px">
-  <button id="tab-manage"   class="flex-1 py-3 font-bold text-indigo-600 border-b-4 border-indigo-600 transition-colors hover:bg-indigo-50" onclick="switchTab('manage')">단어 📝</button>
-  <button id="tab-test"     class="flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600" onclick="switchTab('test')">학습 🎲</button>
-  <button id="tab-quiz"     class="flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600" onclick="switchTab('quiz')">사지선다 🎯</button>
-  <button id="tab-fill"     class="flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600" onclick="switchTab('fill')">빈칸 ✏️</button>
-  <button id="tab-analysis" class="flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600" onclick="switchTab('analysis')">분석 🔬</button>
+<!-- 탭 (Dark Mode) -->
+<div class="flex border-b border-gray-800 bg-gray-900 z-10 flex-shrink-0" style="font-size:14px">
+  <button id="tab-manage"   class="flex-1 py-3.5 font-bold text-indigo-400 border-b-4 border-indigo-500 bg-gray-800 transition-colors" onclick="switchTab('manage')">단어 📝</button>
+  <button id="tab-test"     class="flex-1 py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300" onclick="switchTab('test')">학습 🎲</button>
+  <button id="tab-quiz"     class="flex-1 py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300" onclick="switchTab('quiz')">사지선다 🎯</button>
+  <button id="tab-fill"     class="flex-1 py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300" onclick="switchTab('fill')">빈칸 ✏️</button>
+  <button id="tab-analysis" class="flex-1 py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300" onclick="switchTab('analysis')">분석 🔬</button>
 </div>
 
 <!-- ===== 1. 관리 ===== -->
-<div id="view-manage" class="flex-1 flex flex-col p-6 overflow-hidden fade-in bg-gray-50">
-  <div class="bg-white p-5 rounded-xl mb-4 flex-shrink-0 shadow-sm border border-gray-100">
+<div id="view-manage" class="flex-1 flex flex-col p-4 sm:p-6 overflow-hidden fade-in bg-black">
+  <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl mb-4 flex-shrink-0 shadow-sm border border-gray-700">
     <div class="flex flex-col sm:flex-row gap-4">
-      <input id="input-en" type="text" placeholder="영어 단어 (예: Apple)" class="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all">
-      <input id="input-ko" type="text" placeholder="한국어 뜻 (예: 사과)" class="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all" onkeypress="if(event.key==='Enter')addWord()">
-      <button onclick="addWord()" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 active:scale-95 transition-all shadow-md whitespace-nowrap">단어 추가하기 ➕</button>
+      <input id="input-en" type="text" placeholder="영어 단어 (예: Apple)" class="flex-1 border border-gray-600 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 focus:bg-black text-gray-100 placeholder-gray-500 transition-all font-bold">
+      <input id="input-ko" type="text" placeholder="한국어 뜻 (예: 사과)" class="flex-1 border border-gray-600 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 focus:bg-black text-gray-100 placeholder-gray-500 transition-all" onkeypress="if(event.key==='Enter')addWord()">
+      <button onclick="addWord()" class="bg-indigo-600 text-white font-bold py-3.5 px-8 rounded-xl hover:bg-indigo-500 active:scale-95 transition-all shadow-md whitespace-nowrap">단어 추가하기 ➕</button>
     </div>
   </div>
   
-  <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3 text-sm px-2 flex-shrink-0">
+  <div class="flex flex-col sm:flex-row justify-between items-center mb-5 gap-4 text-sm px-2 flex-shrink-0">
     <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-      <span class="font-semibold text-gray-600 text-base whitespace-nowrap">총 <span id="word-count" class="text-indigo-600 font-bold text-lg">0</span>단어</span>
+      <span class="font-semibold text-gray-400 text-base whitespace-nowrap">총 <span id="word-count" class="text-indigo-400 font-black text-lg">0</span>단어</span>
       
       <!-- ☁️ 클라우드 상태 표시기 -->
-      <div id="cloud-status" class="text-[11px] font-bold text-gray-500 bg-white border border-gray-200 shadow-sm px-2.5 py-1 rounded-full flex items-center gap-1.5 cursor-help transition-colors" title="클라우드 동기화 상태">
-        <span class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-colors duration-300" id="cloud-dot"></span>
-        <span id="cloud-status-text">로컬 저장소</span>
+      <div id="cloud-status" class="text-[11px] font-bold text-gray-400 bg-gray-900 border border-gray-700 shadow-sm px-3 py-1.5 rounded-full flex items-center gap-2 cursor-help transition-colors" title="클라우드 동기화 상태">
+        <span class="w-2 h-2 rounded-full bg-gray-600 transition-colors duration-300 shadow-[0_0_5px_currentColor]" id="cloud-dot"></span>
+        <span id="cloud-status-text">로컬 연결 중...</span>
       </div>
 
-      <select id="sort-select" onchange="currentPage=1;renderWords()" class="bg-white border border-gray-300 text-gray-600 py-1.5 px-3 rounded-md focus:outline-none font-medium cursor-pointer shadow-sm">
+      <select id="sort-select" onchange="currentPage=1;renderWords()" class="bg-gray-900 border border-gray-700 text-gray-300 py-1.5 px-3 rounded-lg focus:outline-none focus:border-indigo-500 font-medium cursor-pointer shadow-sm">
         <option value="newest">최신순</option>
         <option value="wrongCount">오답순</option>
       </select>
     </div>
-    <div class="relative w-full sm:max-w-xs flex-1">
-      <input id="search-manage" type="text" placeholder="입력한 단어 찾기..." oninput="currentPage=1;renderWords()" class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm transition-all text-sm">
-      <span class="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
+    <div class="relative w-full sm:max-w-sm flex-1">
+      <input id="search-manage" type="text" placeholder="입력한 단어 찾기..." oninput="currentPage=1;renderWords()" class="w-full border border-gray-700 rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 text-gray-200 placeholder-gray-500 shadow-sm transition-all text-sm">
+      <span class="absolute left-3.5 top-3 text-gray-500 text-base">🔍</span>
     </div>
     <div class="flex gap-2 w-full sm:w-auto justify-end">
-      <button onclick="exportData()" class="text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors whitespace-nowrap">내보내기 📤</button>
-      <button onclick="document.getElementById('file-upload').click()" class="text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors whitespace-nowrap">불러오기 📥</button>
+      <button onclick="exportData()" class="text-indigo-300 bg-indigo-900/40 border border-indigo-800/50 px-4 py-2 rounded-xl text-sm font-bold hover:bg-indigo-900/70 transition-colors whitespace-nowrap">내보내기 📤</button>
+      <button onclick="document.getElementById('file-upload').click()" class="text-emerald-300 bg-emerald-900/40 border border-emerald-800/50 px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-900/70 transition-colors whitespace-nowrap">불러오기 📥</button>
       <input type="file" id="file-upload" class="hidden" accept=".json" onchange="importData(event)">
-      <button onclick="confirmClearAll()" class="text-rose-600 bg-rose-50 px-3 py-2 rounded-lg text-sm font-bold hover:bg-rose-100 transition-colors whitespace-nowrap">전체 삭제 🗑️</button>
+      <button onclick="confirmClearAll()" class="text-rose-300 bg-rose-900/40 border border-rose-800/50 px-4 py-2 rounded-xl text-sm font-bold hover:bg-rose-900/70 transition-colors whitespace-nowrap">전체 삭제 🗑️</button>
     </div>
   </div>
   
   <ul id="word-list" class="flex-1 overflow-y-auto no-scrollbar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-2 content-start px-1"></ul>
   
-  <div id="pagination-controls" class="flex justify-between items-center pt-4 border-t border-gray-200 hidden flex-shrink-0 mt-2">
-    <button onclick="changePage(-1)" id="btn-prev" class="px-6 py-2.5 bg-white text-indigo-600 rounded-xl text-sm font-bold border-2 border-indigo-100 hover:bg-indigo-50 disabled:opacity-40 disabled:hover:bg-white transition-all" disabled>이전</button>
-    <span id="page-info" class="text-base text-gray-500 font-bold bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">1 / 1</span>
-    <button onclick="changePage(1)"  id="btn-next" class="px-6 py-2.5 bg-white text-indigo-600 rounded-xl text-sm font-bold border-2 border-indigo-100 hover:bg-indigo-50 disabled:opacity-40 disabled:hover:bg-white transition-all">다음</button>
+  <div id="pagination-controls" class="flex justify-between items-center pt-5 border-t border-gray-800 hidden flex-shrink-0 mt-2">
+    <button onclick="changePage(-1)" id="btn-prev" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all" disabled>이전</button>
+    <span id="page-info" class="text-base text-gray-400 font-bold bg-gray-900 px-5 py-2 rounded-full shadow-inner border border-gray-800">1 / 1</span>
+    <button onclick="changePage(1)"  id="btn-next" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all">다음</button>
   </div>
 </div>
 
 <!-- ===== 2. 학습 ===== -->
-<div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-gray-50 overflow-y-auto no-scrollbar">
+<div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div id="test-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
-    <div class="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 w-full max-w-2xl text-center">
+    <div class="bg-gray-800 p-10 rounded-[2.5rem] shadow-lg border border-gray-700 w-full max-w-2xl text-center">
       <div class="text-6xl mb-6">🧠</div>
-      <h2 class="text-3xl font-bold mb-3">랜덤 플래시카드</h2>
-      <p class="text-gray-500 mb-10 text-base">단어를 보고 뜻을 맞혀보세요.</p>
+      <h2 class="text-3xl font-bold mb-3 text-gray-100">랜덤 플래시카드</h2>
+      <p class="text-gray-400 mb-10 text-base">단어를 보고 뜻을 맞혀보세요.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <button onclick="startTest('all')"   class="flex-1 bg-indigo-600 text-white font-bold py-5 rounded-xl hover:bg-indigo-700 active:scale-95 shadow-md text-lg">전체 복습 🚀</button>
-        <button onclick="startTest('wrong')" class="flex-1 bg-rose-50 text-rose-600 font-bold py-5 rounded-xl hover:bg-rose-100 active:scale-95 border border-rose-200 text-lg">틀린 단어 복습 🎯</button>
+        <button onclick="startTest('all')"   class="flex-1 bg-indigo-600 text-white font-bold py-5 rounded-2xl hover:bg-indigo-500 active:scale-95 shadow-md text-lg transition-all">전체 복습 🚀</button>
+        <button onclick="startTest('wrong')" class="flex-1 bg-gray-700 text-rose-400 font-bold py-5 rounded-2xl hover:bg-gray-600 active:scale-95 border border-rose-900/50 text-lg transition-all">틀린 단어 복습 🎯</button>
       </div>
     </div>
   </div>
   
   <div id="test-active" class="flex-1 flex flex-col hidden fade-in max-w-4xl mx-auto w-full h-full">
     <div class="flex justify-between mb-6 flex-shrink-0">
-      <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 text-base font-bold text-gray-600">진행 <span id="test-progress" class="text-indigo-600">1/10</span></div>
-      <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 text-base font-bold text-gray-600">✅ <span id="test-score" class="text-emerald-600">0</span></div>
+      <div class="bg-gray-800 border border-gray-700 px-5 py-2.5 rounded-full shadow-sm text-base font-bold text-gray-400">진행 <span id="test-progress" class="text-indigo-400">1/10</span></div>
+      <div class="bg-gray-800 border border-gray-700 px-5 py-2.5 rounded-full shadow-sm text-base font-bold text-gray-400">✅ <span id="test-score" class="text-emerald-400">0</span></div>
     </div>
     
-    <div class="flex-1 bg-white rounded-[2rem] shadow-xl border-4 border-indigo-50 flex flex-col items-center justify-center p-10 mb-6 text-center relative min-h-[300px]">
-      <h2 id="test-word-en" class="text-5xl sm:text-7xl font-black text-gray-800 mb-10 break-all px-4">Apple</h2>
+    <div class="flex-1 bg-gray-900 rounded-[2.5rem] shadow-2xl border-4 border-gray-800 flex flex-col items-center justify-center p-10 mb-6 text-center relative min-h-[300px]">
+      <h2 id="test-word-en" class="text-5xl sm:text-7xl font-black text-gray-100 mb-10 break-all px-4 tracking-tight">Apple</h2>
       <div class="h-28 flex items-center justify-center w-full">
-        <button id="btn-reveal" onclick="revealAnswer()" class="bg-gray-100 text-gray-600 font-bold text-lg px-12 py-4 rounded-full hover:bg-gray-200 transition-colors shadow-sm">정답 확인 👀</button>
-        <p id="test-word-ko" class="text-4xl sm:text-5xl font-bold text-indigo-600 hidden fade-in break-words px-4">사과</p>
+        <button id="btn-reveal" onclick="revealAnswer()" class="bg-gray-800 text-gray-300 font-bold text-lg px-12 py-4 rounded-full hover:bg-gray-700 border border-gray-700 transition-colors shadow-lg">정답 확인 👀</button>
+        <p id="test-word-ko" class="text-4xl sm:text-5xl font-bold text-indigo-400 hidden fade-in break-words px-4">사과</p>
       </div>
     </div>
     
     <div id="test-actions" class="flex gap-6 hidden pb-4 flex-shrink-0 h-28">
-      <button onclick="markAnswer(false)" class="flex-1 bg-rose-100 text-rose-600 rounded-3xl font-bold text-xl hover:bg-rose-200 active:scale-95 flex items-center justify-center gap-3 shadow-sm transition-all"><span class="text-3xl">❌</span>몰랐어요</button>
-      <button onclick="markAnswer(true)"  class="flex-1 bg-emerald-100 text-emerald-600 rounded-3xl font-bold text-xl hover:bg-emerald-200 active:scale-95 flex items-center justify-center gap-3 shadow-sm transition-all"><span class="text-3xl">⭕</span>알았어요</button>
+      <button onclick="markAnswer(false)" class="flex-1 bg-rose-900/40 text-rose-400 rounded-[2rem] border border-rose-800/50 font-bold text-xl hover:bg-rose-900/60 active:scale-95 flex items-center justify-center gap-3 shadow-md transition-all"><span class="text-3xl">❌</span>몰랐어요</button>
+      <button onclick="markAnswer(true)"  class="flex-1 bg-emerald-900/40 text-emerald-400 rounded-[2rem] border border-emerald-800/50 font-bold text-xl hover:bg-emerald-900/60 active:scale-95 flex items-center justify-center gap-3 shadow-md transition-all"><span class="text-3xl">⭕</span>알았어요</button>
     </div>
   </div>
   
   <div id="test-result" class="flex-1 flex flex-col items-center justify-center hidden fade-in">
-    <div class="bg-white p-10 rounded-3xl shadow-lg text-center border border-gray-100 w-full max-w-xl">
+    <div class="bg-gray-800 p-10 rounded-[2.5rem] shadow-2xl text-center border border-gray-700 w-full max-w-xl">
       <div class="text-7xl mb-6">🎉</div>
-      <h2 class="text-4xl font-black mb-8">학습 완료!</h2>
-      <button onclick="resetTestView()" class="w-full bg-gray-800 text-white font-bold py-5 text-lg rounded-xl hover:bg-gray-900 active:scale-95 shadow-md">돌아가기</button>
+      <h2 class="text-4xl font-black mb-8 text-gray-100">학습 완료!</h2>
+      <button onclick="resetTestView()" class="w-full bg-indigo-600 text-white font-bold py-5 text-lg rounded-2xl hover:bg-indigo-500 active:scale-95 shadow-md transition-all">돌아가기</button>
     </div>
   </div>
 </div>
 
 <!-- ===== 3. 사지선다 ===== -->
-<div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-gray-50 overflow-y-auto no-scrollbar">
+<div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
-    <div class="bg-white p-10 rounded-3xl shadow-sm text-center border border-gray-100 w-full max-w-2xl">
+    <div class="bg-gray-800 p-10 rounded-[2.5rem] shadow-lg text-center border border-gray-700 w-full max-w-2xl">
       <div class="text-6xl mb-6">🎯</div>
-      <h2 class="text-3xl font-bold mb-3">무한 사지선다</h2>
-      <p class="text-gray-500 mb-10 text-base">의미 유사도 기반으로 헷갈리는 선지가 구성돼요!</p>
-      <button onclick="startQuiz()" class="w-full bg-indigo-600 text-white font-bold py-5 text-lg rounded-xl hover:bg-indigo-700 active:scale-95 shadow-md">시작 🚀</button>
+      <h2 class="text-3xl font-bold mb-3 text-gray-100">무한 사지선다</h2>
+      <p class="text-gray-400 mb-10 text-base">의미 유사도 기반으로 헷갈리는 선지가 구성돼요!</p>
+      <button onclick="startQuiz()" class="w-full bg-indigo-600 text-white font-bold py-5 text-lg rounded-2xl hover:bg-indigo-500 active:scale-95 shadow-md transition-all">시작 🚀</button>
     </div>
   </div>
   
   <div id="quiz-active" class="flex-1 flex flex-col hidden fade-in max-w-4xl mx-auto w-full h-full">
     <div class="flex justify-between items-center mb-6 flex-shrink-0">
-      <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 text-base font-bold text-gray-600"><span id="quiz-progress" class="text-indigo-600">1번째</span></div>
+      <div class="bg-gray-800 border border-gray-700 px-5 py-2.5 rounded-full shadow-sm text-base font-bold text-gray-400"><span id="quiz-progress" class="text-indigo-400">1번째</span></div>
       <div class="flex gap-3">
-        <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 text-base font-bold text-gray-600">✅ <span id="quiz-score" class="text-emerald-600">0</span></div>
-        <button onclick="showQuizResult()" class="bg-rose-50 text-rose-600 px-4 py-2.5 rounded-full border border-rose-100 text-sm font-bold hover:bg-rose-100 transition-colors">종료</button>
+        <div class="bg-gray-800 border border-gray-700 px-5 py-2.5 rounded-full shadow-sm text-base font-bold text-gray-400">✅ <span id="quiz-score" class="text-emerald-400">0</span></div>
+        <button onclick="showQuizResult()" class="bg-rose-900/30 text-rose-400 px-5 py-2.5 rounded-full border border-rose-800/50 text-sm font-bold hover:bg-rose-900/50 transition-colors">종료</button>
       </div>
     </div>
     
-    <div class="bg-white rounded-[2rem] shadow-md border-4 border-indigo-50 flex flex-col items-center justify-center py-16 px-6 mb-8">
-      <span class="text-base font-bold text-indigo-400 mb-4 tracking-wider">어떤 뜻일까요?</span>
-      <h2 id="quiz-word-en" class="text-5xl sm:text-6xl font-black text-gray-800 text-center break-all">Word</h2>
+    <div class="bg-gray-900 rounded-[2.5rem] shadow-lg border-4 border-gray-800 flex flex-col items-center justify-center py-16 px-6 mb-8 flex-1 max-h-[40vh]">
+      <span class="text-sm font-bold text-indigo-500 mb-4 tracking-widest uppercase">어떤 뜻일까요?</span>
+      <h2 id="quiz-word-en" class="text-5xl sm:text-6xl font-black text-gray-100 text-center break-all tracking-tight">Word</h2>
     </div>
     
-    <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 content-end pb-4"></div>
+    <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-shrink-0 pb-4"></div>
   </div>
   
   <div id="quiz-result" class="flex-1 flex flex-col items-center justify-center hidden fade-in">
-    <div class="bg-white p-10 rounded-3xl shadow-lg text-center border border-gray-100 w-full max-w-xl">
+    <div class="bg-gray-800 p-10 rounded-[2.5rem] shadow-2xl text-center border border-gray-700 w-full max-w-xl">
       <div class="text-7xl mb-6" id="quiz-result-emoji">🏅</div>
-      <h2 class="text-4xl font-black mb-4">퀴즈 종료!</h2>
-      <div class="bg-gray-50 rounded-2xl p-8 my-8 border border-gray-100">
-        <div class="text-6xl font-black text-indigo-600"><span id="quiz-final-score">0</span><span class="text-3xl text-gray-400"> / <span id="quiz-total-score">0</span></span></div>
-        <p class="font-bold text-gray-500 mt-4 text-lg" id="quiz-feedback"></p>
+      <h2 class="text-4xl font-black mb-4 text-gray-100">퀴즈 종료!</h2>
+      <div class="bg-gray-900 rounded-3xl p-8 my-8 border border-gray-700 shadow-inner">
+        <div class="text-6xl font-black text-indigo-400"><span id="quiz-final-score">0</span><span class="text-3xl text-gray-600"> / <span id="quiz-total-score">0</span></span></div>
+        <p class="font-bold text-gray-400 mt-4 text-lg" id="quiz-feedback"></p>
       </div>
-      <button onclick="resetQuizView()" class="w-full bg-gray-800 text-white font-bold py-5 text-lg rounded-xl hover:bg-gray-900 active:scale-95 shadow-md transition-all">다시 하기 🔄</button>
+      <button onclick="resetQuizView()" class="w-full bg-indigo-600 text-white font-bold py-5 text-lg rounded-2xl hover:bg-indigo-500 active:scale-95 shadow-md transition-all">다시 하기 🔄</button>
     </div>
   </div>
 </div>
 
 <!-- ===== 4. 빈칸 넣기 ===== -->
-<div id="view-fill" class="flex-1 flex flex-col hidden bg-gray-50 overflow-y-auto no-scrollbar">
+<div id="view-fill" class="flex-1 flex flex-col hidden bg-black overflow-y-auto no-scrollbar">
   <div id="fill-intro" class="flex-1 flex flex-col items-center justify-center p-6 fade-in">
-    <div class="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 w-full max-w-2xl text-center">
+    <div class="bg-gray-800 p-10 rounded-[2.5rem] shadow-lg border border-gray-700 w-full max-w-2xl text-center">
       <div class="text-6xl mb-6">✏️</div>
-      <h2 class="text-3xl font-bold mb-4">빈칸 넣기</h2>
-      <p class="text-gray-500 text-base leading-relaxed mb-4">실제 영어 예문 속 <span class="fill-blank px-2">빈칸</span>에<br>올바른 단어를 골라보세요!</p>
-      <p class="text-sm text-indigo-400 font-bold mb-10">📡 Dictionary API 실제 예문 사용</p>
+      <h2 class="text-3xl font-bold mb-4 text-gray-100">빈칸 넣기</h2>
+      <p class="text-gray-400 text-base leading-relaxed mb-4">실제 영어 예문 속 <span class="fill-blank px-2">빈칸</span>에<br>올바른 단어를 골라보세요!</p>
+      <p class="text-sm text-indigo-500 font-bold mb-10 tracking-wide">📡 Dictionary API 원어민 예문</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <button onclick="startFill(10)" class="flex-1 bg-indigo-600 text-white font-bold py-5 text-lg rounded-xl hover:bg-indigo-700 active:scale-95 shadow-md">10문제 풀기</button>
-        <button onclick="startFill(20)" class="flex-1 bg-indigo-100 text-indigo-700 font-bold py-5 text-lg rounded-xl hover:bg-indigo-200 active:scale-95">20문제 풀기</button>
+        <button onclick="startFill(10)" class="flex-1 bg-indigo-600 text-white font-bold py-5 text-lg rounded-2xl hover:bg-indigo-500 active:scale-95 shadow-md transition-all">10문제 풀기</button>
+        <button onclick="startFill(20)" class="flex-1 bg-gray-700 text-indigo-300 font-bold py-5 text-lg rounded-2xl hover:bg-gray-600 active:scale-95 transition-all border border-gray-600">20문제 풀기</button>
       </div>
     </div>
   </div>
 
   <div id="fill-loading" class="flex-1 flex-col items-center justify-center hidden">
     <div class="relative w-20 h-20 mx-auto mb-6">
-      <div class="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+      <div class="absolute inset-0 border-4 border-gray-700 rounded-full"></div>
       <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
     </div>
-    <p class="text-base font-bold text-gray-500 text-center">예문 불러오는 중...</p>
-    <p id="fill-loading-word" class="text-sm text-gray-400 mt-2 text-center"></p>
+    <p class="text-base font-bold text-gray-400 text-center">예문을 불러오는 중...</p>
+    <p id="fill-loading-word" class="text-sm text-gray-600 mt-2 text-center"></p>
   </div>
 
   <div id="fill-active" class="flex-1 flex flex-col hidden fade-in max-w-4xl mx-auto w-full h-full">
     <div class="flex items-center gap-4 px-6 pt-6 pb-4 bg-transparent flex-shrink-0">
-      <div class="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
-        <div id="fill-progress-bar" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width:0%"></div>
+      <div class="flex-1 bg-gray-800 rounded-full h-3 overflow-hidden shadow-inner border border-gray-700">
+        <div id="fill-progress-bar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width:0%"></div>
       </div>
-      <span id="fill-progress-text" class="text-sm font-bold text-gray-500 whitespace-nowrap">1 / 10</span>
-      <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full text-sm font-bold text-emerald-600 shadow-sm">✅ <span id="fill-score">0</span></div>
+      <span id="fill-progress-text" class="text-sm font-bold text-gray-400 whitespace-nowrap">1 / 10</span>
+      <div class="bg-emerald-900/30 border border-emerald-800/50 px-4 py-1.5 rounded-full text-sm font-bold text-emerald-400 shadow-sm">✅ <span id="fill-score">0</span></div>
     </div>
 
     <div class="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 flex flex-col justify-center">
-      <div class="bg-white rounded-[2rem] shadow-md border-4 border-gray-50 p-10 text-center">
-        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">예문</p>
-        <p id="fill-sentence" class="text-2xl text-gray-800 leading-relaxed font-semibold break-words"></p>
+      <div class="bg-gray-900 rounded-[2.5rem] shadow-lg border-4 border-gray-800 p-10 text-center">
+        <p class="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-6">문맥 추론</p>
+        <p id="fill-sentence" class="text-2xl text-gray-100 leading-relaxed font-semibold break-words"></p>
       </div>
-      <div id="fill-feedback" class="hidden rounded-2xl p-6 border-2">
-        <p id="fill-feedback-text" class="font-bold text-lg mb-2"></p>
-        <p class="text-sm text-gray-600 mt-2">전체 예문: <span id="fill-full-sentence" class="italic text-gray-800 font-medium"></span></p>
+      <div id="fill-feedback" class="hidden rounded-3xl p-6 border-2 shadow-lg">
+        <p id="fill-feedback-text" class="font-bold text-xl mb-2"></p>
+        <p class="text-sm text-gray-400 mt-2 leading-relaxed">전체 문장: <span id="fill-full-sentence" class="italic text-gray-200 font-medium"></span></p>
       </div>
       <div id="fill-options" class="grid grid-cols-2 gap-4 mt-auto"></div>
     </div>
 
     <div class="px-6 pb-6 flex-shrink-0">
-      <button id="fill-next-btn" onclick="nextFillQuestion()" class="hidden w-full bg-gray-800 text-white font-bold py-5 text-lg rounded-xl hover:bg-gray-900 active:scale-95 transition-all shadow-md">다음 문제 →</button>
+      <button id="fill-next-btn" onclick="nextFillQuestion()" class="hidden w-full bg-indigo-600 text-white font-bold py-5 text-lg rounded-2xl hover:bg-indigo-500 active:scale-95 transition-all shadow-md">다음 문제 →</button>
     </div>
   </div>
 
   <div id="fill-result" class="flex-1 flex flex-col items-center justify-center hidden fade-in p-6">
-    <div class="bg-white p-10 rounded-3xl shadow-lg text-center border border-gray-100 w-full max-w-xl">
+    <div class="bg-gray-800 p-10 rounded-[2.5rem] shadow-2xl text-center border border-gray-700 w-full max-w-xl">
       <div class="text-7xl mb-6" id="fill-result-emoji">🎉</div>
-      <h2 class="text-4xl font-black mb-3">완료!</h2>
-      <div class="bg-gray-50 rounded-2xl p-8 my-8 border border-gray-100">
-        <p class="text-gray-500 font-bold mb-2">최종 점수</p>
-        <p class="text-6xl font-black text-indigo-600"><span id="fill-final-score">0</span><span class="text-3xl text-gray-300"> / <span id="fill-final-total">10</span></span></p>
-        <p class="text-base font-bold text-gray-600 mt-5" id="fill-result-msg"></p>
+      <h2 class="text-4xl font-black mb-3 text-gray-100">완료!</h2>
+      <div class="bg-gray-900 rounded-3xl p-8 my-8 border border-gray-700 shadow-inner">
+        <p class="text-gray-500 font-bold mb-2 uppercase tracking-widest text-sm">최종 점수</p>
+        <p class="text-6xl font-black text-indigo-400"><span id="fill-final-score">0</span><span class="text-3xl text-gray-600"> / <span id="fill-final-total">10</span></span></p>
+        <p class="text-base font-bold text-gray-400 mt-5" id="fill-result-msg"></p>
       </div>
-      <button onclick="resetFillView()" class="w-full bg-gray-800 text-white font-bold py-5 text-lg rounded-xl hover:bg-gray-900 active:scale-95 shadow-md">다시 하기 🔄</button>
+      <button onclick="resetFillView()" class="w-full bg-indigo-600 text-white font-bold py-5 text-lg rounded-2xl hover:bg-indigo-500 active:scale-95 shadow-md transition-all">다시 하기 🔄</button>
     </div>
   </div>
 </div>
 
 <!-- ===== 5. 분석 ===== -->
-<div id="view-analysis" class="flex-1 flex flex-col hidden bg-gray-50 overflow-hidden">
-  <div class="p-4 sm:p-5 bg-white border-b border-gray-200 flex-shrink-0 shadow-sm z-20">
+<div id="view-analysis" class="flex-1 flex flex-col hidden bg-black overflow-hidden">
+  <div class="p-4 sm:p-6 bg-gray-900 border-b border-gray-800 flex-shrink-0 shadow-lg z-20">
     <div class="max-w-4xl mx-auto w-full">
-      <p class="text-xs sm:text-sm font-bold text-gray-400 mb-2 uppercase tracking-widest">분석할 단어</p>
+      <p class="text-xs sm:text-sm font-bold text-gray-500 mb-3 uppercase tracking-widest">단어 심층 분석</p>
       <div class="relative">
-        <input id="analysis-search" type="text" placeholder="단어를 검색해보세요..." class="w-full border-2 border-gray-200 rounded-xl p-3 pr-10 text-sm sm:text-base focus:outline-none focus:border-indigo-400 bg-gray-50 focus:bg-white transition-all shadow-inner" oninput="filterAnalysisWords()" onclick="showAnalysisDropdown()">
-        <span class="absolute right-4 top-3.5 text-lg text-gray-400">🔍</span>
+        <input id="analysis-search" type="text" placeholder="단어를 검색해보세요..." class="w-full border-2 border-gray-700 rounded-2xl p-4 pr-12 text-base focus:outline-none focus:border-indigo-500 bg-gray-800 text-white transition-all shadow-inner placeholder-gray-500 font-medium" oninput="filterAnalysisWords()" onclick="showAnalysisDropdown()">
+        <span class="absolute right-5 top-4 text-xl text-gray-500">🔍</span>
       </div>
-      <div id="analysis-dropdown" class="hidden mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar absolute w-[calc(100%-2rem)] sm:w-[calc(100%-2.5rem)] max-w-4xl left-1/2 -translate-x-1/2 z-50"></div>
+      <div id="analysis-dropdown" class="hidden mt-2 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl max-h-60 overflow-y-auto no-scrollbar absolute w-[calc(100%-2rem)] sm:w-[calc(100%-3rem)] max-w-4xl left-1/2 -translate-x-1/2 z-50"></div>
       
-      <div id="analysis-selected-word" class="hidden mt-3 flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
-        <div class="flex-1 flex items-baseline gap-2 sm:gap-3 min-w-0">
-          <span id="analysis-word-en-display" class="text-xl sm:text-2xl font-black text-indigo-700 break-all"></span>
-          <span id="analysis-word-ko-display" class="text-sm sm:text-base font-medium text-indigo-500 truncate"></span>
+      <div id="analysis-selected-word" class="hidden mt-4 flex items-center gap-4 bg-indigo-900/30 border border-indigo-500/50 rounded-2xl px-5 py-4 shadow-sm">
+        <div class="flex-1 flex items-baseline gap-3 min-w-0">
+          <span id="analysis-word-en-display" class="text-2xl sm:text-3xl font-black text-indigo-300 break-all tracking-tight"></span>
+          <span id="analysis-word-ko-display" class="text-base sm:text-lg font-bold text-indigo-400 truncate"></span>
         </div>
-        <button onclick="clearAnalysisWord()" class="text-gray-400 hover:text-rose-500 text-xl px-2 flex-shrink-0">✕</button>
+        <button onclick="clearAnalysisWord()" class="text-gray-500 hover:text-rose-400 text-2xl px-2 flex-shrink-0 transition-colors">✕</button>
       </div>
     </div>
   </div>
 
   <div id="analysis-placeholder" class="flex-1 flex flex-col p-6 sm:p-8 overflow-y-auto no-scrollbar">
     <div class="max-w-xl mx-auto my-auto w-full text-center py-4">
-      <div class="text-6xl sm:text-7xl mb-4 sm:mb-6">🔬</div>
-      <p class="font-bold text-gray-700 text-xl sm:text-2xl mb-3 sm:mb-4 break-keep">단어를 선택하면 상세하게 분석해드려요!</p>
-      <p class="text-sm sm:text-base text-gray-500 leading-relaxed break-keep">유의어 · 반의어 · 연관어 · 발음기호 · 영영정의<br class="hidden sm:block">원어민 예문 3개 · 내 단어장 내 유사도까지 한눈에 파악하세요.</p>
+      <div class="text-6xl sm:text-8xl mb-6 opacity-80">🔬</div>
+      <p class="font-black text-gray-300 text-2xl sm:text-3xl mb-4 break-keep tracking-tight">단어를 선택하면 상세하게 분석해드려요!</p>
+      <p class="text-base text-gray-500 leading-relaxed break-keep">유의어 · 반의어 · 연관어 · 발음기호 · 영영정의<br class="hidden sm:block">원어민 예문 3개 · 내 단어장 내 유사도 매칭까지 한눈에 파악하세요.</p>
     </div>
   </div>
 
@@ -300,55 +308,57 @@
     <div class="max-w-4xl mx-auto w-full">
       <!-- 로딩 -->
       <div id="analysis-loading" class="space-y-6 hidden">
-        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 space-y-4">
-          <div class="skeleton h-10 w-48 mb-6"></div>
-          <div class="skeleton h-5 w-32"></div><div class="skeleton h-5 w-full"></div>
+        <div class="bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-700 space-y-5">
+          <div class="skeleton h-12 w-64 mb-8"></div>
+          <div class="skeleton h-6 w-48"></div><div class="skeleton h-6 w-full"></div>
         </div>
       </div>
       <!-- 결과 -->
       <div id="analysis-result" class="space-y-6 hidden pb-8 fade-in">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 sm:p-8">
-            <div class="flex items-start justify-between mb-4">
+          <div class="lg:col-span-2 bg-gray-800 rounded-[2.5rem] shadow-lg border border-gray-700 p-8">
+            <div class="flex items-start justify-between mb-5">
               <div class="min-w-0 pr-4">
-                <h3 id="ar-word" class="text-3xl sm:text-4xl font-black text-gray-800 tracking-tight break-all"></h3>
-                <p id="ar-phonetic" class="text-base sm:text-lg text-indigo-400 font-mono mt-1 font-medium"></p>
+                <h3 id="ar-word" class="text-4xl sm:text-5xl font-black text-gray-100 tracking-tight break-all"></h3>
+                <p id="ar-phonetic" class="text-lg text-indigo-400 font-mono mt-2 font-medium"></p>
               </div>
-              <button id="ar-audio-btn" class="hidden bg-indigo-50 text-indigo-600 border border-indigo-100 px-4 py-2 rounded-full text-sm font-bold hover:bg-indigo-100 transition-colors flex-shrink-0 flex items-center gap-2">🔊 <span class="hidden sm:inline">원어민 발음</span></button>
+              <button id="ar-audio-btn" class="hidden bg-indigo-900/50 text-indigo-300 border border-indigo-700 px-5 py-2.5 rounded-full text-sm font-bold hover:bg-indigo-800 transition-colors flex-shrink-0 flex items-center gap-2 shadow-sm">🔊 <span class="hidden sm:inline">발음 듣기</span></button>
             </div>
-            <span id="ar-partOfSpeech" class="inline-block text-xs sm:text-sm font-bold text-white bg-indigo-500 px-3 py-1.5 rounded-full mb-4 shadow-sm"></span>
-            <p id="ar-definition" class="text-sm sm:text-base text-gray-700 leading-relaxed mb-6 font-medium break-words"></p>
-            <div class="border-t border-gray-100 pt-6">
-              <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">📝 실생활 예문</p>
+            <span id="ar-partOfSpeech" class="inline-block text-xs sm:text-sm font-bold text-white bg-indigo-600 px-4 py-1.5 rounded-full mb-5 shadow-md tracking-wider"></span>
+            <p id="ar-definition" class="text-base text-gray-300 leading-relaxed mb-8 font-medium break-words"></p>
+            <div class="border-t border-gray-700 pt-8">
+              <p class="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-5">📝 실생활 예문</p>
               <div id="ar-examples" class="space-y-4"></div>
             </div>
           </div>
-          <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 flex flex-col">
-            <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-5">📚 내 단어장 유사도</p>
+          <div class="bg-gray-800 rounded-[2.5rem] shadow-lg border border-gray-700 p-8 flex flex-col">
+            <p class="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-6">📚 내 단어장 유사도 매칭</p>
             <div id="ar-internal-list" class="space-y-4 flex-1 overflow-y-auto no-scrollbar pr-1"></div>
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center gap-2 mb-4"><span>🔵</span><p class="text-sm font-bold text-violet-600 uppercase tracking-widest">유의어</p></div>
-            <div id="ar-synonyms" class="flex flex-wrap gap-2"></div>
+          <div class="bg-gray-800 rounded-[2rem] shadow-lg border border-gray-700 p-8">
+            <div class="flex items-center gap-3 mb-5"><span>🔵</span><p class="text-xs font-bold text-purple-400 uppercase tracking-widest">유의어 (Synonyms)</p></div>
+            <div id="ar-synonyms" class="flex flex-wrap gap-2.5"></div>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center gap-2 mb-4"><span>🔴</span><p class="text-sm font-bold text-rose-600 uppercase tracking-widest">반의어</p></div>
-            <div id="ar-antonyms" class="flex flex-wrap gap-2"></div>
+          <div class="bg-gray-800 rounded-[2rem] shadow-lg border border-gray-700 p-8">
+            <div class="flex items-center gap-3 mb-5"><span>🔴</span><p class="text-xs font-bold text-rose-400 uppercase tracking-widest">반의어 (Antonyms)</p></div>
+            <div id="ar-antonyms" class="flex flex-wrap gap-2.5"></div>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center gap-2 mb-4"><span>🟢</span><p class="text-sm font-bold text-emerald-600 uppercase tracking-widest">연관어</p></div>
-            <div id="ar-related" class="flex flex-wrap gap-2"></div>
+          <div class="bg-gray-800 rounded-[2rem] shadow-lg border border-gray-700 p-8">
+            <div class="flex items-center gap-3 mb-5"><span>🟢</span><p class="text-xs font-bold text-emerald-400 uppercase tracking-widest">연관어 (Related)</p></div>
+            <div id="ar-related" class="flex flex-wrap gap-2.5"></div>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center gap-2 mb-4"><span>🟡</span><p class="text-sm font-bold text-amber-600 uppercase tracking-widest">빈출 동반어</p></div>
-            <div id="ar-collocations" class="flex flex-wrap gap-2"></div>
+          <div class="bg-gray-800 rounded-[2rem] shadow-lg border border-gray-700 p-8">
+            <div class="flex items-center gap-3 mb-5"><span>🟡</span><p class="text-xs font-bold text-amber-400 uppercase tracking-widest">빈출 동반어 (Collocations)</p></div>
+            <div id="ar-collocations" class="flex flex-wrap gap-2.5"></div>
           </div>
         </div>
-        <div class="bg-gradient-to-r from-indigo-50 via-white to-violet-50 rounded-2xl border border-indigo-100 p-6 sm:p-8 shadow-sm">
-          <p class="text-sm font-bold text-indigo-600 uppercase tracking-widest mb-1">✨ 단어장 추가 추천 (터치하여 추가)</p>
-          <div id="ar-recommendations" class="flex flex-wrap gap-3 mt-4"></div>
+        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-[2.5rem] border border-indigo-900 p-8 shadow-xl relative overflow-hidden">
+          <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-600/20 blur-3xl rounded-full pointer-events-none"></div>
+          <p class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2 relative z-10">✨ 단어장 추가 추천</p>
+          <p class="text-sm text-gray-500 mb-6 relative z-10">터치 시 단어장 추가 탭으로 바로 이동합니다.</p>
+          <div id="ar-recommendations" class="flex flex-wrap gap-3 relative z-10"></div>
         </div>
       </div>
     </div>
@@ -356,51 +366,53 @@
 </div>
 </div><!-- /wrapper -->
 
-<!-- 개별 삭제 확인 모달 -->
-<div id="delete-modal" class="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
-  <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200" id="delete-modal-content">
-    <div class="text-center mb-6"><div class="text-5xl mb-4">🗑️</div><h3 class="text-xl font-bold text-gray-800 mb-2">정말 삭제하시겠습니까?</h3></div>
-    <div class="flex gap-3">
-      <button onclick="closeDeleteModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 active:scale-95 transition-all">취소</button>
-      <button onclick="executeDelete()" class="flex-1 bg-rose-500 text-white font-bold py-3.5 rounded-xl hover:bg-rose-600 active:scale-95 transition-all shadow-md">삭제</button>
+<!-- 개별 삭제 확인 모달 (Dark Mode) -->
+<div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+  <div class="bg-gray-800 rounded-[2rem] p-8 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200 border border-gray-700" id="delete-modal-content">
+    <div class="text-center mb-8"><div class="text-6xl mb-5">🗑️</div><h3 class="text-2xl font-black text-gray-100 mb-2 tracking-tight">정말 삭제할까요?</h3></div>
+    <div class="flex gap-4">
+      <button onclick="closeDeleteModal()" class="flex-1 bg-gray-700 text-gray-300 font-bold py-4 rounded-xl hover:bg-gray-600 active:scale-95 transition-all">취소</button>
+      <button onclick="executeDelete()" class="flex-1 bg-rose-600 text-white font-bold py-4 rounded-xl hover:bg-rose-500 active:scale-95 transition-all shadow-md">삭제</button>
     </div>
   </div>
 </div>
 
 <!-- 전체 삭제 확인 모달 -->
-<div id="clear-all-modal" class="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
-  <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200" id="clear-all-modal-content">
-    <div class="text-center mb-6"><div class="text-5xl mb-4">⚠️</div><h3 class="text-xl font-bold text-gray-800 mb-2">정말 모든 단어를 지울까요?</h3></div>
-    <div class="flex gap-3">
-      <button onclick="closeClearAllModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 active:scale-95 transition-all">No (취소)</button>
-      <button onclick="executeClearAll()" class="flex-1 bg-rose-600 text-white font-bold py-3.5 rounded-xl hover:bg-rose-700 active:scale-95 transition-all shadow-md">Yes (삭제)</button>
+<div id="clear-all-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+  <div class="bg-gray-800 rounded-[2rem] p-8 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200 border border-gray-700" id="clear-all-modal-content">
+    <div class="text-center mb-8"><div class="text-6xl mb-5">⚠️</div><h3 class="text-2xl font-black text-gray-100 mb-2 tracking-tight">모든 단어 영구 삭제</h3><p class="text-gray-400 text-sm">이 작업은 되돌릴 수 없습니다.</p></div>
+    <div class="flex gap-4">
+      <button onclick="closeClearAllModal()" class="flex-1 bg-gray-700 text-gray-300 font-bold py-4 rounded-xl hover:bg-gray-600 active:scale-95 transition-all">No (취소)</button>
+      <button onclick="executeClearAll()" class="flex-1 bg-rose-600 text-white font-bold py-4 rounded-xl hover:bg-rose-500 active:scale-95 transition-all shadow-md">Yes (삭제)</button>
     </div>
   </div>
 </div>
 
 <!-- 수정 모달 -->
-<div id="edit-modal" class="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
-  <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200" id="edit-modal-content">
-    <div class="text-center mb-5"><div class="text-5xl mb-3">✏️</div><h3 class="text-xl font-bold text-gray-800">단어 수정</h3></div>
-    <div class="flex flex-col gap-3 mb-6">
-      <input id="edit-en" type="text" placeholder="영어 단어" class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all font-bold">
-      <input id="edit-ko" type="text" placeholder="한국어 뜻" class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all" onkeypress="if(event.key==='Enter')saveEditWord()">
+<div id="edit-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+  <div class="bg-gray-800 rounded-[2rem] p-8 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200 border border-gray-700" id="edit-modal-content">
+    <div class="text-center mb-6"><div class="text-6xl mb-4">✏️</div><h3 class="text-2xl font-black text-gray-100 tracking-tight">단어 수정</h3></div>
+    <div class="flex flex-col gap-4 mb-8">
+      <input id="edit-en" type="text" placeholder="영어 단어" class="w-full border border-gray-600 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 focus:bg-black text-gray-100 transition-all font-bold text-lg">
+      <input id="edit-ko" type="text" placeholder="한국어 뜻" class="w-full border border-gray-600 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-900 focus:bg-black text-gray-100 transition-all text-lg" onkeypress="if(event.key==='Enter')saveEditWord()">
     </div>
-    <div class="flex gap-3">
-      <button onclick="closeEditModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 active:scale-95 transition-all">취소</button>
-      <button onclick="saveEditWord()" class="flex-1 bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 active:scale-95 transition-all shadow-md">저장</button>
+    <div class="flex gap-4">
+      <button onclick="closeEditModal()" class="flex-1 bg-gray-700 text-gray-300 font-bold py-4 rounded-xl hover:bg-gray-600 active:scale-95 transition-all">취소</button>
+      <button onclick="saveEditWord()" class="flex-1 bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-500 active:scale-95 transition-all shadow-md">저장</button>
     </div>
   </div>
 </div>
 
-<div id="info-modal" class="fixed inset-0 bg-black/40 z-[250] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
-  <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] mx-4 shadow-2xl transform scale-95 transition-transform duration-200 flex flex-col overflow-hidden" id="info-modal-content">
-    <div class="flex justify-between items-center p-5 border-b border-gray-100 bg-indigo-50">
-      <h2 class="text-lg font-bold text-indigo-800">나만의 영단어장 설명서</h2>
-      <button onclick="closeInfoModal()" class="text-gray-400 hover:text-rose-500 transition-colors p-1" title="닫기">✕</button>
+<div id="info-modal" class="fixed inset-0 bg-black/80 z-[250] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+  <div class="bg-gray-800 rounded-[2rem] w-full max-w-2xl max-h-[85vh] mx-4 shadow-2xl transform scale-95 transition-transform duration-200 flex flex-col overflow-hidden border border-gray-700" id="info-modal-content">
+    <div class="flex justify-between items-center p-6 border-b border-gray-700 bg-gray-800/50">
+      <h2 class="text-xl font-black text-indigo-400">나만의 영단어장 설명서</h2>
+      <button onclick="closeInfoModal()" class="text-gray-500 hover:text-rose-400 transition-colors p-1" title="닫기">✕</button>
     </div>
-    <div class="p-6 overflow-y-auto text-gray-700 text-sm">
-      <p>클라우드 동기화가 적용된 스마트 영단어장입니다. 별도의 로그인 과정 없이, 앱을 실행하면 백그라운드에서 자동으로 모든 기기(PC, 태블릿, 스마트폰) 간의 데이터를 실시간으로 동기화합니다.</p>
+    <div class="p-8 overflow-y-auto text-gray-300 text-base leading-relaxed space-y-4">
+      <p>클라우드 자동 동기화가 적용된 <strong>야간 모드(Dark Mode) 전용</strong> 스마트 영단어장입니다.</p>
+      <p>별도의 로그인 과정 없이, 앱을 실행하면 백그라운드에서 자동으로 모든 기기(PC, 태블릿, 스마트폰) 간의 데이터를 실시간으로 동기화합니다.</p>
+      <p class="text-indigo-300 font-bold mt-4">✓ 팁: 영어 단어가 길면 크기가 자동으로 축소되어 한 줄에 깔끔하게 표시됩니다.</p>
     </div>
   </div>
 </div>
@@ -416,9 +428,31 @@ let analysisWord=null,audioUrl=null;
 const SIM_DUP=75,SIM_CONF=50;
 let simMatrix={},confMatrix={};
 
+// 💡 수정사항 1: 긴 단어 자동 글씨 크기 조절 (Auto Scale) 로직
+function resizeAllTexts() {
+    document.querySelectorAll('.word-en-container').forEach(container => {
+        const text = container.querySelector('.word-en-text');
+        if (!text) return;
+        // 크기 계산을 위해 일시적으로 스케일 초기화
+        text.style.transform = 'scale(1)'; 
+        
+        const containerWidth = container.clientWidth;
+        const textWidth = text.scrollWidth;
+        
+        // 텍스트가 컨테이너보다 길면 비율에 맞춰 축소
+        if (textWidth > containerWidth && containerWidth > 0) {
+            const scale = containerWidth / textWidth;
+            text.style.transform = `scale(${scale})`;
+        }
+    });
+}
+// 창 크기가 바뀔 때마다 스케일 재계산
+window.addEventListener('resize', resizeAllTexts);
+
+
 function showToast(msg,type='info'){
   const t=document.createElement('div');
-  t.className=`fixed bottom-10 left-1/2 -translate-x-1/2 ${type==='error'?'bg-rose-500':'bg-gray-800'} text-white px-8 py-4 rounded-full shadow-2xl z-[100] font-bold text-base`;
+  t.className=`fixed bottom-10 left-1/2 -translate-x-1/2 ${type==='error'?'bg-rose-600':'bg-gray-800 border border-gray-700'} text-white px-8 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-[100] font-bold text-base tracking-wide`;
   t.style.cssText='opacity:0;transform:translate(-50%,20px);transition:all .3s';
   t.textContent=msg; document.body.appendChild(t);
   requestAnimationFrame(()=>{t.style.opacity='1';t.style.transform='translate(-50%,0)';});
@@ -457,11 +491,19 @@ const ALL_TABS=['manage','test','quiz','fill','analysis'];
 function switchTab(name){
   ALL_TABS.forEach(t=>{
     const btn=document.getElementById(`tab-${t}`),view=document.getElementById(`view-${t}`);
-    if(t===name){btn.className='flex-1 py-3 font-bold text-indigo-600 border-b-4 border-indigo-600 bg-white';view.classList.remove('hidden');}
-    else{btn.className='flex-1 py-3 font-bold text-gray-400 border-b-4 border-transparent transition-colors hover:bg-gray-50 hover:text-gray-600';view.classList.add('hidden');}
+    if(t===name){
+      btn.className='flex-1 py-4 font-black text-indigo-400 border-b-4 border-indigo-500 bg-gray-800 transition-colors';
+      view.classList.remove('hidden');
+    } else {
+      btn.className='flex-1 py-4 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300';
+      view.classList.add('hidden');
+    }
   });
   if(name!=='test') resetTestView(); if(name!=='quiz') resetQuizView();
   if(name!=='analysis') document.getElementById('analysis-dropdown').classList.add('hidden');
+  
+  // 탭 이동 시에도 텍스트 크기 조절 발동
+  if(name==='manage') setTimeout(resizeAllTexts, 50);
 }
 
 function addWord(){
@@ -502,30 +544,32 @@ function renderWords(){
   if(query) disp = disp.filter(w => w.en.toLowerCase().includes(query) || w.ko.includes(query));
   document.getElementById('word-count').textContent=disp.length;
   list.innerHTML='';
-  if(!disp.length){list.innerHTML='<div class="col-span-full flex flex-col items-center justify-center text-gray-400 py-20"><span class="text-4xl mb-4">📭</span><p>단어가 없습니다.</p></div>';document.getElementById('pagination-controls').classList.add('hidden');return;}
+  if(!disp.length){list.innerHTML='<div class="col-span-full flex flex-col items-center justify-center text-gray-500 py-20"><span class="text-5xl mb-4 opacity-50">📭</span><p class="font-bold">단어가 없습니다.</p></div>';document.getElementById('pagination-controls').classList.add('hidden');return;}
   if(document.getElementById('sort-select').value==='wrongCount') disp.sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0)); else disp.reverse();
   const total=Math.max(1,Math.ceil(disp.length/IPP));currentPage=Math.max(1,Math.min(currentPage,total));
   
   disp.slice((currentPage-1)*IPP,currentPage*IPP).forEach(w=>{
     const simRow=simMatrix[w.id]||{};const dupes=words.filter(x=>x.id!==w.id&&(simRow[x.id]||0)>=SIM_DUP);
-    const wBadge=w.wrongCount>0?`<span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-bold rounded-full whitespace-nowrap">오답 ${w.wrongCount}회</span>`:'';
-    const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-100 text-amber-600 text-[10px] font-bold rounded-full whitespace-nowrap">⚠️ 중복</span>`:'';
+    const wBadge=w.wrongCount>0?`<span class="px-2 py-0.5 bg-rose-900/50 text-rose-300 border border-rose-800 text-[10px] font-bold rounded-full whitespace-nowrap tracking-wide">오답 ${w.wrongCount}회</span>`:'';
+    const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 border border-amber-800 text-[10px] font-bold rounded-full whitespace-nowrap tracking-wide">⚠️ 중복</span>`:'';
     const li=document.createElement('li');
-    li.className='bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center fade-in hover:border-indigo-200 hover:shadow-md transition-all h-max';
+    li.className='bg-gray-800 p-5 rounded-2xl shadow-md border border-gray-700 flex justify-between items-center fade-in hover:border-indigo-500 transition-all h-max';
+    
+    // 💡 수정사항 1 적용 영역: word-en-container 와 word-en-text 클래스 구조 추가
     li.innerHTML=`
-      <div class="flex flex-col flex-1 pr-3 min-w-0">
-        <span class="font-bold text-xl text-gray-800 mb-1 break-words leading-tight">${w.en}</span>
-        <span class="text-gray-500 text-sm whitespace-normal break-words">${w.ko}</span>
-        <div class="flex gap-1.5 mt-2 flex-wrap">${wBadge}${dBadge}</div>
+      <div class="flex flex-col flex-1 pr-4 min-w-0 word-en-container overflow-hidden">
+        <span class="font-black text-2xl text-gray-100 mb-1.5 leading-none whitespace-nowrap inline-block w-max word-en-text origin-left transition-transform duration-200">${w.en}</span>
+        <span class="text-gray-400 text-sm whitespace-normal break-words font-medium">${w.ko}</span>
+        <div class="flex gap-2 mt-3 flex-wrap">${wBadge}${dBadge}</div>
       </div>
       <div class="flex gap-2 flex-shrink-0">
-        <button onclick="openEditModal(${w.id})" class="text-emerald-400 hover:text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-2.5 rounded-xl transition-colors" title="단어 수정">
+        <button onclick="openEditModal(${w.id})" class="text-emerald-400 hover:text-emerald-300 bg-emerald-900/30 hover:bg-emerald-900/50 border border-emerald-800/30 p-3 rounded-xl transition-colors" title="단어 수정">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
         </button>
-        <button onclick="openAnalysis(${w.id})" class="text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 p-2.5 rounded-xl transition-colors" title="단어 분석">
+        <button onclick="openAnalysis(${w.id})" class="text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 hover:bg-indigo-900/50 border border-indigo-800/30 p-3 rounded-xl transition-colors" title="단어 분석">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         </button>
-        <button onclick="confirmDelete(${w.id})" class="text-rose-300 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 p-2.5 rounded-xl transition-colors" title="삭제">
+        <button onclick="confirmDelete(${w.id})" class="text-rose-400 hover:text-rose-300 bg-rose-900/30 hover:bg-rose-900/50 border border-rose-800/30 p-3 rounded-xl transition-colors" title="삭제">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         </button>
       </div>`;
@@ -533,6 +577,9 @@ function renderWords(){
   });
   const pgCtrl=document.getElementById('pagination-controls');
   if(total>1){pgCtrl.classList.remove('hidden');document.getElementById('page-info').textContent=`${currentPage} / ${total}`;document.getElementById('btn-prev').disabled=currentPage===1;document.getElementById('btn-next').disabled=currentPage===total;} else pgCtrl.classList.add('hidden');
+
+  // 리스트를 다 그린 후 스케일 자동 조절 실행
+  setTimeout(resizeAllTexts, 10);
 }
 
 function exportData(){if(!words.length)return showToast('저장할 단어가 없습니다.','error');const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'})),download:`영단어장.json`});document.body.appendChild(a);a.click();a.remove();}
@@ -581,7 +628,7 @@ function nextQuiz(){
     opts.innerHTML='';
     shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach(opt=>{
         const btn=document.createElement('button');
-        btn.className='game-btn w-full bg-white border-2 border-gray-200 text-gray-700 font-bold py-6 rounded-2xl text-xl break-words px-4';
+        btn.className='game-btn w-full bg-gray-800 border-2 border-gray-700 hover:border-indigo-500 hover:bg-gray-700 text-gray-200 font-bold py-6 rounded-2xl text-xl break-words px-4 shadow-sm';
         btn.textContent=opt.word.ko;
         btn.onclick=()=>selectQuiz(btn,opt.ok,opt.word.id);
         opts.appendChild(btn);
@@ -626,7 +673,7 @@ async function buildFillQuestion(targetWord){
 }
 
 async function startFill(n=10){if(words.length<4)return showToast('단어가 4개 이상 필요합니다!','error');fillTotal=n;fillScore=0;fillIdx=0;fillQuestions=[];document.getElementById('fill-intro').classList.add('hidden');document.getElementById('fill-loading').classList.remove('hidden');document.getElementById('fill-loading').classList.add('flex');const pool=shuffle(words).slice(0,n);const results=await Promise.all(pool.map(w=>buildFillQuestion(w)));fillQuestions=results.filter(Boolean);document.getElementById('fill-loading').classList.add('hidden');document.getElementById('fill-loading').classList.remove('flex');if(fillQuestions.length<1){resetFillView();return showToast('오류 발생','error');}fillTotal=fillQuestions.length;document.getElementById('fill-active').classList.remove('hidden');showFillQuestion();}
-function showFillQuestion(){if(fillIdx>=fillQuestions.length)return showFillResult();fillCurrentQ=fillQuestions[fillIdx];document.getElementById('fill-progress-bar').style.width=Math.round((fillIdx/fillTotal)*100)+'%';document.getElementById('fill-progress-text').textContent=`${fillIdx+1} / ${fillTotal}`;document.getElementById('fill-score').textContent=fillScore;document.getElementById('fill-sentence').innerHTML=fillCurrentQ.blank.replace(/___/g,'<span class="fill-blank px-6 mx-1">　</span>');document.getElementById('fill-feedback').classList.add('hidden');document.getElementById('fill-next-btn').classList.add('hidden');const opts=document.getElementById('fill-options');opts.innerHTML='';fillCurrentQ.options.forEach(w=>{const b=document.createElement('button');b.className='fill-opt bg-white border-2 border-gray-200 rounded-2xl p-5 text-xl font-bold break-words px-3';b.textContent=w.en;b.onclick=()=>selectFill(b,w.id===fillCurrentQ.word.id,fillCurrentQ);opts.appendChild(b);});}
+function showFillQuestion(){if(fillIdx>=fillQuestions.length)return showFillResult();fillCurrentQ=fillQuestions[fillIdx];document.getElementById('fill-progress-bar').style.width=Math.round((fillIdx/fillTotal)*100)+'%';document.getElementById('fill-progress-text').textContent=`${fillIdx+1} / ${fillTotal}`;document.getElementById('fill-score').textContent=fillScore;document.getElementById('fill-sentence').innerHTML=fillCurrentQ.blank.replace(/___/g,'<span class="fill-blank px-6 mx-1">　</span>');document.getElementById('fill-feedback').classList.add('hidden');document.getElementById('fill-next-btn').classList.add('hidden');const opts=document.getElementById('fill-options');opts.innerHTML='';fillCurrentQ.options.forEach(w=>{const b=document.createElement('button');b.className='fill-opt bg-gray-800 border-2 border-gray-700 hover:border-indigo-500 hover:bg-gray-700 text-gray-200 rounded-2xl p-5 text-xl font-bold break-words px-3 shadow-sm';b.textContent=w.en;b.onclick=()=>selectFill(b,w.id===fillCurrentQ.word.id,fillCurrentQ);opts.appendChild(b);});}
 function selectFill(btn,ok,q){document.getElementById('fill-options').querySelectorAll('button').forEach(b=>b.disabled=true);if(ok){btn.classList.add('correct');fillScore++;}else{btn.classList.add('wrong');const i=words.findIndex(w=>w.id===q.word.id);if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}}document.getElementById('fill-feedback').classList.remove('hidden');document.getElementById('fill-feedback-text').textContent=ok?'✅ 정답!':`❌ 정답은 "${q.word.en}" 입니다.`;document.getElementById('fill-full-sentence').textContent=q.full;document.getElementById('fill-score').textContent=fillScore;document.getElementById('fill-next-btn').classList.remove('hidden');}
 function nextFillQuestion(){fillIdx++;showFillQuestion();}
 function showFillResult(){document.getElementById('fill-active').classList.add('hidden');document.getElementById('fill-result').classList.remove('hidden');document.getElementById('fill-final-score').textContent=fillScore;document.getElementById('fill-final-total').textContent=fillTotal;}
@@ -634,7 +681,7 @@ function showFillResult(){document.getElementById('fill-active').classList.add('
 function openAnalysis(id){const w=words.find(x=>x.id===id);if(!w)return;switchTab('analysis');setTimeout(()=>selectAnalysisWord(w),60);}
 function filterAnalysisWords(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
 function showAnalysisDropdown(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
-function renderAnalysisDD(q=''){const dd=document.getElementById('analysis-dropdown');const f=words.filter(w=>w.en.toLowerCase().includes(q)||w.ko.includes(q));if(!f.length)return dd.classList.add('hidden');dd.innerHTML=f.map(w=>`<button class="w-full text-left px-5 py-4 hover:bg-indigo-50 flex justify-between" onclick="selectAnalysisWord(words.find(x=>x.id===${w.id}))"><span class="font-bold">${w.en}</span><span class="text-sm text-gray-500">${w.ko}</span></button>`).join('');dd.classList.remove('hidden');}
+function renderAnalysisDD(q=''){const dd=document.getElementById('analysis-dropdown');const f=words.filter(w=>w.en.toLowerCase().includes(q)||w.ko.includes(q));if(!f.length)return dd.classList.add('hidden');dd.innerHTML=f.map(w=>`<button class="w-full text-left px-5 py-4 hover:bg-gray-700 flex justify-between transition-colors border-b border-gray-700/50" onclick="selectAnalysisWord(words.find(x=>x.id===${w.id}))"><span class="font-bold text-gray-200">${w.en}</span><span class="text-sm text-gray-400">${w.ko}</span></button>`).join('');dd.classList.remove('hidden');}
 function selectAnalysisWord(w){if(!w)return;analysisWord=w;document.getElementById('analysis-search').value='';document.getElementById('analysis-dropdown').classList.add('hidden');document.getElementById('analysis-word-en-display').textContent=w.en;document.getElementById('analysis-word-ko-display').textContent=w.ko;document.getElementById('analysis-selected-word').classList.remove('hidden');runAnalysis(w);}
 function clearAnalysisWord(){analysisWord=null;document.getElementById('analysis-selected-word').classList.add('hidden');document.getElementById('analysis-result').classList.add('hidden');document.getElementById('analysis-loading').classList.add('hidden');document.getElementById('analysis-placeholder').classList.remove('hidden');}
 
@@ -672,14 +719,14 @@ async function runAnalysis(w){
     const allExamples=[];
     dictData.meanings?.forEach(m=>{m.definitions?.forEach(d=>{if(d.example&&allExamples.length<3)allExamples.push(d.example);});});
     if(allExamples.length){
-      examplesEl.innerHTML = allExamples.map((ex,i)=>`<div class="flex gap-4 items-start bg-gray-50 p-4 rounded-xl border border-gray-100"><span class="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-700 text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span><p class="text-base text-gray-700 italic leading-relaxed break-words">"${ex}"</p></div>`).join('');
-    } else { examplesEl.innerHTML = '<p class="text-sm text-gray-400 italic bg-gray-50 p-4 rounded-xl">이 단어가 포함된 예문을 찾을 수 없습니다.</p>'; }
+      examplesEl.innerHTML = allExamples.map((ex,i)=>`<div class="flex gap-4 items-start bg-gray-900 p-5 rounded-2xl border border-gray-700 shadow-inner"><span class="flex-shrink-0 w-6 h-6 bg-indigo-900 text-indigo-300 text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span><p class="text-base text-gray-300 italic leading-relaxed break-words font-medium">"${ex}"</p></div>`).join('');
+    } else { examplesEl.innerHTML = '<p class="text-sm text-gray-500 italic bg-gray-900 p-5 rounded-2xl">이 단어가 포함된 예문을 찾을 수 없습니다.</p>'; }
   } else {
     document.getElementById('ar-definition').textContent='사전 정보를 불러올 수 없습니다.';
     document.getElementById('ar-phonetic').textContent='';
     document.getElementById('ar-partOfSpeech').style.display='none';
     document.getElementById('ar-audio-btn').classList.add('hidden');
-    examplesEl.innerHTML = '<p class="text-sm text-gray-400">예문을 불러올 수 없습니다.</p>';
+    examplesEl.innerHTML = '<p class="text-sm text-gray-500">예문을 불러올 수 없습니다.</p>';
   }
   const simRow=simMatrix[w.id]||{};
   const internals=words.filter(x=>x.id!==w.id).map(x=>({word:x,sim:simRow[x.id]||0})).filter(x=>x.sim>8).sort((a,b)=>b.sim-a.sim).slice(0,7);
@@ -687,17 +734,17 @@ async function runAnalysis(w){
   if(internals.length){
     intEl.innerHTML=internals.map(({word:iw,sim})=>{
       const pct=Math.round(sim);
-      const bar=pct>=SIM_DUP?'bg-amber-400':pct>=SIM_CONF?'bg-violet-400':'bg-indigo-300';
-      const lbl=pct>=SIM_DUP?'<span class="text-[10px] bg-amber-100 text-amber-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">⚠️ 중복</span>':pct>=SIM_CONF?'<span class="text-[10px] bg-violet-100 text-violet-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">혼동 주의</span>':'';
-      return `<div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap mb-1"><span class="font-bold text-base text-gray-800 break-all">${iw.en}</span><span class="text-xs text-gray-500 truncate">${iw.ko}</span>${lbl}</div><div class="flex items-center gap-3"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="${bar} h-2 rounded-full transition-all duration-700" style="width:${pct}%"></div></div><span class="text-xs text-gray-400 font-mono w-8 text-right font-bold">${pct}%</span></div></div></div>`;
+      const bar=pct>=SIM_DUP?'bg-amber-500':pct>=SIM_CONF?'bg-violet-500':'bg-indigo-500';
+      const lbl=pct>=SIM_DUP?'<span class="text-[10px] bg-amber-900/50 text-amber-300 font-bold px-2 py-0.5 rounded-full whitespace-nowrap border border-amber-800">⚠️ 중복</span>':pct>=SIM_CONF?'<span class="text-[10px] bg-violet-900/50 text-violet-300 font-bold px-2 py-0.5 rounded-full whitespace-nowrap border border-violet-800">혼동 주의</span>':'';
+      return `<div class="flex items-center gap-4 bg-gray-900 p-4 rounded-2xl border border-gray-700 shadow-sm"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap mb-1.5"><span class="font-bold text-lg text-gray-200 break-all">${iw.en}</span><span class="text-sm text-gray-500 truncate">${iw.ko}</span>${lbl}</div><div class="flex items-center gap-3"><div class="flex-1 bg-gray-800 rounded-full h-2 overflow-hidden border border-gray-700"><div class="${bar} h-full rounded-full transition-all duration-700" style="width:${pct}%"></div></div><span class="text-xs text-gray-400 font-mono w-8 text-right font-bold">${pct}%</span></div></div></div>`;
     }).join('');
-  } else { intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-3xl mb-2">🤷‍♂️</span><p class="text-sm text-gray-400">단어장 내에 의미가 비슷한 단어가 아직 없습니다.</p></div>'; }
+  } else { intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-4xl mb-3 opacity-50">🤷‍♂️</span><p class="text-sm text-gray-500 font-bold">단어장 내에 비슷한 단어가 아직 없습니다.</p></div>'; }
   const existingEn=new Set(words.map(x=>x.en.toLowerCase()));
   const newCands=new Set();
 
   function renderChips(elId, items, cls){
     const el=document.getElementById(elId);
-    if(!items.length){el.innerHTML='<span class="text-sm text-gray-400">검색 결과 없음</span>';return;}
+    if(!items.length){el.innerHTML='<span class="text-sm text-gray-500">검색 결과 없음</span>';return;}
     el.innerHTML='';
     items.forEach(item=>{
       const inBook=existingEn.has(item.word.toLowerCase());
@@ -756,7 +803,7 @@ async function runAnalysis(w){
   renderChips('ar-collocations', mergeWords(col1, col2, col3, col4).slice(0, 20), 'chip-freq');
   
   const recs=[...newCands].slice(0,25);
-  document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new shadow-sm border border-blue-100" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm text-gray-400">추천할 새 단어가 없습니다.</span>';
+  document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new shadow-sm" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm text-gray-500">추천할 새 단어가 없습니다.</span>';
   const scrollContainer = document.getElementById('analysis-result').parentElement;
   if (scrollContainer) scrollContainer.scrollTop = 0;
 }
@@ -768,7 +815,6 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
 <!-- ========================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  // ✅ 회원가입/로그인 모듈 모두 삭제하고 조용히 익명 로그인만 수행하도록 변경
   import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -793,15 +839,18 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
   const cloudStatusText = document.getElementById('cloud-status-text');
 
   const updateCloudStatus = (color, text) => {
-      cloudDot.className = `w-1.5 h-1.5 rounded-full bg-${color}-500 transition-colors duration-300`;
+      cloudDot.className = `w-2 h-2 rounded-full bg-${color}-500 transition-colors duration-300 shadow-[0_0_8px_currentColor]`;
       cloudStatusText.textContent = text;
   };
 
-  // ✅ 앱을 켜자마자 조용히 익명 로그인 수행
   signInAnonymously(auth).catch((error) => {
       console.error("자동 로그인 실패:", error);
       updateCloudStatus('rose', '오프라인 모드');
-      window.showToast("클라우드 연결 실패. 인터넷을 확인해주세요.", "error");
+      if (error.code === 'auth/operation-not-allowed') {
+          window.showToast("Firebase 콘솔에서 '익명 로그인'을 켜주세요!", "error");
+      } else {
+          window.showToast("클라우드 연결 실패: " + error.message, "error");
+      }
   });
 
   onAuthStateChanged(auth, (user) => {
@@ -810,7 +859,6 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       }
   });
 
-  // ✅ 내 기기들이 모두 하나의 공통 방('my_private_data')을 바라보게 만듭니다.
   function setupRealtimeSync() {
       updateCloudStatus('amber', '동기화 연결 중...');
       const docRef = doc(db, 'shared_wordbook', 'my_private_data');
