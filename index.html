@@ -585,15 +585,25 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
   import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  // Canvas 환경에서 제공하는 Firebase 설정값 체크
-  if (typeof __firebase_config !== 'undefined') {
-      const firebaseConfig = JSON.parse(__firebase_config);
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
-      const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-      let currentUser = null;
-      let isInitialCloudLoad = true;
+// 직접 발급받은 Firebase 설정값 넣기
+const firebaseConfig = {
+    // 👇 여기에 아까 복사한 2단계의 내용을 붙여넣으세요! 👇
+    apiKey: "AIzaSyDlMAr0qMwr3uRL_bodm8gkyewo85OlTlc",
+  authDomain: "myvocaapp-d418d.firebaseapp.com",
+  projectId: "myvocaapp-d418d",
+  storageBucket: "myvocaapp-d418d.firebasestorage.app",
+  messagingSenderId: "841954793233",
+  appId: "1:841954793233:web:2748be6eb03308e0895eb0",
+  measurementId: "G-5HJ2VLZHHF"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+// 내 고유 앱 ID 설정 (원하는 이름 아무거나)
+const appId = "my-awesome-voca-app"; 
+
+// ... 나머지 코드는 그대로 둠 ...
 
       // UI 요소
       const cloudDot = document.getElementById('cloud-dot');
