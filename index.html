@@ -122,7 +122,8 @@
   
   <div id="pagination-controls" class="flex justify-between items-center pt-5 border-t border-gray-800 hidden flex-shrink-0 mt-2">
     <button onclick="changePage(-1)" id="btn-prev" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all" disabled>이전</button>
-    <span id="page-info" class="text-base text-gray-400 font-bold bg-gray-900 px-5 py-2 rounded-full shadow-inner border border-gray-800">1 / 1</span>
+    <!-- 클릭 시 페이지 이동이 가능하도록 버튼으로 변경 -->
+    <button id="page-info" onclick="jumpToPage()" title="페이지 이동" class="text-base text-gray-400 font-bold bg-gray-900 px-5 py-2 rounded-full shadow-inner border border-gray-800 hover:text-indigo-300 hover:border-indigo-500/50 transition-all cursor-pointer">1 / 1</button>
     <button onclick="changePage(1)"  id="btn-next" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all">다음</button>
   </div>
 </div>
@@ -537,6 +538,25 @@ function saveEditWord() {
 }
 
 function changePage(d){currentPage+=d;renderWords();document.getElementById('word-list').scrollTop=0;}
+
+// 💡 수정사항 2: 페이지 즉시 이동(Jump to page) 기능 추가
+function jumpToPage() {
+  const info = document.getElementById('page-info').textContent;
+  const total = parseInt(info.split('/')[1].trim(), 10);
+  const input = prompt(`이동할 페이지를 입력하세요 (1 ~ ${total}):`, currentPage);
+  
+  if (input !== null) {
+      const page = parseInt(input, 10);
+      if (!isNaN(page) && page >= 1 && page <= total) {
+          currentPage = page;
+          renderWords();
+          document.getElementById('word-list').scrollTop = 0;
+      } else {
+          showToast('유효한 페이지 번호가 아닙니다.', 'error');
+      }
+  }
+}
+
 function renderWords(){
   const list=document.getElementById('word-list');
   const query = document.getElementById('search-manage').value.toLowerCase().trim();
@@ -553,16 +573,16 @@ function renderWords(){
     const wBadge=w.wrongCount>0?`<span class="px-2 py-0.5 bg-rose-900/50 text-rose-300 border border-rose-800 text-[10px] font-bold rounded-full whitespace-nowrap tracking-wide">오답 ${w.wrongCount}회</span>`:'';
     const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 border border-amber-800 text-[10px] font-bold rounded-full whitespace-nowrap tracking-wide">⚠️ 중복</span>`:'';
     const li=document.createElement('li');
-    li.className='bg-gray-800 p-5 rounded-2xl shadow-md border border-gray-700 flex justify-between items-center fade-in hover:border-indigo-500 transition-all h-max';
     
-    // 💡 수정사항 1 적용 영역: word-en-container 와 word-en-text 클래스 구조 추가
+    // 💡 수정사항 1 적용 영역: h-max 제거하고 h-full min-h-[112px] 설정으로 박스 크기 균등화
+    li.className='bg-gray-800 p-5 rounded-2xl shadow-md border border-gray-700 flex justify-between items-center fade-in hover:border-indigo-500 transition-all h-full min-h-[112px]';
     li.innerHTML=`
-      <div class="flex flex-col flex-1 pr-4 min-w-0 word-en-container overflow-hidden">
+      <div class="flex flex-col flex-1 pr-4 min-w-0 word-en-container overflow-hidden justify-center">
         <span class="font-black text-2xl text-gray-100 mb-1.5 leading-none whitespace-nowrap inline-block w-max word-en-text origin-left transition-transform duration-200">${w.en}</span>
         <span class="text-gray-400 text-sm whitespace-normal break-words font-medium">${w.ko}</span>
-        <div class="flex gap-2 mt-3 flex-wrap">${wBadge}${dBadge}</div>
+        <div class="flex gap-2 mt-2 flex-wrap">${wBadge}${dBadge}</div>
       </div>
-      <div class="flex gap-2 flex-shrink-0">
+      <div class="flex gap-2 flex-shrink-0 items-center">
         <button onclick="openEditModal(${w.id})" class="text-emerald-400 hover:text-emerald-300 bg-emerald-900/30 hover:bg-emerald-900/50 border border-emerald-800/30 p-3 rounded-xl transition-colors" title="단어 수정">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
         </button>
