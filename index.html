@@ -759,8 +759,8 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
 <!-- ========================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  // ✅ Persistence 모듈 추가 (로그인 상태 유지 설정용)
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  // ✅ Persistence 모듈 추가 및 스마트 폴백을 위한 signInWithRedirect 추가
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -792,22 +792,32 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       cloudStatusText.textContent = text;
   };
 
-  // Google 로그인 함수 (사용자 선택에 따른 유지 기간 설정 포함)
-  window.loginWithGoogle = async () => {
+  // Google 로그인 함수 (스마트 폴백 적용: 팝업 시도 후 막히면 리다이렉트로 자동 전환)
+  window.loginWithGoogle = () => {
       window.showToast("구글 로그인 진행 중...", "info");
       
       // 체크박스 상태 확인 (true: 기기에 유지 / false: 브라우저 닫으면 로그아웃)
       const keepLogin = document.getElementById('keep-login-chk').checked;
       const persistenceType = keepLogin ? browserLocalPersistence : browserSessionPersistence;
       
-      try {
-          // 먼저 유지 정책을 설정한 뒤 로그인 팝업을 띄웁니다.
-          await setPersistence(auth, persistenceType);
-          await signInWithPopup(auth, provider);
-      } catch (error) {
-          console.error("로그인 에러:", error);
-          window.showToast("로그인 실패: " + error.message, "error");
-      }
+      // 팝업 지연으로 인한 차단을 막기 위해 await 없이 즉시 실행 (Fire and forget)
+      setPersistence(auth, persistenceType).catch(console.error);
+
+      // 딜레이 없이 즉시 팝업 호출
+      signInWithPopup(auth, provider).catch(error => {
+          console.error("팝업 로그인 에러:", error);
+          
+          // 브라우저 팝업 차단 또는 사용자 액션 무효화(Invalid Action) 에러 발생 시 리다이렉트로 자동 전환
+          const errStr = error.message ? error.message.toLowerCase() : "";
+          if (error.code === 'auth/popup-blocked' || errStr.includes('invalid') || errStr.includes('user gesture')) {
+              window.showToast("팝업이 차단되어 화면 이동 방식으로 접속합니다...", "info");
+              signInWithRedirect(auth, provider).catch(redirectErr => {
+                  window.showToast("로그인 이동 실패: " + redirectErr.message, "error");
+              });
+          } else {
+              window.showToast("로그인 실패: " + error.message, "error");
+          }
+      });
   };
 
   // 로그아웃 함수
