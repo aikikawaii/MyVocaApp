@@ -97,10 +97,13 @@
       <input id="search-manage" type="text" placeholder="입력한 단어 찾기..." oninput="currentPage=1;renderWords()" class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm transition-all text-sm">
       <span class="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
     </div>
+    <!-- 다운/업/전체삭제 버튼 영역 -->
     <div class="flex gap-2 w-full sm:w-auto justify-end">
       <button onclick="exportData()" class="text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors whitespace-nowrap">내보내기 📤</button>
       <button onclick="document.getElementById('file-upload').click()" class="text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors whitespace-nowrap">불러오기 📥</button>
       <input type="file" id="file-upload" class="hidden" accept=".json" onchange="importData(event)">
+      <!-- 전체 삭제 버튼 추가 -->
+      <button onclick="confirmClearAll()" class="text-rose-600 bg-rose-50 px-3 py-2 rounded-lg text-sm font-bold hover:bg-rose-100 transition-colors whitespace-nowrap">전체 삭제 🗑️</button>
     </div>
   </div>
   
@@ -437,7 +440,7 @@
 
 </div><!-- /wrapper -->
 
-<!-- 삭제 확인 모달 -->
+<!-- 개별 삭제 확인 모달 -->
 <div id="delete-modal" class="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
   <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200" id="delete-modal-content">
     <div class="text-center mb-6">
@@ -446,8 +449,23 @@
       <p class="text-sm text-gray-500">삭제한 단어는 복구할 수 없습니다.</p>
     </div>
     <div class="flex gap-3">
-      <button onclick="closeDeleteModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 active:scale-95 transition-all">No</button>
-      <button onclick="executeDelete()" class="flex-1 bg-rose-500 text-white font-bold py-3.5 rounded-xl hover:bg-rose-600 active:scale-95 transition-all shadow-md">Yes</button>
+      <button onclick="closeDeleteModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 active:scale-95 transition-all">취소</button>
+      <button onclick="executeDelete()" class="flex-1 bg-rose-500 text-white font-bold py-3.5 rounded-xl hover:bg-rose-600 active:scale-95 transition-all shadow-md">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 전체 삭제 확인 모달 -->
+<div id="clear-all-modal" class="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200" id="clear-all-modal-content">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-4">⚠️</div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">정말 모든 단어를 지울까요?</h3>
+      <p class="text-sm text-gray-500">저장된 <span id="clear-all-count" class="font-bold text-rose-500">0</span>개의 단어가 모두 사라지며, 이 작업은 되돌릴 수 없습니다.</p>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="closeClearAllModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 active:scale-95 transition-all">No (취소)</button>
+      <button onclick="executeClearAll()" class="flex-1 bg-rose-600 text-white font-bold py-3.5 rounded-xl hover:bg-rose-700 active:scale-95 transition-all shadow-md">Yes (삭제)</button>
     </div>
   </div>
 </div>
@@ -642,7 +660,7 @@ function switchTab(name){
 }
 
 // ================================================================
-// 관리 탭
+// 관리 탭 (추가, 수정, 개별 삭제, 전체 삭제)
 // ================================================================
 function addWord(){
   const enEl=document.getElementById('input-en'),koEl=document.getElementById('input-ko');
@@ -654,7 +672,7 @@ function addWord(){
   showToast('단어 추가 완료! ✨');
 }
 
-// 삭제 모달 기능
+// ---------------- 개별 삭제 ----------------
 let pendingDeleteId = null;
 function confirmDelete(id){
   pendingDeleteId = id;
@@ -684,7 +702,37 @@ function executeDelete(){
   }
 }
 
-// 수정 모달 기능
+// ---------------- 전체 삭제 ----------------
+function confirmClearAll() {
+  if (words.length === 0) return showToast('삭제할 단어가 없습니다.', 'info');
+  document.getElementById('clear-all-count').textContent = words.length;
+  
+  const modal = document.getElementById('clear-all-modal');
+  const content = document.getElementById('clear-all-modal-content');
+  modal.classList.remove('hidden');
+  void modal.offsetWidth;
+  modal.classList.remove('opacity-0');
+  content.classList.remove('scale-95');
+}
+
+function closeClearAllModal() {
+  const modal = document.getElementById('clear-all-modal');
+  const content = document.getElementById('clear-all-modal-content');
+  modal.classList.add('opacity-0');
+  content.classList.add('scale-95');
+  setTimeout(() => modal.classList.add('hidden'), 200);
+}
+
+function executeClearAll() {
+  words = []; // 단어 배열 초기화
+  saveData();
+  buildSimMatrix(); // 매트릭스도 함께 초기화
+  renderWords();
+  closeClearAllModal();
+  showToast('모든 단어가 영구적으로 삭제되었습니다. 🗑️');
+}
+
+// ---------------- 수정 ----------------
 let editingWordId = null;
 function openEditModal(id) {
   const w = words.find(x => x.id === id);
@@ -726,6 +774,7 @@ function saveEditWord() {
   }
 }
 
+// 페이징 & 랜더링
 function changePage(d){currentPage+=d;renderWords();document.getElementById('word-list').scrollTop=0;}
 function renderWords(){
   const list=document.getElementById('word-list');
@@ -784,6 +833,8 @@ function renderWords(){
     document.getElementById('btn-next').disabled=currentPage===total;
   } else pgCtrl.classList.add('hidden');
 }
+
+// 내보내기/불러오기
 function exportData(){
   if(!words.length)return showToast('저장할 단어가 없습니다.','error');
   const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'})),download:`영단어장_${new Date().toISOString().slice(0,10)}.json`});
