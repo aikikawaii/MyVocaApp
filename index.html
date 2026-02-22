@@ -61,7 +61,7 @@
     <h2 class="text-3xl font-bold mb-4 text-gray-800">단어장 로그인</h2>
     <p class="text-gray-500 mb-6 text-center px-6 leading-relaxed">안전한 데이터 백업과<br>모든 기기 실시간 동기화를 위해<br>구글 계정으로 로그인해주세요.</p>
     
-    <!-- 로그인 유지 체크박스 추가 -->
+    <!-- 로그인 유지 체크박스 -->
     <label class="flex items-center gap-2 mb-8 cursor-pointer group bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 shadow-sm hover:bg-gray-100 transition-colors">
         <input type="checkbox" id="keep-login-chk" checked class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer accent-indigo-600">
         <span class="text-sm font-bold text-gray-600 group-hover:text-indigo-600 transition-colors">자동 로그인 유지 (개인 기기 권장)</span>
@@ -318,7 +318,6 @@
 
   <div class="flex-1 overflow-y-auto no-scrollbar relative p-4 sm:p-6">
     <div class="max-w-4xl mx-auto w-full">
-      
       <!-- 로딩 -->
       <div id="analysis-loading" class="space-y-6 hidden">
         <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 space-y-4">
@@ -326,7 +325,6 @@
           <div class="skeleton h-5 w-32"></div><div class="skeleton h-5 w-full"></div>
         </div>
       </div>
-
       <!-- 결과 -->
       <div id="analysis-result" class="space-y-6 hidden pb-8 fade-in">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -427,9 +425,6 @@
   </div>
 </div>
 
-<!-- ========================================== -->
-<!-- 1. 기본 자바스크립트 로직 (기존 함수들) -->
-<!-- ========================================== -->
 <script>
 let words=[], currentPage=1;
 const IPP=12;
@@ -453,7 +448,6 @@ function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.
 function openInfoModal(){document.getElementById('info-modal').classList.remove('hidden','opacity-0');document.getElementById('info-modal-content').classList.remove('scale-95');}
 function closeInfoModal(){document.getElementById('info-modal').classList.add('opacity-0');document.getElementById('info-modal-content').classList.add('scale-95');setTimeout(()=>document.getElementById('info-modal').classList.add('hidden'),200);}
 
-// 로컬 & 클라우드 저장 로직 병합
 function loadData(){
   const raw=localStorage.getItem('myWordbook');
   if(raw){try{words=JSON.parse(raw);}catch{words=[];}}
@@ -462,16 +456,14 @@ function loadData(){
 }
 function saveData(){
   localStorage.setItem('myWordbook',JSON.stringify(words));
-  renderWords(); // update count and list
-  // 클라우드 저장 함수가 연결되어 있다면 실행
+  renderWords();
   if(window.triggerCloudSave) window.triggerCloudSave(words);
 }
 
-// 클라우드에서 데이터가 내려올 때 실행됨
 window.updateFromCloud = function(cloudWords) {
-  words.length = 0; // 기존 배열 비우기
-  words.push(...cloudWords); // 클라우드 데이터로 채우기
-  localStorage.setItem('myWordbook', JSON.stringify(words)); // 로컬 백업
+  words.length = 0;
+  words.push(...cloudWords);
+  localStorage.setItem('myWordbook', JSON.stringify(words));
   buildSimMatrix();
   renderWords();
 };
@@ -603,38 +595,24 @@ async function runAnalysis(w){
   document.getElementById('analysis-placeholder').classList.add('hidden');
   document.getElementById('analysis-result').classList.add('hidden');
   document.getElementById('analysis-loading').classList.remove('hidden');
-
-  // ✅ API 호출 확장: 유의어, 반의어, 연관어, 상/하위어, 앞뒤 동반어 등 총 10가지 관계 데이터 동시 병렬 로드
   const fetchDM = async (p) => fetch(`https://api.datamuse.com/words?${p}`).then(r=>r.json()).catch(()=>[]);
-  
   const[dictData, syn1, syn2, ants, rel1, rel2, col1, col2, col3, col4] = await Promise.all([
     fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${w.en}`).then(r=>r.ok?r.json():null).then(d=>Array.isArray(d)?d[0]:null).catch(()=>null),
-    fetchDM(`rel_syn=${w.en}&max=15`), // 직접 유의어
-    fetchDM(`ml=${w.en}&max=15`),      // 의미 유사어
-    fetchDM(`rel_ant=${w.en}&max=15`), // 반의어
-    fetchDM(`rel_trg=${w.en}&max=15`), // 연상/트리거 단어
-    fetchDM(`rel_spc=${w.en}&max=10`), // 하위 분류 단어
-    fetchDM(`rel_jja=${w.en}&max=10`), // 자주 수식하는 명사
-    fetchDM(`rel_jjb=${w.en}&max=10`), // 자주 수식하는 형용사
-    fetchDM(`rel_bga=${w.en}&max=10`), // 자주 뒤에 오는 단어
-    fetchDM(`rel_bgb=${w.en}&max=10`)  // 자주 앞에 오는 단어
+    fetchDM(`rel_syn=${w.en}&max=15`), fetchDM(`ml=${w.en}&max=15`), fetchDM(`rel_ant=${w.en}&max=15`), fetchDM(`rel_trg=${w.en}&max=15`),
+    fetchDM(`rel_spc=${w.en}&max=10`), fetchDM(`rel_jja=${w.en}&max=10`), fetchDM(`rel_jjb=${w.en}&max=10`), fetchDM(`rel_bga=${w.en}&max=10`), fetchDM(`rel_bgb=${w.en}&max=10`)
   ]);
-
   document.getElementById('analysis-loading').classList.add('hidden');
   document.getElementById('analysis-result').classList.remove('hidden');
-
   document.getElementById('ar-word').textContent=w.en;
   let dictSyns = [], dictAnts = [];
   const examplesEl = document.getElementById('ar-examples');
   examplesEl.innerHTML = '';
-  
   if(dictData){
     document.getElementById('ar-definition').textContent=dictData.meanings?.[0]?.definitions?.[0]?.definition||'사전 정보 없음';
     document.getElementById('ar-phonetic').textContent=dictData.phonetics?.find(p=>p.text)?.text||'';
     const aUrl = dictData.phonetics?.find(p=>p.audio)?.audio||null;
     const aBtn = document.getElementById('ar-audio-btn');
     if(aUrl){aBtn.classList.remove('hidden');aBtn.onclick=()=>new Audio(aUrl).play();}else{aBtn.classList.add('hidden');}
-    
     const posSet = new Set();
     dictData.meanings?.forEach(m => {
       if(m.partOfSpeech) posSet.add(m.partOfSpeech);
@@ -642,18 +620,13 @@ async function runAnalysis(w){
       if(m.antonyms) dictAnts.push(...m.antonyms.map(a=>({word:a})));
     });
     const posStr = Array.from(posSet).join(', ');
-    const posEl = document.getElementById('ar-partOfSpeech');
-    posEl.textContent = posStr; posEl.style.display = posStr ? '' : 'none';
-
+    document.getElementById('ar-partOfSpeech').textContent = posStr;
+    document.getElementById('ar-partOfSpeech').style.display = posStr ? '' : 'none';
     const allExamples=[];
-    dictData.meanings?.forEach(m=>{
-      m.definitions?.forEach(d=>{if(d.example&&allExamples.length<3)allExamples.push(d.example);});
-    });
+    dictData.meanings?.forEach(m=>{m.definitions?.forEach(d=>{if(d.example&&allExamples.length<3)allExamples.push(d.example);});});
     if(allExamples.length){
       examplesEl.innerHTML = allExamples.map((ex,i)=>`<div class="flex gap-4 items-start bg-gray-50 p-4 rounded-xl border border-gray-100"><span class="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-700 text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span><p class="text-base text-gray-700 italic leading-relaxed">"${ex}"</p></div>`).join('');
-    } else {
-      examplesEl.innerHTML = '<p class="text-sm text-gray-400 italic bg-gray-50 p-4 rounded-xl">이 단어가 포함된 예문을 찾을 수 없습니다.</p>';
-    }
+    } else { examplesEl.innerHTML = '<p class="text-sm text-gray-400 italic bg-gray-50 p-4 rounded-xl">이 단어가 포함된 예문을 찾을 수 없습니다.</p>'; }
   } else {
     document.getElementById('ar-definition').textContent='사전 정보를 불러올 수 없습니다.';
     document.getElementById('ar-phonetic').textContent='';
@@ -661,7 +634,6 @@ async function runAnalysis(w){
     document.getElementById('ar-audio-btn').classList.add('hidden');
     examplesEl.innerHTML = '<p class="text-sm text-gray-400">예문을 불러올 수 없습니다.</p>';
   }
-
   const simRow=simMatrix[w.id]||{};
   const internals=words.filter(x=>x.id!==w.id).map(x=>({word:x,sim:simRow[x.id]||0})).filter(x=>x.sim>8).sort((a,b)=>b.sim-a.sim).slice(0,7);
   const intEl=document.getElementById('ar-internal-list');
@@ -672,13 +644,9 @@ async function runAnalysis(w){
       const lbl=pct>=SIM_DUP?'<span class="text-[10px] bg-amber-100 text-amber-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">⚠️ 중복</span>':pct>=SIM_CONF?'<span class="text-[10px] bg-violet-100 text-violet-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">혼동 주의</span>':'';
       return `<div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap mb-1"><span class="font-bold text-base text-gray-800">${iw.en}</span><span class="text-xs text-gray-500 truncate">${iw.ko}</span>${lbl}</div><div class="flex items-center gap-3"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="${bar} h-2 rounded-full transition-all duration-700" style="width:${pct}%"></div></div><span class="text-xs text-gray-400 font-mono w-8 text-right font-bold">${pct}%</span></div></div></div>`;
     }).join('');
-  } else {
-    intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-3xl mb-2">🤷‍♂️</span><p class="text-sm text-gray-400">단어장 내에 의미가 비슷한 단어가 아직 없습니다.</p></div>';
-  }
-
+  } else { intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-3xl mb-2">🤷‍♂️</span><p class="text-sm text-gray-400">단어장 내에 의미가 비슷한 단어가 아직 없습니다.</p></div>'; }
   const existingEn=new Set(words.map(x=>x.en.toLowerCase()));
   const newCands=new Set();
-
   function renderChips(elId, items, cls){
     const el=document.getElementById(elId);
     if(!items.length){el.innerHTML='<span class="text-sm text-gray-400">검색 결과 없음</span>';return;}
@@ -699,13 +667,11 @@ async function runAnalysis(w){
       };
       const inBookWord=words.find(x=>x.en.toLowerCase()===item.word.toLowerCase());
       const knownKo=inBookWord?inBookWord.ko:null;
-      
       span.appendChild(document.createTextNode((inBook?'✅ ':'')+item.word));
       const tooltip=document.createElement('span');
       tooltip.className='chip-tooltip'+(knownKo?'':' loading');
       tooltip.textContent=knownKo||'뜻 번역 중...';
       span.appendChild(tooltip);
-
       if(!knownKo){
         let fetched=false;
         span.addEventListener('mouseenter',async()=>{
@@ -721,36 +687,20 @@ async function runAnalysis(w){
       el.appendChild(span);
     });
   }
-
-  // ✅ 중복 제거 및 데이터 깔끔하게 병합
   const mergeWords = (...arrays) => {
     const map = new Map();
-    arrays.flat().forEach(item => {
-      if(item && item.word && item.word.toLowerCase() !== w.en.toLowerCase()) {
-        map.set(item.word.toLowerCase(), item);
-      }
-    });
+    arrays.flat().forEach(item => { if(item && item.word && item.word.toLowerCase() !== w.en.toLowerCase()) { map.set(item.word.toLowerCase(), item); } });
     return Array.from(map.values());
   };
-
-  const finalSyns = mergeWords(dictSyns, syn1, syn2).slice(0, 20);
-  const finalAnts = mergeWords(dictAnts, ants).slice(0, 15);
-  const finalRels = mergeWords(rel1, rel2).slice(0, 20);
-  const finalCols = mergeWords(col1, col2, col3, col4).slice(0, 20);
-
-  renderChips('ar-synonyms', finalSyns, 'chip-syn');
-  renderChips('ar-antonyms', finalAnts, 'chip-ant');
-  renderChips('ar-related', finalRels, 'chip-rel');
-  renderChips('ar-collocations', finalCols, 'chip-freq');
-
-  const recEl=document.getElementById('ar-recommendations');
+  renderChips('ar-synonyms', mergeWords(dictSyns, syn1, syn2).slice(0, 20), 'chip-syn');
+  renderChips('ar-antonyms', mergeWords(dictAnts, ants).slice(0, 15), 'chip-ant');
+  renderChips('ar-related', mergeWords(rel1, rel2).slice(0, 20), 'chip-rel');
+  renderChips('ar-collocations', mergeWords(col1, col2, col3, col4).slice(0, 20), 'chip-freq');
   const recs=[...newCands].slice(0,25);
-  recEl.innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new shadow-sm border border-blue-100" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm text-gray-400">추천할 새 단어가 없습니다.</span>';
-  
+  document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new shadow-sm border border-blue-100" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm text-gray-400">추천할 새 단어가 없습니다.</span>';
   const scrollContainer = document.getElementById('analysis-result').parentElement;
   if (scrollContainer) scrollContainer.scrollTop = 0;
 }
-
 function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();}
 </script>
 
@@ -759,8 +709,7 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
 <!-- ========================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  // ✅ Persistence 모듈 추가 및 스마트 폴백을 위한 signInWithRedirect 추가
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -782,7 +731,6 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
   let isInitialCloudLoad = true;
   let unsubscribeSnapshot = null;
 
-  // UI 요소
   const cloudDot = document.getElementById('cloud-dot');
   const cloudStatusText = document.getElementById('cloud-status-text');
   const loginOverlay = document.getElementById('login-overlay');
@@ -792,84 +740,85 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       cloudStatusText.textContent = text;
   };
 
-  // Google 로그인 함수 (스마트 폴백 적용: 팝업 시도 후 막히면 리다이렉트로 자동 전환)
-  window.loginWithGoogle = () => {
+  // ✅ 기기 판단 로직 (아이패드/모바일 여부 확인)
+  const isMobileOrIPad = /iPad|iPhone|iPod|Android/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  // ✅ Google 로그인 함수: 아이패드 등 모바일 기기에서는 리다이렉트 방식을 최우선으로 사용합니다.
+  window.loginWithGoogle = async () => {
       window.showToast("구글 로그인 진행 중...", "info");
       
-      // 체크박스 상태 확인 (true: 기기에 유지 / false: 브라우저 닫으면 로그아웃)
       const keepLogin = document.getElementById('keep-login-chk').checked;
       const persistenceType = keepLogin ? browserLocalPersistence : browserSessionPersistence;
       
-      // 팝업 지연으로 인한 차단을 막기 위해 await 없이 즉시 실행 (Fire and forget)
-      setPersistence(auth, persistenceType).catch(console.error);
+      try {
+          // 비동기 딜레이를 최소화하기 위해 즉시 로그인 함수 호출
+          await setPersistence(auth, persistenceType);
 
-      // 딜레이 없이 즉시 팝업 호출
-      signInWithPopup(auth, provider).catch(error => {
-          console.error("팝업 로그인 에러:", error);
-          
-          // 브라우저 팝업 차단 또는 사용자 액션 무효화(Invalid Action) 에러 발생 시 리다이렉트로 자동 전환
-          const errStr = error.message ? error.message.toLowerCase() : "";
-          if (error.code === 'auth/popup-blocked' || errStr.includes('invalid') || errStr.includes('user gesture')) {
-              window.showToast("팝업이 차단되어 화면 이동 방식으로 접속합니다...", "info");
-              signInWithRedirect(auth, provider).catch(redirectErr => {
-                  window.showToast("로그인 이동 실패: " + redirectErr.message, "error");
-              });
+          if (isMobileOrIPad) {
+              // 📱 아이패드/모바일: 팝업 차단 위험이 크므로 리다이렉트 방식 사용
+              await signInWithRedirect(auth, provider);
           } else {
-              window.showToast("로그인 실패: " + error.message, "error");
+              // 💻 PC: 사용자 경험을 위해 팝업 방식 우선 시도
+              signInWithPopup(auth, provider).catch(error => {
+                  console.warn("팝업 차단 감지, 리다이렉트로 전환합니다.");
+                  signInWithRedirect(auth, provider);
+              });
           }
-      });
+      } catch (error) {
+          console.error("로그인 설정 에러:", error);
+          window.showToast("로그인 오류: " + error.message, "error");
+      }
   };
 
-  // 로그아웃 함수
+  // 리다이렉트 후 복귀 시 로그인 결과 처리
+  getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+          window.showToast("로그인 성공!", "info");
+      }
+  }).catch(error => {
+      console.error("리다이렉트 결과 에러:", error);
+  });
+
   window.logoutGoogle = () => {
       signOut(auth).then(() => {
           if (unsubscribeSnapshot) unsubscribeSnapshot();
-          window.words = []; // 데이터 분리를 위해 로컬 메모리 비우기
+          window.words = [];
           localStorage.removeItem('myWordbook');
           window.renderWords();
           window.showToast("안전하게 로그아웃 되었습니다.");
       });
   };
 
-  // 인증 상태 감지
   onAuthStateChanged(auth, (user) => {
       currentUser = user;
       if (user) {
-          // 로그인 성공 시 오버레이 숨기고 사용자 전용 경로로 동기화 시작
           loginOverlay.classList.add('hidden');
           setupRealtimeSync(user.uid);
       } else {
-          // 로그아웃 상태면 오버레이 표시
           loginOverlay.classList.remove('hidden');
           updateCloudStatus('rose', '로그아웃됨');
       }
   });
 
-  // 실시간 동기화 (내 고유 UID 경로 사용)
   function setupRealtimeSync(uid) {
       updateCloudStatus('amber', '동기화 연결 중...');
       const docRef = doc(db, 'users', uid, 'wordbookData', 'main');
-      
-      if (unsubscribeSnapshot) unsubscribeSnapshot(); // 기존 리스너 해제
-      
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
       unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
           updateCloudStatus('emerald', '동기화 완료 ☁️');
-          
           if (docSnap.exists()) {
               const data = docSnap.data();
               if (data.wordsList) {
                   try {
                       const cloudWords = JSON.parse(data.wordsList);
                       window.updateFromCloud(cloudWords);
-                      if(isInitialCloudLoad) {
-                          window.showToast("☁️ 내 클라우드 단어장을 불러왔습니다.");
-                      }
+                      if(isInitialCloudLoad) { window.showToast("☁️ 클라우드 단어장을 불러왔습니다."); }
                   } catch(e) { console.error("데이터 파싱 에러", e); }
               }
           } else {
               if (window.words && window.words.length > 0) {
                   window.triggerCloudSave(window.words);
-                  window.showToast("☁️ 기존 단어를 내 클라우드에 백업했습니다.");
+                  window.showToast("☁️ 기존 단어를 클라우드에 백업했습니다.");
               }
           }
           isInitialCloudLoad = false;
@@ -879,12 +828,10 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       });
   }
 
-  // 데이터 저장 함수
   window.triggerCloudSave = (wordsArray) => {
       if (!currentUser) return;
       updateCloudStatus('indigo', '저장 중... ☁️');
       const docRef = doc(db, 'users', currentUser.uid, 'wordbookData', 'main');
-      
       setDoc(docRef, { wordsList: JSON.stringify(wordsArray) })
         .then(() => { updateCloudStatus('emerald', '동기화 완료 ☁️'); })
         .catch(error => {
