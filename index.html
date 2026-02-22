@@ -57,6 +57,9 @@
 
   /* 텍스트 크기 자동 조절을 위한 기준점 설정 */
   .origin-left { transform-origin: left center; }
+  
+  /* Select 박스 가운데 정렬 (페이지 스크롤 기능) */
+  .text-center-last { text-align-last: center; }
 </style>
 </head>
 <body class="bg-black text-gray-200 font-sans h-screen w-screen flex items-center justify-center p-2 sm:p-6 overflow-hidden">
@@ -122,8 +125,12 @@
   
   <div id="pagination-controls" class="flex justify-between items-center pt-5 border-t border-gray-800 hidden flex-shrink-0 mt-2">
     <button onclick="changePage(-1)" id="btn-prev" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all" disabled>이전</button>
-    <!-- 클릭 시 페이지 이동이 가능하도록 버튼으로 변경 -->
-    <button id="page-info" onclick="jumpToPage()" title="페이지 이동" class="text-base text-gray-400 font-bold bg-gray-900 px-5 py-2 rounded-full shadow-inner border border-gray-800 hover:text-indigo-300 hover:border-indigo-500/50 transition-all cursor-pointer">1 / 1</button>
+    
+    <!-- 클릭 시 스크롤 UI로 페이지 이동할 수 있도록 select 요소로 변경 -->
+    <select id="page-select" onchange="jumpToPage(this.value)" title="페이지 이동" class="appearance-none text-base text-gray-400 font-bold bg-gray-900 px-6 py-2 rounded-full shadow-inner border border-gray-800 hover:text-indigo-300 hover:border-indigo-500/50 transition-all cursor-pointer focus:outline-none text-center-last">
+      <option value="1">1 / 1</option>
+    </select>
+
     <button onclick="changePage(1)"  id="btn-next" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all">다음</button>
   </div>
 </div>
@@ -539,21 +546,13 @@ function saveEditWord() {
 
 function changePage(d){currentPage+=d;renderWords();document.getElementById('word-list').scrollTop=0;}
 
-// 💡 수정사항 2: 페이지 즉시 이동(Jump to page) 기능 추가
-function jumpToPage() {
-  const info = document.getElementById('page-info').textContent;
-  const total = parseInt(info.split('/')[1].trim(), 10);
-  const input = prompt(`이동할 페이지를 입력하세요 (1 ~ ${total}):`, currentPage);
-  
-  if (input !== null) {
-      const page = parseInt(input, 10);
-      if (!isNaN(page) && page >= 1 && page <= total) {
-          currentPage = page;
-          renderWords();
-          document.getElementById('word-list').scrollTop = 0;
-      } else {
-          showToast('유효한 페이지 번호가 아닙니다.', 'error');
-      }
+// 💡 수정사항 2: <select> 태그를 통한 스크롤 형식 페이지 이동
+function jumpToPage(val) {
+  const page = parseInt(val, 10);
+  if (!isNaN(page)) {
+      currentPage = page;
+      renderWords();
+      document.getElementById('word-list').scrollTop = 0;
   }
 }
 
@@ -595,8 +594,27 @@ function renderWords(){
       </div>`;
     list.appendChild(li);
   });
+  
   const pgCtrl=document.getElementById('pagination-controls');
-  if(total>1){pgCtrl.classList.remove('hidden');document.getElementById('page-info').textContent=`${currentPage} / ${total}`;document.getElementById('btn-prev').disabled=currentPage===1;document.getElementById('btn-next').disabled=currentPage===total;} else pgCtrl.classList.add('hidden');
+  if(total>1){
+    pgCtrl.classList.remove('hidden');
+    
+    // Select 태그에 옵션 채우기
+    const pageSelect = document.getElementById('page-select');
+    pageSelect.innerHTML = '';
+    for(let i=1; i<=total; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${i} / ${total}`;
+        if(i === currentPage) opt.selected = true;
+        pageSelect.appendChild(opt);
+    }
+    
+    document.getElementById('btn-prev').disabled=currentPage===1;
+    document.getElementById('btn-next').disabled=currentPage===total;
+  } else {
+    pgCtrl.classList.add('hidden');
+  }
 
   // 리스트를 다 그린 후 스케일 자동 조절 실행
   setTimeout(resizeAllTexts, 10);
