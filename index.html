@@ -609,7 +609,7 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
 <!-- ========================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   // 직접 발급받은 Firebase 설정값 넣기
@@ -642,15 +642,22 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       cloudStatusText.textContent = text;
   };
 
-  // Google 로그인 함수 (HTML 버튼에서 호출)
+  // Google 로그인 함수 - 모바일 및 PWA 호환성을 위해 리다이렉트(Redirect) 방식 사용
   window.loginWithGoogle = () => {
-      signInWithPopup(auth, provider).catch(error => {
-          console.error("로그인 에러:", error);
-          window.showToast("로그인 실패: " + error.message, "error");
+      window.showToast("구글 로그인 화면으로 이동합니다...", "info");
+      signInWithRedirect(auth, provider).catch(error => {
+          console.error("로그인 이동 에러:", error);
+          window.showToast("로그인 이동 실패: " + error.message, "error");
       });
   };
 
-  // 로그아웃 함수 (HTML 헤더에서 호출)
+  // 리다이렉트 후 돌아왔을 때 결과 처리
+  getRedirectResult(auth).catch(error => {
+      console.error("리다이렉트 로그인 에러:", error);
+      window.showToast("로그인 실패: " + error.message, "error");
+  });
+
+  // 로그아웃 함수
   window.logoutGoogle = () => {
       signOut(auth).then(() => {
           if (unsubscribeSnapshot) unsubscribeSnapshot();
@@ -678,7 +685,6 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
   // 실시간 동기화 (내 고유 UID 경로 사용)
   function setupRealtimeSync(uid) {
       updateCloudStatus('amber', '동기화 연결 중...');
-      // 🌟 이제 각 사용자별로 완벽하게 분리된 나만의 클라우드 폴더를 사용합니다!
       const docRef = doc(db, 'users', uid, 'wordbookData', 'main');
       
       if (unsubscribeSnapshot) unsubscribeSnapshot(); // 기존 리스너 해제
