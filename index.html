@@ -31,7 +31,7 @@
     content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
     border:5px solid transparent;border-top-color:#1e1b4b;
   }
-  .chip:hover .chip-tooltip{opacity:1;}
+  .chip:hover .chip-tooltip, .chip.force-tooltip .chip-tooltip {opacity:1;}
   .chip-tooltip.loading{color:#a5b4fc;}
   .chip-syn{background:#ede9fe;color:#7c3aed}
   .chip-ant{background:#fee2e2;color:#dc2626}
@@ -61,7 +61,6 @@
     <h2 class="text-3xl font-bold mb-4 text-gray-800">단어장 로그인</h2>
     <p class="text-gray-500 mb-6 text-center px-6 leading-relaxed">안전한 데이터 백업과<br>모든 기기 실시간 동기화를 위해<br>구글 계정으로 로그인해주세요.</p>
     
-    <!-- 로그인 유지 체크박스 -->
     <label class="flex items-center gap-2 mb-8 cursor-pointer group bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 shadow-sm hover:bg-gray-100 transition-colors">
         <input type="checkbox" id="keep-login-chk" checked class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer accent-indigo-600">
         <span class="text-sm font-bold text-gray-600 group-hover:text-indigo-600 transition-colors">자동 로그인 유지 (개인 기기 권장)</span>
@@ -160,10 +159,10 @@
     </div>
     
     <div class="flex-1 bg-white rounded-[2rem] shadow-xl border-4 border-indigo-50 flex flex-col items-center justify-center p-10 mb-6 text-center relative min-h-[300px]">
-      <h2 id="test-word-en" class="text-5xl sm:text-7xl font-black text-gray-800 mb-10">Apple</h2>
+      <h2 id="test-word-en" class="text-5xl sm:text-7xl font-black text-gray-800 mb-10 break-all px-4">Apple</h2>
       <div class="h-28 flex items-center justify-center w-full">
         <button id="btn-reveal" onclick="revealAnswer()" class="bg-gray-100 text-gray-600 font-bold text-lg px-12 py-4 rounded-full hover:bg-gray-200 transition-colors shadow-sm">정답 확인 👀</button>
-        <p id="test-word-ko" class="text-4xl sm:text-5xl font-bold text-indigo-600 hidden fade-in">사과</p>
+        <p id="test-word-ko" class="text-4xl sm:text-5xl font-bold text-indigo-600 hidden fade-in break-words px-4">사과</p>
       </div>
     </div>
     
@@ -204,7 +203,7 @@
     
     <div class="bg-white rounded-[2rem] shadow-md border-4 border-indigo-50 flex flex-col items-center justify-center py-16 px-6 mb-8">
       <span class="text-base font-bold text-indigo-400 mb-4 tracking-wider">어떤 뜻일까요?</span>
-      <h2 id="quiz-word-en" class="text-5xl sm:text-6xl font-black text-gray-800 text-center">Word</h2>
+      <h2 id="quiz-word-en" class="text-5xl sm:text-6xl font-black text-gray-800 text-center break-all">Word</h2>
     </div>
     
     <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 content-end pb-4"></div>
@@ -230,7 +229,7 @@
       <div class="text-6xl mb-6">✏️</div>
       <h2 class="text-3xl font-bold mb-4">빈칸 넣기</h2>
       <p class="text-gray-500 text-base leading-relaxed mb-4">실제 영어 예문 속 <span class="fill-blank px-2">빈칸</span>에<br>올바른 단어를 골라보세요!</p>
-      <p class="text-sm text-indigo-400 font-bold mb-10">📡 Datamuse API 실제 예문 사용</p>
+      <p class="text-sm text-indigo-400 font-bold mb-10">📡 Dictionary API 실제 예문 사용</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <button onclick="startFill(10)" class="flex-1 bg-indigo-600 text-white font-bold py-5 text-lg rounded-xl hover:bg-indigo-700 active:scale-95 shadow-md">10문제 풀기</button>
         <button onclick="startFill(20)" class="flex-1 bg-indigo-100 text-indigo-700 font-bold py-5 text-lg rounded-xl hover:bg-indigo-200 active:scale-95">20문제 풀기</button>
@@ -259,7 +258,7 @@
     <div class="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 flex flex-col justify-center">
       <div class="bg-white rounded-[2rem] shadow-md border-4 border-gray-50 p-10 text-center">
         <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">예문</p>
-        <p id="fill-sentence" class="text-2xl text-gray-800 leading-relaxed font-semibold"></p>
+        <p id="fill-sentence" class="text-2xl text-gray-800 leading-relaxed font-semibold break-words"></p>
       </div>
       <div id="fill-feedback" class="hidden rounded-2xl p-6 border-2">
         <p id="fill-feedback-text" class="font-bold text-lg mb-2"></p>
@@ -299,11 +298,11 @@
       <div id="analysis-dropdown" class="hidden mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar absolute w-[calc(100%-2rem)] sm:w-[calc(100%-2.5rem)] max-w-4xl left-1/2 -translate-x-1/2 z-50"></div>
       
       <div id="analysis-selected-word" class="hidden mt-3 flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
-        <div class="flex-1 flex items-baseline gap-2 sm:gap-3">
-          <span id="analysis-word-en-display" class="text-xl sm:text-2xl font-black text-indigo-700"></span>
-          <span id="analysis-word-ko-display" class="text-sm sm:text-base font-medium text-indigo-500"></span>
+        <div class="flex-1 flex items-baseline gap-2 sm:gap-3 min-w-0">
+          <span id="analysis-word-en-display" class="text-xl sm:text-2xl font-black text-indigo-700 break-all"></span>
+          <span id="analysis-word-ko-display" class="text-sm sm:text-base font-medium text-indigo-500 truncate"></span>
         </div>
-        <button onclick="clearAnalysisWord()" class="text-gray-400 hover:text-rose-500 text-xl px-2">✕</button>
+        <button onclick="clearAnalysisWord()" class="text-gray-400 hover:text-rose-500 text-xl px-2 flex-shrink-0">✕</button>
       </div>
     </div>
   </div>
@@ -330,14 +329,14 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 sm:p-8">
             <div class="flex items-start justify-between mb-4">
-              <div>
-                <h3 id="ar-word" class="text-3xl sm:text-4xl font-black text-gray-800 tracking-tight"></h3>
+              <div class="min-w-0 pr-4">
+                <h3 id="ar-word" class="text-3xl sm:text-4xl font-black text-gray-800 tracking-tight break-all"></h3>
                 <p id="ar-phonetic" class="text-base sm:text-lg text-indigo-400 font-mono mt-1 font-medium"></p>
               </div>
               <button id="ar-audio-btn" class="hidden bg-indigo-50 text-indigo-600 border border-indigo-100 px-4 py-2 rounded-full text-sm font-bold hover:bg-indigo-100 transition-colors flex-shrink-0 flex items-center gap-2">🔊 <span class="hidden sm:inline">원어민 발음</span></button>
             </div>
             <span id="ar-partOfSpeech" class="inline-block text-xs sm:text-sm font-bold text-white bg-indigo-500 px-3 py-1.5 rounded-full mb-4 shadow-sm"></span>
-            <p id="ar-definition" class="text-sm sm:text-base text-gray-700 leading-relaxed mb-6 font-medium"></p>
+            <p id="ar-definition" class="text-sm sm:text-base text-gray-700 leading-relaxed mb-6 font-medium break-words"></p>
             <div class="border-t border-gray-100 pt-6">
               <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">📝 실생활 예문</p>
               <div id="ar-examples" class="space-y-4"></div>
@@ -367,7 +366,7 @@
           </div>
         </div>
         <div class="bg-gradient-to-r from-indigo-50 via-white to-violet-50 rounded-2xl border border-indigo-100 p-6 sm:p-8 shadow-sm">
-          <p class="text-sm font-bold text-indigo-600 uppercase tracking-widest mb-1">✨ 단어장 추가 추천</p>
+          <p class="text-sm font-bold text-indigo-600 uppercase tracking-widest mb-1">✨ 단어장 추가 추천 (터치하여 추가)</p>
           <div id="ar-recommendations" class="flex flex-wrap gap-3 mt-4"></div>
         </div>
       </div>
@@ -488,7 +487,7 @@ function addWord(){
   const enEl=document.getElementById('input-en'),koEl=document.getElementById('input-ko');
   const en=enEl.value.trim(),ko=koEl.value.trim();
   if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
-  words.push({id:Date.now(),en,ko,wrongCount:0});
+  words.push({id:Date.now(),en,ko,wrongCount:0, quizCount:0});
   buildSimMatrix();currentPage=1;
   saveData();
   enEl.value='';koEl.value='';enEl.focus();
@@ -528,14 +527,15 @@ function renderWords(){
   
   disp.slice((currentPage-1)*IPP,currentPage*IPP).forEach(w=>{
     const simRow=simMatrix[w.id]||{};const dupes=words.filter(x=>x.id!==w.id&&(simRow[x.id]||0)>=SIM_DUP);
-    const wBadge=w.wrongCount>0?`<span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-bold rounded-full">오답 ${w.wrongCount}회</span>`:'';
-    const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-100 text-amber-600 text-[10px] font-bold rounded-full">⚠️ 중복</span>`:'';
+    const wBadge=w.wrongCount>0?`<span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-bold rounded-full whitespace-nowrap">오답 ${w.wrongCount}회</span>`:'';
+    const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-100 text-amber-600 text-[10px] font-bold rounded-full whitespace-nowrap">⚠️ 중복</span>`:'';
     const li=document.createElement('li');
     li.className='bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center fade-in hover:border-indigo-200 hover:shadow-md transition-all h-max';
+    // 💡 수정사항 3: 글씨가 길면 잘리지 않고 자연스럽게 밑으로 줄바꿈되도록 수정 (break-words 적용)
     li.innerHTML=`
       <div class="flex flex-col flex-1 pr-3 min-w-0">
-        <span class="font-bold text-xl text-gray-800 mb-1 truncate">${w.en}</span>
-        <span class="text-gray-500 text-sm truncate">${w.ko}</span>
+        <span class="font-bold text-xl text-gray-800 mb-1 break-words leading-tight">${w.en}</span>
+        <span class="text-gray-500 text-sm whitespace-normal break-words">${w.ko}</span>
         <div class="flex gap-1.5 mt-2 flex-wrap">${wBadge}${dBadge}</div>
       </div>
       <div class="flex gap-2 flex-shrink-0">
@@ -556,7 +556,7 @@ function renderWords(){
 }
 
 function exportData(){if(!words.length)return showToast('저장할 단어가 없습니다.','error');const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'})),download:`영단어장.json`});document.body.appendChild(a);a.click();a.remove();}
-function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0});}});buildSimMatrix();saveData();currentPage=1;showToast(`단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};r.readAsText(file);e.target.value='';}
+function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0, quizCount:iw.quizCount||0});}});buildSimMatrix();saveData();currentPage=1;showToast(`단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};r.readAsText(file);e.target.value='';}
 
 function resetTestView(){testQueue=[];testPool=[];testIdx=0;testCorrect=0;['test-intro','test-active','test-result'].forEach((id,i)=>document.getElementById(id).classList[i===0?'remove':'add']('hidden'));}
 function startTest(mode){if(!words.length)return showToast('단어가 없습니다!','error');let pool=[...words];if(mode==='wrong'){pool=pool.filter(w=>(w.wrongCount||0)>0);if(!pool.length)return showToast('틀린 단어가 없습니다!');}testPool=pool;testQueue=shuffle(pool);testIdx=testCorrect=0;document.getElementById('test-intro').classList.add('hidden');document.getElementById('test-active').classList.remove('hidden');loadTestCard();}
@@ -570,16 +570,101 @@ function semSim(a,b){const tA=tokenize(a),tB=tokenize(b);if(!tA.size||!tB.size)r
 function buildSimMatrix(){simMatrix={};for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++){if(i===j)continue;const a=words[i],b=words[j];if(!simMatrix[a.id])simMatrix[a.id]={};simMatrix[a.id][b.id]=semSim(a.ko,b.ko);}}
 
 function resetQuizView(){quizQueue=[];quizIdx=0;document.getElementById('quiz-intro').classList.remove('hidden');document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.add('hidden');}
-function startQuiz(){if(words.length<4)return showToast('단어가 4개 이상 필요합니다!','error');quizQ=0;quizS=0;quizQueue=shuffle(words);quizIdx=0;document.getElementById('quiz-intro').classList.add('hidden');document.getElementById('quiz-active').classList.remove('hidden');nextQuiz();}
+
+// 💡 수정사항 5: 사지선다 단어 출제 빈도를 가중치 알고리즘(오답 많고 출제 안 된 단어 우선)으로 똑똑하게 섞기
+function startQuiz(){
+    if(words.length<4)return showToast('단어가 4개 이상 필요합니다!','error');
+    quizQ=0;quizS=0;
+    
+    // 가중치 기반 똑똑한 셔플 (많이 틀린 단어, 덜 나온 단어 우선 배치)
+    quizQueue = [...words].sort((a,b) => {
+        const scoreA = (a.wrongCount||0)*5 - (a.quizCount||0)*2 + Math.random()*5;
+        const scoreB = (b.wrongCount||0)*5 - (b.quizCount||0)*2 + Math.random()*5;
+        return scoreB - scoreA;
+    });
+    
+    quizIdx=0;
+    document.getElementById('quiz-intro').classList.add('hidden');
+    document.getElementById('quiz-active').classList.remove('hidden');
+    nextQuiz();
+}
 function getDistractors(target){const mat=confMatrix[target.id]||{},sim=simMatrix[target.id]||{};const cands=words.filter(w=>w.id!==target.id&&(sim[w.id]||0)<SIM_DUP);return cands.map(w=>({word:w,score:(sim[w.id]||0)*5+(mat[w.id]||0)*10+Math.random()*3})).sort((a,b)=>b.score-a.score).slice(0,3).map(s=>s.word);}
-function nextQuiz(){if(quizIdx>=quizQueue.length){quizQueue=shuffle(words);quizIdx=0;}quizQ++;document.getElementById('quiz-progress').textContent=`${quizQ}번째`;document.getElementById('quiz-score').textContent=quizS;quizWord=quizQueue[quizIdx++];document.getElementById('quiz-word-en').textContent=quizWord.en;const opts=document.getElementById('quiz-options');opts.innerHTML='';shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach(opt=>{const btn=document.createElement('button');btn.className='game-btn w-full bg-white border-2 border-gray-200 text-gray-700 font-bold py-6 rounded-2xl text-xl';btn.textContent=opt.word.ko;btn.onclick=()=>selectQuiz(btn,opt.ok,opt.word.id);opts.appendChild(btn);});}
+function nextQuiz(){
+    if(quizIdx>=quizQueue.length){
+        quizQueue = [...words].sort((a,b) => ((b.wrongCount||0)*5 - (b.quizCount||0)*2 + Math.random()*5) - ((a.wrongCount||0)*5 - (a.quizCount||0)*2 + Math.random()*5));
+        quizIdx=0;
+    }
+    quizQ++;
+    document.getElementById('quiz-progress').textContent=`${quizQ}번째`;
+    document.getElementById('quiz-score').textContent=quizS;
+    
+    quizWord=quizQueue[quizIdx++];
+    
+    // 출제 횟수 기록 및 저장
+    const wIdx = words.findIndex(w=>w.id===quizWord.id);
+    if(wIdx !== -1) { words[wIdx].quizCount = (words[wIdx].quizCount || 0) + 1; saveData(); }
+
+    document.getElementById('quiz-word-en').textContent=quizWord.en;
+    const opts=document.getElementById('quiz-options');
+    opts.innerHTML='';
+    shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach(opt=>{
+        const btn=document.createElement('button');
+        btn.className='game-btn w-full bg-white border-2 border-gray-200 text-gray-700 font-bold py-6 rounded-2xl text-xl break-words px-4';
+        btn.textContent=opt.word.ko;
+        btn.onclick=()=>selectQuiz(btn,opt.ok,opt.word.id);
+        opts.appendChild(btn);
+    });
+}
 function selectQuiz(btn,ok,selId){document.querySelectorAll('#quiz-options button').forEach(b=>b.disabled=true);if(ok){quizS++;btn.classList.add('correct-answer');}else{btn.classList.add('wrong-answer');const i=words.findIndex(w=>w.id===quizWord.id);if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}if(!confMatrix[quizWord.id])confMatrix[quizWord.id]={};confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;saveConf();}document.getElementById('quiz-score').textContent=quizS;setTimeout(()=>nextQuiz(),1000);}
 function showQuizResult(){document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.remove('hidden');document.getElementById('quiz-final-score').textContent=quizS;document.getElementById('quiz-total-score').textContent=Math.max(0,quizQ-1);renderWords();}
 
 function resetFillView(){fillQuestions=[];fillIdx=0;fillScore=0;document.getElementById('fill-intro').classList.remove('hidden');document.getElementById('fill-active').classList.add('hidden');document.getElementById('fill-result').classList.add('hidden');}
+
+// 💡 수정사항 2 & 6: 빈칸 예문을 실제 원어민 예문으로 변경하고, 뜻풀이가 같이 출력되는 버그 수정
+async function buildFillQuestion(targetWord){
+  try{
+    let sentence = "";
+    // Dictionary API를 호출하여 실제 생활 예문을 가져옴
+    const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${targetWord.en}`);
+    if(r.ok) {
+        const data = await r.json();
+        const meanings = data[0]?.meanings || [];
+        for(let m of meanings) {
+            for(let d of m.definitions) {
+                if(d.example && d.example.toLowerCase().includes(targetWord.en.toLowerCase())) {
+                    sentence = d.example;
+                    break;
+                }
+            }
+            if(sentence) break;
+        }
+    }
+    
+    // 외부 API에 예문이 없다면 무난한 기본 문장 생성
+    if(!sentence) {
+        sentence = `I need to learn how to use the word "${targetWord.en}" in a sentence.`;
+    }
+
+    // 단어를 찾아서 깔끔하게 밑줄(빈칸)로 치환 (대소문자 무시, s나 ed 같은 가벼운 접미사 허용)
+    const regex = new RegExp(`\\b${targetWord.en}\\b(?:'s|s|ed|ing|d)?`, 'gi');
+    let blanked = sentence.replace(regex, '___');
+    
+    // 혹시라도 치환이 안 됐다면 강제로 단어 자체를 치환 시도
+    if(!blanked.includes('___')) {
+        const fallbackRegex = new RegExp(targetWord.en, 'gi');
+        blanked = sentence.replace(fallbackRegex, '___');
+    }
+
+    const sim=simMatrix[targetWord.id]||{};
+    const dist=words.filter(w=>w.id!==targetWord.id&&(sim[w.id]||0)<SIM_DUP).sort(()=>Math.random()-0.5).slice(0,3);
+    while(dist.length<3)dist.push(words.find(w=>w.id!==targetWord.id&&!dist.some(x=>x.id===w.id)));
+    
+    return {word:targetWord, blank:blanked, full:sentence, options:shuffle([targetWord,...dist])};
+  }catch{return null;}
+}
+
 async function startFill(n=10){if(words.length<4)return showToast('단어가 4개 이상 필요합니다!','error');fillTotal=n;fillScore=0;fillIdx=0;fillQuestions=[];document.getElementById('fill-intro').classList.add('hidden');document.getElementById('fill-loading').classList.remove('hidden');document.getElementById('fill-loading').classList.add('flex');const pool=shuffle(words).slice(0,n);const results=await Promise.all(pool.map(w=>buildFillQuestion(w)));fillQuestions=results.filter(Boolean);document.getElementById('fill-loading').classList.add('hidden');document.getElementById('fill-loading').classList.remove('flex');if(fillQuestions.length<1){resetFillView();return showToast('오류 발생','error');}fillTotal=fillQuestions.length;document.getElementById('fill-active').classList.remove('hidden');showFillQuestion();}
-async function buildFillQuestion(targetWord){try{let s=`It is important to understand what it means to ${targetWord.en}.`;const r=await fetch(`https://api.datamuse.com/words?sp=${encodeURIComponent(targetWord.en)}&md=d&max=1`);const d=await r.json();if(d[0]?.defs?.[0]) s=`She decided to ${targetWord.en} her goals. "${d[0].defs[0].replace(/^\w+\t/,'')}"`;const sim=simMatrix[targetWord.id]||{};const dist=words.filter(w=>w.id!==targetWord.id&&(sim[w.id]||0)<SIM_DUP).sort(()=>Math.random()-0.5).slice(0,3);while(dist.length<3)dist.push(words.find(w=>w.id!==targetWord.id&&!dist.some(x=>x.id===w.id)));return {word:targetWord,blank:s.replace(new RegExp(`\\b${targetWord.en}\\b`,'gi'),'___'),full:s,options:shuffle([targetWord,...dist])};}catch{return null;}}
-function showFillQuestion(){if(fillIdx>=fillQuestions.length)return showFillResult();fillCurrentQ=fillQuestions[fillIdx];document.getElementById('fill-progress-bar').style.width=Math.round((fillIdx/fillTotal)*100)+'%';document.getElementById('fill-progress-text').textContent=`${fillIdx+1} / ${fillTotal}`;document.getElementById('fill-score').textContent=fillScore;document.getElementById('fill-sentence').innerHTML=fillCurrentQ.blank.replace(/___/g,'<span class="fill-blank px-6 mx-1">　</span>');document.getElementById('fill-feedback').classList.add('hidden');document.getElementById('fill-next-btn').classList.add('hidden');const opts=document.getElementById('fill-options');opts.innerHTML='';fillCurrentQ.options.forEach(w=>{const b=document.createElement('button');b.className='fill-opt bg-white border-2 border-gray-200 rounded-2xl p-5 text-xl font-bold';b.textContent=w.en;b.onclick=()=>selectFill(b,w.id===fillCurrentQ.word.id,fillCurrentQ);opts.appendChild(b);});}
+function showFillQuestion(){if(fillIdx>=fillQuestions.length)return showFillResult();fillCurrentQ=fillQuestions[fillIdx];document.getElementById('fill-progress-bar').style.width=Math.round((fillIdx/fillTotal)*100)+'%';document.getElementById('fill-progress-text').textContent=`${fillIdx+1} / ${fillTotal}`;document.getElementById('fill-score').textContent=fillScore;document.getElementById('fill-sentence').innerHTML=fillCurrentQ.blank.replace(/___/g,'<span class="fill-blank px-6 mx-1">　</span>');document.getElementById('fill-feedback').classList.add('hidden');document.getElementById('fill-next-btn').classList.add('hidden');const opts=document.getElementById('fill-options');opts.innerHTML='';fillCurrentQ.options.forEach(w=>{const b=document.createElement('button');b.className='fill-opt bg-white border-2 border-gray-200 rounded-2xl p-5 text-xl font-bold break-words px-3';b.textContent=w.en;b.onclick=()=>selectFill(b,w.id===fillCurrentQ.word.id,fillCurrentQ);opts.appendChild(b);});}
 function selectFill(btn,ok,q){document.getElementById('fill-options').querySelectorAll('button').forEach(b=>b.disabled=true);if(ok){btn.classList.add('correct');fillScore++;}else{btn.classList.add('wrong');const i=words.findIndex(w=>w.id===q.word.id);if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}}document.getElementById('fill-feedback').classList.remove('hidden');document.getElementById('fill-feedback-text').textContent=ok?'✅ 정답!':`❌ 정답은 "${q.word.en}" 입니다.`;document.getElementById('fill-full-sentence').textContent=q.full;document.getElementById('fill-score').textContent=fillScore;document.getElementById('fill-next-btn').classList.remove('hidden');}
 function nextFillQuestion(){fillIdx++;showFillQuestion();}
 function showFillResult(){document.getElementById('fill-active').classList.add('hidden');document.getElementById('fill-result').classList.remove('hidden');document.getElementById('fill-final-score').textContent=fillScore;document.getElementById('fill-final-total').textContent=fillTotal;}
@@ -625,7 +710,7 @@ async function runAnalysis(w){
     const allExamples=[];
     dictData.meanings?.forEach(m=>{m.definitions?.forEach(d=>{if(d.example&&allExamples.length<3)allExamples.push(d.example);});});
     if(allExamples.length){
-      examplesEl.innerHTML = allExamples.map((ex,i)=>`<div class="flex gap-4 items-start bg-gray-50 p-4 rounded-xl border border-gray-100"><span class="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-700 text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span><p class="text-base text-gray-700 italic leading-relaxed">"${ex}"</p></div>`).join('');
+      examplesEl.innerHTML = allExamples.map((ex,i)=>`<div class="flex gap-4 items-start bg-gray-50 p-4 rounded-xl border border-gray-100"><span class="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-700 text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span><p class="text-base text-gray-700 italic leading-relaxed break-words">"${ex}"</p></div>`).join('');
     } else { examplesEl.innerHTML = '<p class="text-sm text-gray-400 italic bg-gray-50 p-4 rounded-xl">이 단어가 포함된 예문을 찾을 수 없습니다.</p>'; }
   } else {
     document.getElementById('ar-definition').textContent='사전 정보를 불러올 수 없습니다.';
@@ -642,11 +727,13 @@ async function runAnalysis(w){
       const pct=Math.round(sim);
       const bar=pct>=SIM_DUP?'bg-amber-400':pct>=SIM_CONF?'bg-violet-400':'bg-indigo-300';
       const lbl=pct>=SIM_DUP?'<span class="text-[10px] bg-amber-100 text-amber-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">⚠️ 중복</span>':pct>=SIM_CONF?'<span class="text-[10px] bg-violet-100 text-violet-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">혼동 주의</span>':'';
-      return `<div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap mb-1"><span class="font-bold text-base text-gray-800">${iw.en}</span><span class="text-xs text-gray-500 truncate">${iw.ko}</span>${lbl}</div><div class="flex items-center gap-3"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="${bar} h-2 rounded-full transition-all duration-700" style="width:${pct}%"></div></div><span class="text-xs text-gray-400 font-mono w-8 text-right font-bold">${pct}%</span></div></div></div>`;
+      return `<div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap mb-1"><span class="font-bold text-base text-gray-800 break-all">${iw.en}</span><span class="text-xs text-gray-500 truncate">${iw.ko}</span>${lbl}</div><div class="flex items-center gap-3"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="${bar} h-2 rounded-full transition-all duration-700" style="width:${pct}%"></div></div><span class="text-xs text-gray-400 font-mono w-8 text-right font-bold">${pct}%</span></div></div></div>`;
     }).join('');
   } else { intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-3xl mb-2">🤷‍♂️</span><p class="text-sm text-gray-400">단어장 내에 의미가 비슷한 단어가 아직 없습니다.</p></div>'; }
   const existingEn=new Set(words.map(x=>x.en.toLowerCase()));
   const newCands=new Set();
+
+  // 💡 수정사항 4: 모바일 터치 시 바로 단어 추가로 넘어가지 않도록 클릭(터치) 동작 분리
   function renderChips(elId, items, cls){
     const el=document.getElementById(elId);
     if(!items.length){el.innerHTML='<span class="text-sm text-gray-400">검색 결과 없음</span>';return;}
@@ -656,15 +743,7 @@ async function runAnalysis(w){
       if(!inBook)newCands.add(item.word);
       const span=document.createElement('span');
       span.className='chip '+cls;
-      span.onclick=()=>{
-        const found=words.find(x=>x.en.toLowerCase()===item.word.toLowerCase());
-        if(found)selectAnalysisWord(found);else{
-          switchTab('manage');
-          document.getElementById('input-en').value=item.word;
-          document.getElementById('input-ko').focus();
-          showToast('단어 추가 모드로 이동합니다.');
-        }
-      };
+      
       const inBookWord=words.find(x=>x.en.toLowerCase()===item.word.toLowerCase());
       const knownKo=inBookWord?inBookWord.ko:null;
       span.appendChild(document.createTextNode((inBook?'✅ ':'')+item.word));
@@ -672,10 +751,31 @@ async function runAnalysis(w){
       tooltip.className='chip-tooltip'+(knownKo?'':' loading');
       tooltip.textContent=knownKo||'뜻 번역 중...';
       span.appendChild(tooltip);
+      
+      // 모바일 기기를 위한 터치(클릭) 이벤트: 번역만 보여주거나 단어장에 있으면 거기로 이동
+      span.onclick = () => {
+          const found = words.find(x => x.en.toLowerCase() === item.word.toLowerCase());
+          if (found) {
+              selectAnalysisWord(found);
+          } else {
+              // 단어장에 없는 경우 단어 추가 창으로 가지 않고 툴팁(번역)만 보여주기
+              span.classList.add('force-tooltip');
+              if(!knownKo && !span.dataset.fetched){
+                  span.dataset.fetched = "true";
+                  tooltip.classList.remove('loading');
+                  tooltip.textContent = '번역 중...';
+                  fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(item.word)}`)
+                  .then(r=>r.json()).then(data=>{ tooltip.textContent = data[0][0][0] || '뜻 없음'; })
+                  .catch(()=>{ tooltip.textContent='번역 실패'; });
+              }
+              setTimeout(()=> span.classList.remove('force-tooltip'), 3000); // 3초 뒤 툴팁 숨김
+          }
+      };
+
+      // PC 마우스를 위한 Hover 이벤트
       if(!knownKo){
-        let fetched=false;
         span.addEventListener('mouseenter',async()=>{
-          if(fetched)return; fetched=true;
+          if(span.dataset.fetched)return; span.dataset.fetched=true;
           try{
             const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(item.word)}`);
             const data = await r.json();
@@ -696,6 +796,8 @@ async function runAnalysis(w){
   renderChips('ar-antonyms', mergeWords(dictAnts, ants).slice(0, 15), 'chip-ant');
   renderChips('ar-related', mergeWords(rel1, rel2).slice(0, 20), 'chip-rel');
   renderChips('ar-collocations', mergeWords(col1, col2, col3, col4).slice(0, 20), 'chip-freq');
+  
+  // 추천 단어 칩: 이것만 클릭 시 단어 추가 탭으로 바로 이동
   const recs=[...newCands].slice(0,25);
   document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new shadow-sm border border-blue-100" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm text-gray-400">추천할 새 단어가 없습니다.</span>';
   const scrollContainer = document.getElementById('analysis-result').parentElement;
@@ -740,44 +842,40 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       cloudStatusText.textContent = text;
   };
 
-  // ✅ 기기 판단 로직 (아이패드/모바일 여부 확인)
+  // 💡 수정사항 1: PWA "Invalid Action" 우회를 위해 체크박스 클릭 시 미리 로그인 유지 설정 반영
+  let currentPersistence = browserLocalPersistence;
+  document.getElementById('keep-login-chk').addEventListener('change', (e) => {
+      currentPersistence = e.target.checked ? browserLocalPersistence : browserSessionPersistence;
+      setPersistence(auth, currentPersistence).catch(console.error);
+  });
+  // 앱 켤 때 기본값 설정
+  setPersistence(auth, currentPersistence).catch(console.error);
+
   const isMobileOrIPad = /iPad|iPhone|iPod|Android/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-  // ✅ Google 로그인 함수: 아이패드 등 모바일 기기에서는 리다이렉트 방식을 최우선으로 사용합니다.
-  window.loginWithGoogle = async () => {
-      window.showToast("구글 로그인 진행 중...", "info");
+  // 버튼 클릭 시 딜레이(await setPersistence)를 없애 터치 제스처 무효화 방지!
+  window.loginWithGoogle = () => {
+      window.showToast("구글 로그인 화면으로 이동합니다...", "info");
       
-      const keepLogin = document.getElementById('keep-login-chk').checked;
-      const persistenceType = keepLogin ? browserLocalPersistence : browserSessionPersistence;
-      
-      try {
-          // 비동기 딜레이를 최소화하기 위해 즉시 로그인 함수 호출
-          await setPersistence(auth, persistenceType);
-
-          if (isMobileOrIPad) {
-              // 📱 아이패드/모바일: 팝업 차단 위험이 크므로 리다이렉트 방식 사용
-              await signInWithRedirect(auth, provider);
-          } else {
-              // 💻 PC: 사용자 경험을 위해 팝업 방식 우선 시도
-              signInWithPopup(auth, provider).catch(error => {
-                  console.warn("팝업 차단 감지, 리다이렉트로 전환합니다.");
+      if (isMobileOrIPad) {
+          // 모바일/PWA는 팝업 차단을 피해 즉시 화면 이동 (Redirect)
+          signInWithRedirect(auth, provider).catch(err => window.showToast("로그인 실패: " + err.message, "error"));
+      } else {
+          // PC는 팝업 방식으로 편안하게 진행
+          signInWithPopup(auth, provider).catch(error => {
+              if(error.code === 'auth/popup-blocked' || error.message.toLowerCase().includes('invalid')){
                   signInWithRedirect(auth, provider);
-              });
-          }
-      } catch (error) {
-          console.error("로그인 설정 에러:", error);
-          window.showToast("로그인 오류: " + error.message, "error");
+              } else {
+                  window.showToast("로그인 실패: " + error.message, "error");
+              }
+          });
       }
   };
 
-  // 리다이렉트 후 복귀 시 로그인 결과 처리
+  // 리다이렉트로 돌아왔을 때 결과 즉시 처리 (PWA의 매끄러운 연결 지원)
   getRedirectResult(auth).then((result) => {
-      if (result && result.user) {
-          window.showToast("로그인 성공!", "info");
-      }
-  }).catch(error => {
-      console.error("리다이렉트 결과 에러:", error);
-  });
+      if (result && result.user) window.showToast("로그인 성공!", "info");
+  }).catch(error => console.error("리다이렉트 결과 에러:", error));
 
   window.logoutGoogle = () => {
       signOut(auth).then(() => {
