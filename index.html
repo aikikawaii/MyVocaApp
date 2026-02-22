@@ -680,34 +680,84 @@ function resetFillView(){fillQuestions=[];fillIdx=0;fillScore=0;document.getElem
 async function buildFillQuestion(targetWord){
   try{
     let sentence = "";
-    const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${targetWord.en}`);
+    let isDef = false; // 뜻풀이 힌트 모드인지 체크
+    
+    const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(targetWord.en)}`);
     if(r.ok) {
         const data = await r.json();
         const meanings = data[0]?.meanings || [];
+        
+        // 우선순위 1: 실제 예문 찾기
         for(let m of meanings) {
             for(let d of m.definitions) {
-                if(d.example && d.example.toLowerCase().includes(targetWord.en.toLowerCase())) {
+                if(d.example) {
                     sentence = d.example;
                     break;
                 }
             }
             if(sentence) break;
         }
+        
+        // 우선순위 2: 예문이 없으면 영영사전 뜻(Definition)을 힌트로 제공하는 퀴즈로 전환!
+        if(!sentence) {
+            for(let m of meanings) {
+                for(let d of m.definitions) {
+                    if(d.definition) {
+                        sentence = `<span class="text-indigo-400 text-base font-bold block mb-2 mt-2">💡 영영사전 힌트</span><span class="block mb-4 text-gray-300 font-normal">"${d.definition}"</span>👉 들어갈 단어는? ___`;
+                        isDef = true;
+                        break;
+                    }
+                }
+                if(sentence) break;
+            }
+        }
     }
+    
+    // 우선순위 3: API에 정보가 아예 없으면 사용자가 적은 '한국어 뜻'을 힌트로 제공
     if(!sentence) {
-        sentence = `I need to learn how to use the word "${targetWord.en}" in a sentence.`;
+        sentence = `<span class="text-indigo-400 text-base font-bold block mb-2 mt-2">💡 한국어 뜻 힌트</span><span class="block mb-4 text-gray-300 font-normal">"${targetWord.ko}"</span>👉 알맞은 영어 단어는? ___`;
+        isDef = true;
     }
-    const regex = new RegExp(`\\b${targetWord.en}\\b(?:'s|s|ed|ing|d)?`, 'gi');
-    let blanked = sentence.replace(regex, '___');
-    if(!blanked.includes('___')) {
-        const fallbackRegex = new RegExp(targetWord.en, 'gi');
-        blanked = sentence.replace(fallbackRegex, '___');
+
+    let blanked = sentence;
+    // 결과창(피드백)에 보여줄 때는 HTML 태그를 떼어내고 깔끔한 텍스트만 남김
+    let fullText = sentence.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); 
+
+    if(!isDef) {
+        // 일반 예문일 때: 정답 단어를 찾아 빈칸 처리 (과거형, 진행형, 복수형 등 유연하게 커버)
+        const safeRegex = new RegExp(`\\b${targetWord.en}\\b(?:'s|s|es|ed|ing|d|ly)?`, 'gi');
+        blanked = sentence.replace(safeRegex, '___');
+        
+        // 불규칙 동사 변형 등으로 매칭 안 됐을 시: 앞 3글자 일치하는 단어를 강제로 빈칸 처리
+        if(!blanked.includes('___') && targetWord.en.length >= 3) {
+            const prefix = targetWord.en.substring(0, 3);
+            const prefixRegex = new RegExp(`\\b${prefix}\\w*\\b`, 'gi');
+            blanked = sentence.replace(prefixRegex, '___');
+        }
+        
+        // 그래도 못 찾으면 문장 맨 끝에 (___) 추가
+        if(!blanked.includes('___')) {
+            blanked = sentence + " (___)";
+        }
+    } else {
+        // 힌트 모드일 때: 뜻풀이 안에 정답 단어가 스포일러로 적혀있다면 [OOO] 로 가림
+        const spoilerRegex = new RegExp(`\\b${targetWord.en}\\b(?:'s|s|es|ed|ing|d|ly)?`, 'gi');
+        blanked = blanked.replace(spoilerRegex, 'OOO');
     }
+
     const sim=simMatrix[targetWord.id]||{};
     const dist=words.filter(w=>w.id!==targetWord.id&&(sim[w.id]||0)<SIM_DUP).sort(()=>Math.random()-0.5).slice(0,3);
     while(dist.length<3)dist.push(words.find(w=>w.id!==targetWord.id&&!dist.some(x=>x.id===w.id)));
-    return {word:targetWord, blank:blanked, full:sentence, options:shuffle([targetWord,...dist])};
-  }catch{return null;}
+    
+    return {word:targetWord, blank:blanked, full:fullText.replace(/___/g, targetWord.en).replace(/OOO/g, 'OOO'), options:shuffle([targetWord,...dist])};
+  }catch{
+    // 네트워크 오류 등으로 API 통신이 실패했을 때의 최후 방어선
+    const fb = `<span class="text-indigo-400 text-base font-bold block mb-2 mt-2">💡 뜻 힌트</span><span class="block mb-4 text-gray-300 font-normal">"${targetWord.ko}"</span>👉 알맞은 영어 단어는? ___`;
+    const sim=simMatrix[targetWord.id]||{};
+    const dist=words.filter(w=>w.id!==targetWord.id&&(sim[w.id]||0)<SIM_DUP).sort(()=>Math.random()-0.5).slice(0,3);
+    while(dist.length<3)dist.push(words.find(w=>w.id!==targetWord.id&&!dist.some(x=>x.id===w.id)));
+    return {word:targetWord, blank:fb, full:`힌트: "${targetWord.ko}" -> 정답: ${targetWord.en}`, options:shuffle([targetWord,...dist])};
+  }
 }
 
 async function startFill(n=10){if(words.length<4)return showToast('단어가 4개 이상 필요합니다!','error');fillTotal=n;fillScore=0;fillIdx=0;fillQuestions=[];document.getElementById('fill-intro').classList.add('hidden');document.getElementById('fill-loading').classList.remove('hidden');document.getElementById('fill-loading').classList.add('flex');const pool=shuffle(words).slice(0,n);const results=await Promise.all(pool.map(w=>buildFillQuestion(w)));fillQuestions=results.filter(Boolean);document.getElementById('fill-loading').classList.add('hidden');document.getElementById('fill-loading').classList.remove('flex');if(fillQuestions.length<1){resetFillView();return showToast('오류 발생','error');}fillTotal=fillQuestions.length;document.getElementById('fill-active').classList.remove('hidden');showFillQuestion();}
