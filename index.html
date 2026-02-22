@@ -63,19 +63,16 @@
 </style>
 </head>
 <body class="bg-black text-gray-200 font-sans h-screen w-screen flex items-center justify-center p-2 sm:p-6 overflow-hidden">
-<!-- 화면을 넓게 쓰기 위해 max-w-7xl, max-h-[96vh] 로 확장 -->
 <div class="w-full max-w-7xl h-full max-h-[96vh] min-h-[700px] bg-gray-900 shadow-[0_0_40px_rgba(0,0,0,0.8)] rounded-3xl flex flex-col overflow-hidden border border-gray-800 relative">
 
-<!-- 헤더 -->
 <header class="bg-indigo-900 text-gray-100 px-5 py-4 flex justify-between items-center shadow-lg z-10 flex-shrink-0 relative border-b border-indigo-800/50">
   <button onclick="openInfoModal()" class="text-indigo-300 hover:text-white transition-colors flex-shrink-0" title="프로그램 설명서 보기">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
   </button>
   <h1 class="text-xl font-black tracking-wide absolute left-1/2 -translate-x-1/2 text-indigo-100">나만의 영단어장 📚</h1>
-  <div class="w-6"></div> <!-- 레이아웃 균형용 빈 공간 -->
+  <div class="w-6"></div>
 </header>
 
-<!-- 탭 (Dark Mode, 순서 재배치) -->
 <div class="flex border-b border-gray-800 bg-gray-900 z-10 flex-shrink-0 overflow-x-auto no-scrollbar" style="font-size:14px">
   <button id="tab-manage"   class="flex-1 min-w-[80px] py-3.5 font-bold text-indigo-400 border-b-4 border-indigo-500 bg-gray-800 transition-colors whitespace-nowrap" onclick="switchTab('manage')">단어 📝</button>
   <button id="tab-test"     class="flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300 whitespace-nowrap" onclick="switchTab('test')">학습 🎲</button>
@@ -85,7 +82,6 @@
   <button id="tab-stats"    class="flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800 hover:text-gray-300 whitespace-nowrap" onclick="switchTab('stats')">통계 📊</button>
 </div>
 
-<!-- ===== 1. 관리 ===== -->
 <div id="view-manage" class="flex-1 flex flex-col p-4 sm:p-6 overflow-hidden fade-in bg-black">
   <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl mb-4 flex-shrink-0 shadow-sm border border-gray-700">
     <div class="flex flex-col sm:flex-row gap-4">
@@ -99,7 +95,6 @@
     <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
       <span class="font-semibold text-gray-400 text-base whitespace-nowrap">총 <span id="word-count" class="text-indigo-400 font-black text-lg">0</span>단어</span>
       
-      <!-- ☁️ 클라우드 상태 표시기 -->
       <div id="cloud-status" class="text-[11px] font-bold text-gray-400 bg-gray-900 border border-gray-700 shadow-sm px-3 py-1.5 rounded-full flex items-center gap-2 cursor-help transition-colors" title="클라우드 동기화 상태">
         <span class="w-2 h-2 rounded-full bg-gray-600 transition-colors duration-300 shadow-[0_0_5px_currentColor]" id="cloud-dot"></span>
         <span id="cloud-status-text">로컬 연결 중...</span>
@@ -126,16 +121,13 @@
   
   <div id="pagination-controls" class="flex justify-between items-center pt-5 border-t border-gray-800 hidden flex-shrink-0 mt-2">
     <button onclick="changePage(-1)" id="btn-prev" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all" disabled>이전</button>
-    
     <select id="page-select" onchange="jumpToPage(this.value)" title="페이지 이동" class="appearance-none text-base text-gray-400 font-bold bg-gray-900 px-6 py-2 rounded-full shadow-inner border border-gray-800 hover:text-indigo-300 hover:border-indigo-500/50 transition-all cursor-pointer focus:outline-none text-center-last">
       <option value="1">1 / 1</option>
     </select>
-
     <button onclick="changePage(1)"  id="btn-next" class="px-6 py-2.5 bg-gray-800 text-indigo-400 rounded-xl text-sm font-bold border border-gray-700 hover:bg-gray-700 disabled:opacity-30 disabled:hover:bg-gray-800 transition-all">다음</button>
   </div>
 </div>
 
-<!-- ===== 2. 학습 ===== -->
 <div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div id="test-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="bg-gray-800 p-8 sm:p-10 rounded-[2.5rem] shadow-lg border border-gray-700 w-full max-w-2xl text-center">
@@ -143,7 +135,6 @@
       <h2 class="text-3xl font-bold mb-3 text-gray-100">플래시카드 학습</h2>
       <p class="text-gray-400 mb-8 text-base">단어를 보고 뜻을 맞혀보세요.</p>
       
-      <!-- 기본 메뉴 -->
       <div id="test-intro-main">
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-4">
             <button onclick="startTest('all')"   class="flex-1 bg-indigo-600 text-white font-bold py-4 rounded-2xl hover:bg-indigo-500 active:scale-95 shadow-md text-lg transition-all">전체 무작위 복습 🚀</button>
@@ -152,11 +143,9 @@
           <button onclick="showSetSelection()" class="w-full bg-indigo-900/30 text-indigo-300 font-bold py-4 rounded-2xl hover:bg-indigo-900/50 active:scale-95 border border-indigo-800/50 text-lg transition-all">50개씩 세트 순서대로 암기 📦</button>
       </div>
 
-      <!-- 세트 선택 메뉴 -->
       <div id="test-intro-sets" class="hidden">
           <h3 class="text-lg font-bold text-indigo-400 mb-4 tracking-wider">학습할 세트를 선택하세요</h3>
-          <div id="set-list-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-48 overflow-y-auto no-scrollbar mb-5 p-2 border-y border-gray-700/50 py-4">
-          </div>
+          <div id="set-list-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-48 overflow-y-auto no-scrollbar mb-5 p-2 border-y border-gray-700/50 py-4"></div>
           <button onclick="hideSetSelection()" class="text-gray-400 hover:text-gray-200 underline font-bold transition-colors">← 뒤로 가기</button>
       </div>
     </div>
@@ -191,7 +180,6 @@
   </div>
 </div>
 
-<!-- ===== 3. 사지선다 ===== -->
 <div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="bg-gray-800 p-10 rounded-[2.5rem] shadow-lg text-center border border-gray-700 w-full max-w-2xl">
@@ -232,7 +220,6 @@
   </div>
 </div>
 
-<!-- ===== 4. 분석 ===== -->
 <div id="view-analysis" class="flex-1 flex flex-col hidden bg-black overflow-hidden">
   <div class="p-4 sm:p-6 bg-gray-900 border-b border-gray-800 flex-shrink-0 shadow-lg z-20">
     <div class="max-w-4xl mx-auto w-full">
@@ -263,14 +250,12 @@
 
   <div class="flex-1 overflow-y-auto no-scrollbar relative p-4 sm:p-6">
     <div class="max-w-4xl mx-auto w-full">
-      <!-- 로딩 -->
       <div id="analysis-loading" class="space-y-6 hidden">
         <div class="bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-700 space-y-5">
           <div class="skeleton h-12 w-64 mb-8"></div>
           <div class="skeleton h-6 w-48"></div><div class="skeleton h-6 w-full"></div>
         </div>
       </div>
-      <!-- 결과 -->
       <div id="analysis-result" class="space-y-6 hidden pb-8 fade-in">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-2 bg-gray-800 rounded-[2.5rem] shadow-lg border border-gray-700 p-8">
@@ -322,7 +307,6 @@
   </div>
 </div>
 
-<!-- ===== 5. 그룹핑 (NLP 오프라인 정적 그룹핑) ===== -->
 <div id="view-group" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 px-2 flex-shrink-0">
       <div>
@@ -347,21 +331,16 @@
   </div>
 
   <div id="group-container" class="hidden flex-col gap-10 pb-8 flex-1">
-      <!-- 1. 어근/파생어 (Stemming Family) -->
       <section>
           <h3 class="text-xl font-bold text-emerald-400 mb-4 px-2 border-l-4 border-emerald-500 ml-1 pl-3">1️⃣ 어근 및 파생어 패밀리 (Lemmatization)</h3>
-          <p class="text-sm text-gray-500 mb-5 px-2">자체 JS 형태소 분석기로 단어의 접미사(-tion, -ly 등)를 분리해 같은 뿌리(Root)를 가진 단어를 묶습니다.</p>
+          <p class="text-sm text-gray-500 mb-5 px-2">자체 JS 형태소 분석기로 단어의 접미사를 분리해 같은 뿌리(Root)를 가진 단어를 묶습니다.</p>
           <div id="nlp-stem-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </section>
-
-      <!-- 2. 어원/접두사 (Prefix Matching) -->
       <section>
           <h3 class="text-xl font-bold text-amber-400 mb-4 px-2 border-l-4 border-amber-500 ml-1 pl-3">2️⃣ 어원 및 접두사 매칭 (Prefix Rules)</h3>
-          <p class="text-sm text-gray-500 mb-5 px-2">trans-, inter-, sub- 등 30여 개의 영단어 핵심 접두사 DB를 기반으로 패턴을 추출합니다.</p>
+          <p class="text-sm text-gray-500 mb-5 px-2">trans-, inter-, sub- 등 핵심 접두사 DB를 기반으로 패턴을 추출합니다.</p>
           <div id="nlp-prefix-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </section>
-
-      <!-- 3. 유의어/반의어 (Synonym/Antonym Graph) -->
       <section>
           <h3 class="text-xl font-bold text-rose-400 mb-4 px-2 border-l-4 border-rose-500 ml-1 pl-3">3️⃣ 유의어 / 반의어 연결망 (Semantic Graph)</h3>
           <p class="text-sm text-gray-500 mb-5 px-2">API가 제공하는 명확한 유의어/반의어 관계망에 내 단어장이 속해있는지 교차 검증합니다.</p>
@@ -370,7 +349,6 @@
   </div>
 </div>
 
-<!-- ===== 6. 통계 탭 ===== -->
 <div id="view-stats" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-black overflow-y-auto no-scrollbar">
   <div class="mb-8 px-2 flex-shrink-0">
       <h2 class="text-2xl sm:text-3xl font-black text-gray-100 tracking-tight flex items-center gap-2">학습 통계 📊</h2>
@@ -378,7 +356,6 @@
   </div>
 
   <div class="max-w-5xl mx-auto w-full space-y-6">
-      <!-- 오늘의 요약 대시보드 -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div class="bg-gray-800 p-6 rounded-[2rem] border border-gray-700 shadow-lg text-center flex flex-col justify-center relative overflow-hidden">
               <div class="absolute top-0 left-0 w-full h-1.5 bg-indigo-500"></div>
@@ -397,7 +374,6 @@
           </div>
       </div>
 
-      <!-- 잔디 심기 컴포넌트 -->
       <div class="bg-gray-800 p-6 sm:p-8 rounded-[2rem] border border-gray-700 shadow-lg">
           <div class="flex justify-between items-end mb-6">
               <div>
@@ -414,19 +390,13 @@
                   <span>More</span>
               </div>
           </div>
-          
           <div class="overflow-x-auto pb-2 no-scrollbar">
-              <div id="grass-grid" class="flex gap-2 min-w-max">
-                  <!-- JS에서 7열 5행(또는 세로로 긴) 형태로 잔디가 생성됩니다 -->
-              </div>
+              <div id="grass-grid" class="flex gap-2 min-w-max"></div>
           </div>
       </div>
   </div>
 </div>
-</div><!-- /wrapper -->
-
-<!-- 개별 삭제 확인 모달 -->
-<div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+</div><div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
   <div class="bg-gray-800 rounded-[2rem] p-8 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200 border border-gray-700" id="delete-modal-content">
     <div class="text-center mb-8"><div class="text-6xl mb-5">🗑️</div><h3 class="text-2xl font-black text-gray-100 mb-2 tracking-tight">정말 삭제할까요?</h3></div>
     <div class="flex gap-4">
@@ -436,7 +406,6 @@
   </div>
 </div>
 
-<!-- 전체 삭제 확인 모달 -->
 <div id="clear-all-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
   <div class="bg-gray-800 rounded-[2rem] p-8 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200 border border-gray-700" id="clear-all-modal-content">
     <div class="text-center mb-8"><div class="text-6xl mb-5">⚠️</div><h3 class="text-2xl font-black text-gray-100 mb-2 tracking-tight">모든 단어 영구 삭제</h3><p class="text-gray-400 text-sm">이 작업은 되돌릴 수 없습니다.</p></div>
@@ -447,7 +416,6 @@
   </div>
 </div>
 
-<!-- 수정 모달 -->
 <div id="edit-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
   <div class="bg-gray-800 rounded-[2rem] p-8 w-full max-w-sm mx-4 shadow-2xl transform scale-95 transition-transform duration-200 border border-gray-700" id="edit-modal-content">
     <div class="text-center mb-6"><div class="text-6xl mb-4">✏️</div><h3 class="text-2xl font-black text-gray-100 tracking-tight">단어 수정</h3></div>
@@ -477,7 +445,32 @@
 </div>
 
 <script>
-// ✅ 핵심 수정: ALL_TABS 상수 선언 (switchTab 함수가 이 배열을 참조함)
+// 💡 번역 캐싱 스토리지 세팅
+let transCache = {};
+try { transCache = JSON.parse(localStorage.getItem('myWordbook_transCache') || '{}'); } catch(e) { transCache = {}; }
+function saveTransCache() { localStorage.setItem('myWordbook_transCache', JSON.stringify(transCache)); }
+
+// 💡 안전한 번역 함수 (캐싱 적용)
+async function getTranslationSafe(word) {
+    const lw = word.toLowerCase();
+    if (transCache[lw]) return transCache[lw]; // 캐시에 있으면 API 호출 안 함
+
+    try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(word)}`);
+        const data = await res.json();
+        const meaning = data[0][0][0];
+        if (meaning) {
+            transCache[lw] = meaning;
+            saveTransCache();
+            return meaning;
+        }
+    } catch (e) {
+        console.error("번역 API 오류:", e);
+        return '번역 실패';
+    }
+    return '뜻 정보 없음';
+}
+
 const ALL_TABS = ['manage', 'test', 'quiz', 'analysis', 'group', 'stats'];
 
 let words=[], currentPage=1;
@@ -856,8 +849,6 @@ function selectQuiz(btn,ok,selId){
     setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
 }
 
-function showQuizResult(){document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.remove('hidden');document.getElementById('quiz-final-score').textContent=quizS;document.getElementById('quiz-total-score').textContent=Math.max(0,quizQ-1);renderWords();}
-
 function getStem(w) {
     let s = w.toLowerCase();
     if(s.length < 4) return s;
@@ -1037,6 +1028,7 @@ function renderAnalysisDD(q=''){const dd=document.getElementById('analysis-dropd
 function selectAnalysisWord(w){if(!w)return;analysisWord=w;document.getElementById('analysis-search').value='';document.getElementById('analysis-dropdown').classList.add('hidden');document.getElementById('analysis-word-en-display').textContent=w.en;document.getElementById('analysis-word-ko-display').textContent=w.ko;document.getElementById('analysis-selected-word').classList.remove('hidden');runAnalysis(w);}
 function clearAnalysisWord(){analysisWord=null;document.getElementById('analysis-selected-word').classList.add('hidden');document.getElementById('analysis-result').classList.add('hidden');document.getElementById('analysis-loading').classList.add('hidden');document.getElementById('analysis-placeholder').classList.remove('hidden');}
 
+// 💡 발음 듣기 버튼 제어 (TTS Fallback 적용)
 async function runAnalysis(w){
   document.getElementById('analysis-placeholder').classList.add('hidden');
   document.getElementById('analysis-result').classList.add('hidden');
@@ -1056,9 +1048,24 @@ async function runAnalysis(w){
   if(dictData){
     document.getElementById('ar-definition').textContent=dictData.meanings?.[0]?.definitions?.[0]?.definition||'사전 정보 없음';
     document.getElementById('ar-phonetic').textContent=dictData.phonetics?.find(p=>p.text)?.text||'';
+    
+    // TTS Fallback
     const aUrl = dictData.phonetics?.find(p=>p.audio)?.audio||null;
     const aBtn = document.getElementById('ar-audio-btn');
-    if(aUrl){aBtn.classList.remove('hidden');aBtn.onclick=()=>new Audio(aUrl).play();}else{aBtn.classList.add('hidden');}
+    
+    aBtn.classList.remove('hidden'); 
+    aBtn.innerHTML = aUrl ? '🔊 <span class="hidden sm:inline">원어민 발음</span>' : '🤖 <span class="hidden sm:inline">TTS 발음</span>';
+    
+    aBtn.onclick = () => {
+        if(aUrl) {
+            new Audio(aUrl).play(); 
+        } else {
+            const utterance = new SpeechSynthesisUtterance(w.en);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+
     const posSet = new Set();
     dictData.meanings?.forEach(m => {
       if(m.partOfSpeech) posSet.add(m.partOfSpeech);
@@ -1077,7 +1084,17 @@ async function runAnalysis(w){
     document.getElementById('ar-definition').textContent='사전 정보를 불러올 수 없습니다.';
     document.getElementById('ar-phonetic').textContent='';
     document.getElementById('ar-partOfSpeech').style.display='none';
-    document.getElementById('ar-audio-btn').classList.add('hidden');
+    
+    // 사전 정보가 아예 없더라도 TTS는 지원하도록 설정
+    const aBtn = document.getElementById('ar-audio-btn');
+    aBtn.classList.remove('hidden');
+    aBtn.innerHTML = '🤖 <span class="hidden sm:inline">TTS 발음</span>';
+    aBtn.onclick = () => {
+        const utterance = new SpeechSynthesisUtterance(w.en);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    };
+
     examplesEl.innerHTML = '<p class="text-sm text-gray-500">예문을 불러올 수 없습니다.</p>';
   }
   const simRow=simMatrix[w.id]||{};
@@ -1112,7 +1129,8 @@ async function runAnalysis(w){
       tooltip.textContent=knownKo||'뜻 번역 중...';
       span.appendChild(tooltip);
       
-      span.onclick = () => {
+      // 💡 안전한 캐싱 함수로 번역 로직 변경
+      span.onclick = async () => {
           const found = words.find(x => x.en.toLowerCase() === item.word.toLowerCase());
           if (found) {
               selectAnalysisWord(found);
@@ -1122,9 +1140,7 @@ async function runAnalysis(w){
                   span.dataset.fetched = "true";
                   tooltip.classList.remove('loading');
                   tooltip.textContent = '번역 중...';
-                  fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(item.word)}`)
-                  .then(r=>r.json()).then(data=>{ tooltip.textContent = data[0][0][0] || '뜻 없음'; })
-                  .catch(()=>{ tooltip.textContent='번역 실패'; });
+                  tooltip.textContent = await getTranslationSafe(item.word);
               }
               setTimeout(()=> span.classList.remove('force-tooltip'), 3000);
           }
@@ -1133,12 +1149,8 @@ async function runAnalysis(w){
       if(!knownKo){
         span.addEventListener('mouseenter',async()=>{
           if(span.dataset.fetched)return; span.dataset.fetched=true;
-          try{
-            const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(item.word)}`);
-            const data = await r.json();
-            tooltip.textContent = data[0][0][0] || '뜻 정보 없음';
-            tooltip.classList.remove('loading');
-          }catch{tooltip.textContent='번역 실패';}
+          tooltip.textContent = await getTranslationSafe(item.word);
+          tooltip.classList.remove('loading');
         });
       }
       el.appendChild(span);
