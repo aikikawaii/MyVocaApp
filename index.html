@@ -851,28 +851,24 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
   // 앱 켤 때 기본값 설정
   setPersistence(auth, currentPersistence).catch(console.error);
 
-  const isMobileOrIPad = /iPad|iPhone|iPod|Android/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
   // 버튼 클릭 시 딜레이(await setPersistence)를 없애 터치 제스처 무효화 방지!
   window.loginWithGoogle = () => {
-      window.showToast("구글 로그인 화면으로 이동합니다...", "info");
+      window.showToast("구글 로그인 진행 중...", "info");
       
-      if (isMobileOrIPad) {
-          // 모바일/PWA는 팝업 차단을 피해 즉시 화면 이동 (Redirect)
-          signInWithRedirect(auth, provider).catch(err => window.showToast("로그인 실패: " + err.message, "error"));
-      } else {
-          // PC는 팝업 방식으로 편안하게 진행
-          signInWithPopup(auth, provider).catch(error => {
-              if(error.code === 'auth/popup-blocked' || error.message.toLowerCase().includes('invalid')){
-                  signInWithRedirect(auth, provider);
-              } else {
-                  window.showToast("로그인 실패: " + error.message, "error");
-              }
-          });
-      }
+      // ✅ 홈 화면 앱(PWA)에서는 화면이 넘어가는 Redirect 방식이 세션을 끊어버려서 에러를 유발합니다.
+      // 따라서 PWA 환경에서도 팝업(내부 창) 방식으로 먼저 띄우도록 수정했습니다.
+      signInWithPopup(auth, provider).catch(error => {
+          console.warn("팝업 실패, 일반 사파리로 접속 중이시라면 화면 이동으로 시도합니다.", error);
+          // 팝업이 정말로 막혀있는 경우에만 최후의 수단으로 Redirect 사용
+          if(error.code === 'auth/popup-blocked' || error.message.toLowerCase().includes('invalid')){
+              signInWithRedirect(auth, provider);
+          } else {
+              window.showToast("로그인 실패: " + error.message, "error");
+          }
+      });
   };
 
-  // 리다이렉트로 돌아왔을 때 결과 즉시 처리 (PWA의 매끄러운 연결 지원)
+  // 리다이렉트로 돌아왔을 때 결과 즉시 처리 (일반 사파리용 매끄러운 연결 지원)
   getRedirectResult(auth).then((result) => {
       if (result && result.user) window.showToast("로그인 성공!", "info");
   }).catch(error => console.error("리다이렉트 결과 에러:", error));
