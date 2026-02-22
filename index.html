@@ -531,7 +531,6 @@ function renderWords(){
     const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-100 text-amber-600 text-[10px] font-bold rounded-full whitespace-nowrap">⚠️ 중복</span>`:'';
     const li=document.createElement('li');
     li.className='bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center fade-in hover:border-indigo-200 hover:shadow-md transition-all h-max';
-    // 💡 수정사항 3: 글씨가 길면 잘리지 않고 자연스럽게 밑으로 줄바꿈되도록 수정 (break-words 적용)
     li.innerHTML=`
       <div class="flex flex-col flex-1 pr-3 min-w-0">
         <span class="font-bold text-xl text-gray-800 mb-1 break-words leading-tight">${w.en}</span>
@@ -571,18 +570,14 @@ function buildSimMatrix(){simMatrix={};for(let i=0;i<words.length;i++)for(let j=
 
 function resetQuizView(){quizQueue=[];quizIdx=0;document.getElementById('quiz-intro').classList.remove('hidden');document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.add('hidden');}
 
-// 💡 수정사항 5: 사지선다 단어 출제 빈도를 가중치 알고리즘(오답 많고 출제 안 된 단어 우선)으로 똑똑하게 섞기
 function startQuiz(){
     if(words.length<4)return showToast('단어가 4개 이상 필요합니다!','error');
     quizQ=0;quizS=0;
-    
-    // 가중치 기반 똑똑한 셔플 (많이 틀린 단어, 덜 나온 단어 우선 배치)
     quizQueue = [...words].sort((a,b) => {
         const scoreA = (a.wrongCount||0)*5 - (a.quizCount||0)*2 + Math.random()*5;
         const scoreB = (b.wrongCount||0)*5 - (b.quizCount||0)*2 + Math.random()*5;
         return scoreB - scoreA;
     });
-    
     quizIdx=0;
     document.getElementById('quiz-intro').classList.add('hidden');
     document.getElementById('quiz-active').classList.remove('hidden');
@@ -597,13 +592,9 @@ function nextQuiz(){
     quizQ++;
     document.getElementById('quiz-progress').textContent=`${quizQ}번째`;
     document.getElementById('quiz-score').textContent=quizS;
-    
     quizWord=quizQueue[quizIdx++];
-    
-    // 출제 횟수 기록 및 저장
     const wIdx = words.findIndex(w=>w.id===quizWord.id);
     if(wIdx !== -1) { words[wIdx].quizCount = (words[wIdx].quizCount || 0) + 1; saveData(); }
-
     document.getElementById('quiz-word-en').textContent=quizWord.en;
     const opts=document.getElementById('quiz-options');
     opts.innerHTML='';
@@ -620,11 +611,9 @@ function showQuizResult(){document.getElementById('quiz-active').classList.add('
 
 function resetFillView(){fillQuestions=[];fillIdx=0;fillScore=0;document.getElementById('fill-intro').classList.remove('hidden');document.getElementById('fill-active').classList.add('hidden');document.getElementById('fill-result').classList.add('hidden');}
 
-// 💡 수정사항 2 & 6: 빈칸 예문을 실제 원어민 예문으로 변경하고, 뜻풀이가 같이 출력되는 버그 수정
 async function buildFillQuestion(targetWord){
   try{
     let sentence = "";
-    // Dictionary API를 호출하여 실제 생활 예문을 가져옴
     const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${targetWord.en}`);
     if(r.ok) {
         const data = await r.json();
@@ -639,26 +628,18 @@ async function buildFillQuestion(targetWord){
             if(sentence) break;
         }
     }
-    
-    // 외부 API에 예문이 없다면 무난한 기본 문장 생성
     if(!sentence) {
         sentence = `I need to learn how to use the word "${targetWord.en}" in a sentence.`;
     }
-
-    // 단어를 찾아서 깔끔하게 밑줄(빈칸)로 치환 (대소문자 무시, s나 ed 같은 가벼운 접미사 허용)
     const regex = new RegExp(`\\b${targetWord.en}\\b(?:'s|s|ed|ing|d)?`, 'gi');
     let blanked = sentence.replace(regex, '___');
-    
-    // 혹시라도 치환이 안 됐다면 강제로 단어 자체를 치환 시도
     if(!blanked.includes('___')) {
         const fallbackRegex = new RegExp(targetWord.en, 'gi');
         blanked = sentence.replace(fallbackRegex, '___');
     }
-
     const sim=simMatrix[targetWord.id]||{};
     const dist=words.filter(w=>w.id!==targetWord.id&&(sim[w.id]||0)<SIM_DUP).sort(()=>Math.random()-0.5).slice(0,3);
     while(dist.length<3)dist.push(words.find(w=>w.id!==targetWord.id&&!dist.some(x=>x.id===w.id)));
-    
     return {word:targetWord, blank:blanked, full:sentence, options:shuffle([targetWord,...dist])};
   }catch{return null;}
 }
@@ -733,7 +714,6 @@ async function runAnalysis(w){
   const existingEn=new Set(words.map(x=>x.en.toLowerCase()));
   const newCands=new Set();
 
-  // 💡 수정사항 4: 모바일 터치 시 바로 단어 추가로 넘어가지 않도록 클릭(터치) 동작 분리
   function renderChips(elId, items, cls){
     const el=document.getElementById(elId);
     if(!items.length){el.innerHTML='<span class="text-sm text-gray-400">검색 결과 없음</span>';return;}
@@ -743,7 +723,6 @@ async function runAnalysis(w){
       if(!inBook)newCands.add(item.word);
       const span=document.createElement('span');
       span.className='chip '+cls;
-      
       const inBookWord=words.find(x=>x.en.toLowerCase()===item.word.toLowerCase());
       const knownKo=inBookWord?inBookWord.ko:null;
       span.appendChild(document.createTextNode((inBook?'✅ ':'')+item.word));
@@ -751,14 +730,11 @@ async function runAnalysis(w){
       tooltip.className='chip-tooltip'+(knownKo?'':' loading');
       tooltip.textContent=knownKo||'뜻 번역 중...';
       span.appendChild(tooltip);
-      
-      // 모바일 기기를 위한 터치(클릭) 이벤트: 번역만 보여주거나 단어장에 있으면 거기로 이동
       span.onclick = () => {
           const found = words.find(x => x.en.toLowerCase() === item.word.toLowerCase());
           if (found) {
               selectAnalysisWord(found);
           } else {
-              // 단어장에 없는 경우 단어 추가 창으로 가지 않고 툴팁(번역)만 보여주기
               span.classList.add('force-tooltip');
               if(!knownKo && !span.dataset.fetched){
                   span.dataset.fetched = "true";
@@ -768,11 +744,9 @@ async function runAnalysis(w){
                   .then(r=>r.json()).then(data=>{ tooltip.textContent = data[0][0][0] || '뜻 없음'; })
                   .catch(()=>{ tooltip.textContent='번역 실패'; });
               }
-              setTimeout(()=> span.classList.remove('force-tooltip'), 3000); // 3초 뒤 툴팁 숨김
+              setTimeout(()=> span.classList.remove('force-tooltip'), 3000);
           }
       };
-
-      // PC 마우스를 위한 Hover 이벤트
       if(!knownKo){
         span.addEventListener('mouseenter',async()=>{
           if(span.dataset.fetched)return; span.dataset.fetched=true;
@@ -797,7 +771,6 @@ async function runAnalysis(w){
   renderChips('ar-related', mergeWords(rel1, rel2).slice(0, 20), 'chip-rel');
   renderChips('ar-collocations', mergeWords(col1, col2, col3, col4).slice(0, 20), 'chip-freq');
   
-  // 추천 단어 칩: 이것만 클릭 시 단어 추가 탭으로 바로 이동
   const recs=[...newCands].slice(0,25);
   document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new shadow-sm border border-blue-100" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm text-gray-400">추천할 새 단어가 없습니다.</span>';
   const scrollContainer = document.getElementById('analysis-result').parentElement;
@@ -811,7 +784,7 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
 <!-- ========================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -842,44 +815,35 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       cloudStatusText.textContent = text;
   };
 
-  // 💡 수정사항 1: PWA "Invalid Action" 우회를 위해 체크박스 클릭 시 미리 로그인 유지 설정 반영
-  let currentPersistence = browserLocalPersistence;
+  // 체크박스 변경 시 persistence 설정
   document.getElementById('keep-login-chk').addEventListener('change', (e) => {
-      currentPersistence = e.target.checked ? browserLocalPersistence : browserSessionPersistence;
-      setPersistence(auth, currentPersistence).catch(console.error);
+      const persistence = e.target.checked ? browserLocalPersistence : browserSessionPersistence;
+      setPersistence(auth, persistence).catch(console.error);
   });
-  // 앱 켤 때 기본값 설정
-  setPersistence(auth, currentPersistence).catch(console.error);
 
-  // 💡 버튼 클릭 시 딜레이(await setPersistence)를 없애 터치 제스처 무효화 방지!
+  // 앱 시작 시 기본 persistence 설정 (로컬 유지)
+  setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+  // ✅ 핵심 수정: PWA/모바일 환경에서도 리다이렉트 대신 팝업만 사용
+  // 리다이렉트는 authDomain(firebaseapp.com)으로 이동시켜 PWA에서 "Invalid action" 오류를 유발함
   window.loginWithGoogle = () => {
-      // 기기 및 PWA(홈화면 앱) 여부 감지
-      const isMobile = /iPad|iPhone|iPod|Android/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-      if (isMobile || isPWA) {
-          // 모바일이나 홈화면 앱에서는 팝업이 강제 종료되므로 무조건 화면 이동(Redirect) 바로 실행
-          signInWithRedirect(auth, provider).catch(err => {
-              window.showToast("로그인 실패: " + err.message, "error");
-          });
-      } else {
-          // PC 환경은 팝업 방식 우선 사용
-          window.showToast("구글 로그인 진행 중...", "info");
-          signInWithPopup(auth, provider).catch(error => {
-              if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-                  console.warn("팝업 차단 감지, 리다이렉트로 전환합니다.");
-                  signInWithRedirect(auth, provider);
-              } else {
-                  window.showToast("로그인 실패: " + error.message, "error");
-              }
-          });
-      }
+      window.showToast("구글 로그인 진행 중...", "info");
+      signInWithPopup(auth, provider)
+        .then(() => {
+            window.showToast("로그인 성공! ☁️", "info");
+        })
+        .catch(error => {
+            console.error("로그인 실패:", error);
+            // 팝업이 차단되었거나 닫힌 경우 안내 메시지 표시
+            if (error.code === 'auth/popup-blocked') {
+                window.showToast("팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.", "error");
+            } else if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+                window.showToast("로그인이 취소되었습니다.", "error");
+            } else {
+                window.showToast("로그인 실패: " + error.message, "error");
+            }
+        });
   };
-
-  // 리다이렉트로 돌아왔을 때 결과 즉시 처리 (일반 사파리용 매끄러운 연결 지원)
-  getRedirectResult(auth).then((result) => {
-      if (result && result.user) window.showToast("로그인 성공!", "info");
-  }).catch(error => console.error("리다이렉트 결과 에러:", error));
 
   window.logoutGoogle = () => {
       signOut(auth).then(() => {
