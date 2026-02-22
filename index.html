@@ -484,6 +484,9 @@
 </div>
 
 <script>
+// ✅ 핵심 수정: ALL_TABS 상수 선언 (switchTab 함수가 이 배열을 참조함)
+const ALL_TABS = ['manage', 'test', 'quiz', 'analysis', 'group', 'stats'];
+
 let words=[], currentPage=1;
 const IPP=12;
 
@@ -493,7 +496,7 @@ let analysisWord=null,audioUrl=null;
 const SIM_DUP=75,SIM_CONF=50;
 let simMatrix={},confMatrix={};
 let activityLog={};
-let labelCache={}; // 그룹 이름 한글 번역 캐시
+let labelCache={};
 
 function resizeAllTexts() {
     document.querySelectorAll('.word-en-container').forEach(container => {
@@ -865,13 +868,17 @@ function selectQuiz(btn,ok,selId){
 
 function showQuizResult(){document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.remove('hidden');document.getElementById('quiz-final-score').textContent=quizS;document.getElementById('quiz-total-score').textContent=Math.max(0,quizQ-1);renderWords();}
 
-// =====================================
-// 💡 사전 컴파일 기반 (Precompiled) NLP 오프라인 그룹핑 로직
-// =====================================
+// NLP 유틸
+function nlpJaccard(a, b) {
+    if(!a || !b || !a.length || !b.length) return 0;
+    const setA = new Set(a), setB = new Set(b);
+    let inter = 0;
+    setA.forEach(v => { if(setB.has(v)) inter++; });
+    return inter / (setA.size + setB.size - inter);
+}
 
 const EN_STOP_WORDS = new Set(['the','and','for','with','that','this','from','are','have','has','had','not','but','what','all','were','when','can','said','there','use','each','which','she','how','their','will','other','about','many','then','them','these','some','her','would','make','like','him','into','time','look','two','more','write','see','number','way','could','people','than','first','water','been','call','who','oil','its','now','find','long','down','day','did','get','come','made','may','part','something','someone','used','relating','having','take','took','one','three','any','being','person','state','act']);
 
-// 커스텀 JS 형태소 분석기 (Stemmer)
 function getStem(w) {
     let s = w.toLowerCase();
     if(s.length < 4) return s;
@@ -888,7 +895,6 @@ function getStem(w) {
     return s;
 }
 
-// 오프라인용 정적 접두사 규칙 테이블 (Precompiled Mapping Table)
 const PREFIX_DICT = [
     {p: 'trans', m: '가로질러/바꾸어'}, {p: 'inter', m: '상호/사이에'}, {p: 'super', m: '초과/위에'},
     {p: 'under', m: '아래에/부족한'}, {p: 'over', m: '넘어서/과도한'}, {p: 'anti', m: '반대/항'},
@@ -909,7 +915,6 @@ function getPrefix(w) {
     return null;
 }
 
-// 백그라운드 단방향 지식 수집 (One-time fetch & permanent cache)
 async function enrichWord(w) {
     if(w.nlp && w.nlp.fetched) return false;
     w.nlp = { ml: [], syn: [], ant: [], tokens: [], fetched: false };
@@ -945,7 +950,6 @@ async function enrichWord(w) {
     }
 }
 
-// 오프라인 그룹핑 메인 엔진
 async function runNLPGrouping() {
     if(words.length < 2) return showToast('비교할 단어가 부족합니다.', 'error');
     
@@ -960,13 +964,12 @@ async function runNLPGrouping() {
     let updated = false;
     let offlineWarning = false;
 
-    // 1️⃣ 단어장 전수조사 및 필요한 경우에만 1회성 데이터 패치 수행
     for(let i=0; i<words.length; i++) {
         let w = words[i];
         if(!w.nlp || !w.nlp.fetched) {
             if(!navigator.onLine) {
                 offlineWarning = true;
-                continue; // 오프라인이면 기존 데이터만 사용
+                continue;
             }
             const didFetch = await enrichWord(w);
             if(didFetch) updated = true;
@@ -992,7 +995,6 @@ async function runNLPGrouping() {
         return card;
     }
 
-    // 2️⃣ 오프라인 결정론적 Jaccard 군집화 (Topic Clustering)
     let topicGroups = [];
     let unassigned = [...words];
     while(unassigned.length > 0) {
@@ -1005,7 +1007,7 @@ async function runNLPGrouping() {
                 if(!g.nlp || !cand.nlp) return false;
                 const mlJac = nlpJaccard(g.nlp.ml, cand.nlp.ml);
                 const tokenJac = nlpJaccard(g.nlp.tokens, cand.nlp.tokens);
-                return Math.max(mlJac, tokenJac) > 0.03; // 임계값
+                return Math.max(mlJac, tokenJac) > 0.03;
             });
             if(isSimilar) { group.push(cand); unassigned.splice(i, 1); } 
             else i++;
@@ -1013,11 +1015,9 @@ async function runNLPGrouping() {
         if(group.length > 1) topicGroups.push(group);
     }
 
-    // 3️⃣ 라벨 추출 및 번역 연동 로직
     const topicGrid = document.getElementById('nlp-topic-grid');
     topicGrid.innerHTML = topicGroups.length ? '' : '<p class="text-gray-500 text-sm">의미 교집합이 충분한 단어가 없습니다.</p>';
     
-    // 번역해야 할 키워드 목록 수집
     let topKeywords = [];
     let groupData = [];
     topicGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => {
@@ -1031,7 +1031,6 @@ async function runNLPGrouping() {
         groupData.push({g: g, keyword: topKeyword, idx: idx});
     });
 
-    // 오프라인 환경도 대응 가능한 라벨 매핑 작업
     let keywordsToTranslate = [...new Set(topKeywords)].filter(k => k && !labelCache[k]);
     if(keywordsToTranslate.length > 0 && navigator.onLine) {
         await Promise.all(keywordsToTranslate.map(async (k) => {
@@ -1039,7 +1038,7 @@ async function runNLPGrouping() {
                 let res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(k)}`);
                 let data = await res.json();
                 labelCache[k] = data[0][0][0] || k;
-            } catch(e) { labelCache[k] = k; } // fallback
+            } catch(e) { labelCache[k] = k; }
         }));
         saveData();
     }
@@ -1053,7 +1052,6 @@ async function runNLPGrouping() {
         topicGrid.appendChild(buildCard(finalTitle, item.g));
     });
 
-    // 4️⃣ 어근 파생어 (Stemming Family)
     let stemGroups = {};
     words.forEach(w => {
         if(w.nlp && w.nlp.stem && w.nlp.stem.length >= 3) {
@@ -1072,7 +1070,6 @@ async function runNLPGrouping() {
     });
     if(!stemFound) stemGrid.innerHTML = '<p class="text-gray-500 text-sm">같은 어근을 공유하는 단어가 없습니다.</p>';
 
-    // 5️⃣ 접두사 매칭 (Prefix Rules)
     let prefixGroups = {};
     words.forEach(w => {
         if(w.nlp && w.nlp.prefix) {
@@ -1092,7 +1089,6 @@ async function runNLPGrouping() {
     });
     if(!prefixFound) prefixGrid.innerHTML = '<p class="text-gray-500 text-sm">공통 접두사를 가진 단어가 없습니다.</p>';
 
-    // 6️⃣ 유의어/반의어 망 (Syn/Ant Graph)
     let synAntGroups = [];
     unassigned = [...words];
     while(unassigned.length > 0) {
@@ -1124,9 +1120,6 @@ async function runNLPGrouping() {
     document.getElementById('group-container').classList.add('flex');
 }
 
-// =====================================
-// 💡 분석 (Analysis) 탭 유틸
-// =====================================
 function openAnalysis(id){const w=words.find(x=>x.id===id);if(!w)return;switchTab('analysis');setTimeout(()=>selectAnalysisWord(w),60);}
 function filterAnalysisWords(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
 function showAnalysisDropdown(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
@@ -1258,9 +1251,6 @@ async function runAnalysis(w){
 }
 function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();}
 
-// =====================================
-// 💡 통계 (Statistics) 화면 렌더링
-// =====================================
 function renderStats() {
     const todayStr = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
     const todayData = activityLog[todayStr] || { added: 0, tested: 0, quizzed: 0 };
@@ -1331,9 +1321,6 @@ function renderStats() {
 }
 </script>
 
-<!-- ========================================== -->
-<!-- 2. 클라우드 동기화 모듈 (Firebase 연동)     -->
-<!-- ========================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
