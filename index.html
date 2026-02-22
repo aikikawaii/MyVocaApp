@@ -347,30 +347,23 @@
   </div>
 
   <div id="group-container" class="hidden flex-col gap-10 pb-8 flex-1">
-      <!-- 1. 의미/주제 (Topic Clustering) -->
+      <!-- 1. 어근/파생어 (Stemming Family) -->
       <section>
-          <h3 class="text-xl font-bold text-indigo-400 mb-4 px-2 border-l-4 border-indigo-500 ml-1 pl-3">1️⃣ 의미 기반 주제 클러스터링 (Topic Embedding)</h3>
-          <p class="text-sm text-gray-500 mb-5 px-2">단어들의 연관어(Means Like) 교집합 자카드 유사도를 계산하여 문맥상 함께 쓰이는 단어들을 묶습니다.</p>
-          <div id="nlp-topic-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-      </section>
-
-      <!-- 2. 어근/파생어 (Stemming Family) -->
-      <section>
-          <h3 class="text-xl font-bold text-emerald-400 mb-4 px-2 border-l-4 border-emerald-500 ml-1 pl-3">2️⃣ 어근 및 파생어 패밀리 (Lemmatization)</h3>
+          <h3 class="text-xl font-bold text-emerald-400 mb-4 px-2 border-l-4 border-emerald-500 ml-1 pl-3">1️⃣ 어근 및 파생어 패밀리 (Lemmatization)</h3>
           <p class="text-sm text-gray-500 mb-5 px-2">자체 JS 형태소 분석기로 단어의 접미사(-tion, -ly 등)를 분리해 같은 뿌리(Root)를 가진 단어를 묶습니다.</p>
           <div id="nlp-stem-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </section>
 
-      <!-- 3. 어원/접두사 (Prefix Matching) -->
+      <!-- 2. 어원/접두사 (Prefix Matching) -->
       <section>
-          <h3 class="text-xl font-bold text-amber-400 mb-4 px-2 border-l-4 border-amber-500 ml-1 pl-3">3️⃣ 어원 및 접두사 매칭 (Prefix Rules)</h3>
+          <h3 class="text-xl font-bold text-amber-400 mb-4 px-2 border-l-4 border-amber-500 ml-1 pl-3">2️⃣ 어원 및 접두사 매칭 (Prefix Rules)</h3>
           <p class="text-sm text-gray-500 mb-5 px-2">trans-, inter-, sub- 등 30여 개의 영단어 핵심 접두사 DB를 기반으로 패턴을 추출합니다.</p>
           <div id="nlp-prefix-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </section>
 
-      <!-- 4. 유의어/반의어 (Synonym/Antonym Graph) -->
+      <!-- 3. 유의어/반의어 (Synonym/Antonym Graph) -->
       <section>
-          <h3 class="text-xl font-bold text-rose-400 mb-4 px-2 border-l-4 border-rose-500 ml-1 pl-3">4️⃣ 유의어 / 반의어 연결망 (Semantic Graph)</h3>
+          <h3 class="text-xl font-bold text-rose-400 mb-4 px-2 border-l-4 border-rose-500 ml-1 pl-3">3️⃣ 유의어 / 반의어 연결망 (Semantic Graph)</h3>
           <p class="text-sm text-gray-500 mb-5 px-2">API가 제공하는 명확한 유의어/반의어 관계망에 내 단어장이 속해있는지 교차 검증합니다.</p>
           <div id="nlp-synant-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </section>
@@ -496,7 +489,7 @@ let analysisWord=null,audioUrl=null;
 const SIM_DUP=75,SIM_CONF=50;
 let simMatrix={},confMatrix={};
 let activityLog={};
-let labelCache={};
+
 
 function resizeAllTexts() {
     document.querySelectorAll('.word-en-container').forEach(container => {
@@ -530,14 +523,11 @@ function loadData(){
   if(raw){try{words=JSON.parse(raw);}catch{words=[];}}else{words=[];}
   const actRaw = localStorage.getItem('myActivity');
   if(actRaw){try{activityLog=JSON.parse(actRaw);}catch{activityLog={};}}
-  const lblRaw = localStorage.getItem('myLabelCache');
-  if(lblRaw){try{labelCache=JSON.parse(lblRaw);}catch{labelCache={};}}
   renderWords();
 }
 function saveData(){
   localStorage.setItem('myWordbook',JSON.stringify(words));
   localStorage.setItem('myActivity', JSON.stringify(activityLog));
-  localStorage.setItem('myLabelCache', JSON.stringify(labelCache));
   renderWords();
   if(window.triggerCloudSave) window.triggerCloudSave({words, activityLog}); 
 }
@@ -868,17 +858,6 @@ function selectQuiz(btn,ok,selId){
 
 function showQuizResult(){document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.remove('hidden');document.getElementById('quiz-final-score').textContent=quizS;document.getElementById('quiz-total-score').textContent=Math.max(0,quizQ-1);renderWords();}
 
-// NLP 유틸
-function nlpJaccard(a, b) {
-    if(!a || !b || !a.length || !b.length) return 0;
-    const setA = new Set(a), setB = new Set(b);
-    let inter = 0;
-    setA.forEach(v => { if(setB.has(v)) inter++; });
-    return inter / (setA.size + setB.size - inter);
-}
-
-const EN_STOP_WORDS = new Set(['the','and','for','with','that','this','from','are','have','has','had','not','but','what','all','were','when','can','said','there','use','each','which','she','how','their','will','other','about','many','then','them','these','some','her','would','make','like','him','into','time','look','two','more','write','see','number','way','could','people','than','first','water','been','call','who','oil','its','now','find','long','down','day','did','get','come','made','may','part','something','someone','used','relating','having','take','took','one','three','any','being','person','state','act']);
-
 function getStem(w) {
     let s = w.toLowerCase();
     if(s.length < 4) return s;
@@ -917,28 +896,16 @@ function getPrefix(w) {
 
 async function enrichWord(w) {
     if(w.nlp && w.nlp.fetched) return false;
-    w.nlp = { ml: [], syn: [], ant: [], tokens: [], fetched: false };
+    w.nlp = { syn: [], ant: [], fetched: false };
 
     try {
-        const [resMl, resSyn, resAnt, resDict] = await Promise.allSettled([
-            fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(w.en)}&max=15`).then(r=>r.json()),
+        const [resSyn, resAnt] = await Promise.allSettled([
             fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(w.en)}&max=5`).then(r=>r.json()),
             fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(w.en)}&max=5`).then(r=>r.json()),
-            fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.en)}`).then(r=>r.json())
         ]);
 
-        if(resMl.status === 'fulfilled' && Array.isArray(resMl.value)) w.nlp.ml = resMl.value.map(x=>x.word);
         if(resSyn.status === 'fulfilled' && Array.isArray(resSyn.value)) w.nlp.syn = resSyn.value.map(x=>x.word);
         if(resAnt.status === 'fulfilled' && Array.isArray(resAnt.value)) w.nlp.ant = resAnt.value.map(x=>x.word);
-        
-        if(resDict.status === 'fulfilled' && Array.isArray(resDict.value)) {
-            let text = "";
-            resDict.value[0]?.meanings?.forEach(m => {
-                m.definitions?.forEach(d => { text += " " + d.definition; });
-            });
-            const extracted = text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
-            w.nlp.tokens = Array.from(new Set(extracted.filter(t => !EN_STOP_WORDS.has(t))));
-        }
         
         w.nlp.stem = getStem(w.en);
         w.nlp.prefix = getPrefix(w.en);
@@ -994,63 +961,6 @@ async function runNLPGrouping() {
         `;
         return card;
     }
-
-    let topicGroups = [];
-    let unassigned = [...words];
-    while(unassigned.length > 0) {
-        let current = unassigned.shift();
-        let group = [current];
-        let i = 0;
-        while(i < unassigned.length) {
-            let cand = unassigned[i];
-            let isSimilar = group.some(g => {
-                if(!g.nlp || !cand.nlp) return false;
-                const mlJac = nlpJaccard(g.nlp.ml, cand.nlp.ml);
-                const tokenJac = nlpJaccard(g.nlp.tokens, cand.nlp.tokens);
-                return Math.max(mlJac, tokenJac) > 0.03;
-            });
-            if(isSimilar) { group.push(cand); unassigned.splice(i, 1); } 
-            else i++;
-        }
-        if(group.length > 1) topicGroups.push(group);
-    }
-
-    const topicGrid = document.getElementById('nlp-topic-grid');
-    topicGrid.innerHTML = topicGroups.length ? '' : '<p class="text-gray-500 text-sm">의미 교집합이 충분한 단어가 없습니다.</p>';
-    
-    let topKeywords = [];
-    let groupData = [];
-    topicGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => {
-        let counts = {};
-        g.forEach(w => {
-            (w.nlp?.ml || []).forEach(t => counts[t] = (counts[t]||0)+1);
-            (w.nlp?.tokens || []).forEach(t => counts[t] = (counts[t]||0)+1);
-        });
-        let topKeyword = Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0];
-        topKeywords.push(topKeyword);
-        groupData.push({g: g, keyword: topKeyword, idx: idx});
-    });
-
-    let keywordsToTranslate = [...new Set(topKeywords)].filter(k => k && !labelCache[k]);
-    if(keywordsToTranslate.length > 0 && navigator.onLine) {
-        await Promise.all(keywordsToTranslate.map(async (k) => {
-            try {
-                let res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(k)}`);
-                let data = await res.json();
-                labelCache[k] = data[0][0][0] || k;
-            } catch(e) { labelCache[k] = k; }
-        }));
-        saveData();
-    }
-
-    groupData.forEach(item => {
-        let finalTitle = `그룹 ${item.idx+1}`;
-        if(item.keyword) {
-            let koWord = labelCache[item.keyword] || item.keyword;
-            finalTitle = `'<span class="text-indigo-400">${koWord}</span>' 속성`;
-        }
-        topicGrid.appendChild(buildCard(finalTitle, item.g));
-    });
 
     let stemGroups = {};
     words.forEach(w => {
