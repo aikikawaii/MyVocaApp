@@ -263,12 +263,14 @@
 
   <div class="flex-1 overflow-y-auto no-scrollbar relative p-4 sm:p-6">
     <div class="max-w-4xl mx-auto w-full">
+      <!-- 로딩 -->
       <div id="analysis-loading" class="space-y-6 hidden">
         <div class="bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-700 space-y-5">
           <div class="skeleton h-12 w-64 mb-8"></div>
           <div class="skeleton h-6 w-48"></div><div class="skeleton h-6 w-full"></div>
         </div>
       </div>
+      <!-- 결과 -->
       <div id="analysis-result" class="space-y-6 hidden pb-8 fade-in">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-2 bg-gray-800 rounded-[2.5rem] shadow-lg border border-gray-700 p-8">
@@ -320,28 +322,58 @@
   </div>
 </div>
 
-<!-- ===== 5. 그룹핑 ===== -->
+<!-- ===== 5. 그룹핑 (NLP 오프라인 정적 그룹핑) ===== -->
 <div id="view-group" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-black overflow-y-auto no-scrollbar">
-  <div class="flex justify-between items-center mb-6 flex-shrink-0 px-2">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 px-2 flex-shrink-0">
       <div>
-          <h2 class="text-2xl font-black text-gray-100 tracking-tight flex items-center gap-2">영영사전 기반 자동 그룹핑 🧩</h2>
-          <p class="text-gray-400 text-sm mt-1">사전의 다양한 영문 의미(2,3번 뜻 포함)를 바탕으로 단어를 묶어줍니다.</p>
+          <h2 class="text-2xl font-black text-gray-100 tracking-tight flex items-center gap-2">AI 다중 분석 그룹핑 🧩</h2>
+          <p class="text-gray-400 text-sm mt-1">자연어 처리(NLP) 기법을 활용하여 단어들을 4가지 관점으로 심층 분석하여 묶어냅니다.</p>
       </div>
-      <button onclick="renderGroups()" class="bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold py-2.5 px-5 rounded-xl hover:bg-indigo-600/40 active:scale-95 transition-all shadow-md whitespace-nowrap flex-shrink-0">
-          다시 묶기 🔄
+      <button onclick="runNLPGrouping()" class="w-full sm:w-auto bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-indigo-500 active:scale-95 transition-all shadow-[0_0_15px_rgba(79,70,229,0.5)] whitespace-nowrap flex-shrink-0 flex justify-center items-center gap-2">
+          <span>NLP 엔진 가동</span> 🚀
       </button>
   </div>
   
-  <div id="group-loading" class="hidden flex-col items-center justify-center py-32 flex-1">
-      <div class="relative w-20 h-20 mx-auto mb-6">
+  <div id="group-loading" class="hidden flex-col items-center justify-center py-20 flex-1">
+      <div class="relative w-24 h-24 mx-auto mb-8">
           <div class="absolute inset-0 border-4 border-gray-700 rounded-full"></div>
           <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
       </div>
-      <p class="text-lg font-bold text-gray-300 text-center mb-2">단어들의 영영사전 의미를 분석 중입니다...</p>
-      <p class="text-sm text-gray-500 text-center">(이 작업은 단어 수에 따라 몇 초 정도 걸릴 수 있습니다)</p>
+      <p class="text-xl font-black text-gray-200 text-center mb-3">단어들의 영영사전 데이터 수집 및 분석 중...</p>
+      <div class="w-64 h-2 bg-gray-800 rounded-full overflow-hidden mb-3">
+          <div id="nlp-progress-bar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
+      </div>
+      <p id="nlp-progress-text" class="text-sm font-bold text-indigo-400">0 / 0</p>
   </div>
 
-  <div id="group-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8 content-start flex-1">
+  <div id="group-container" class="hidden flex-col gap-10 pb-8 flex-1">
+      <!-- 1. 의미/주제 (Topic Clustering) -->
+      <section>
+          <h3 class="text-xl font-bold text-indigo-400 mb-4 px-2 border-l-4 border-indigo-500 ml-1 pl-3">1️⃣ 의미 기반 주제 클러스터링 (Topic Embedding)</h3>
+          <p class="text-sm text-gray-500 mb-5 px-2">단어들의 연관어(Means Like) 교집합 자카드 유사도를 계산하여 문맥상 함께 쓰이는 단어들을 묶습니다.</p>
+          <div id="nlp-topic-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
+      <!-- 2. 어근/파생어 (Stemming Family) -->
+      <section>
+          <h3 class="text-xl font-bold text-emerald-400 mb-4 px-2 border-l-4 border-emerald-500 ml-1 pl-3">2️⃣ 어근 및 파생어 패밀리 (Lemmatization)</h3>
+          <p class="text-sm text-gray-500 mb-5 px-2">자체 JS 형태소 분석기로 단어의 접미사(-tion, -ly 등)를 분리해 같은 뿌리(Root)를 가진 단어를 묶습니다.</p>
+          <div id="nlp-stem-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
+      <!-- 3. 어원/접두사 (Prefix Matching) -->
+      <section>
+          <h3 class="text-xl font-bold text-amber-400 mb-4 px-2 border-l-4 border-amber-500 ml-1 pl-3">3️⃣ 어원 및 접두사 매칭 (Prefix Rules)</h3>
+          <p class="text-sm text-gray-500 mb-5 px-2">trans-, inter-, sub- 등 30여 개의 영단어 핵심 접두사 DB를 기반으로 패턴을 추출합니다.</p>
+          <div id="nlp-prefix-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
+      <!-- 4. 유의어/반의어 (Synonym/Antonym Graph) -->
+      <section>
+          <h3 class="text-xl font-bold text-rose-400 mb-4 px-2 border-l-4 border-rose-500 ml-1 pl-3">4️⃣ 유의어 / 반의어 연결망 (Semantic Graph)</h3>
+          <p class="text-sm text-gray-500 mb-5 px-2">API가 제공하는 명확한 유의어/반의어 관계망에 내 단어장이 속해있는지 교차 검증합니다.</p>
+          <div id="nlp-synant-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
   </div>
 </div>
 
@@ -460,7 +492,8 @@ let testQueue=[],testPool=[],testIdx=0,testCorrect=0,testMode='all';
 let analysisWord=null,audioUrl=null;
 const SIM_DUP=75,SIM_CONF=50;
 let simMatrix={},confMatrix={};
-let activityLog={}; // 통계 기록용 객체
+let activityLog={};
+let labelCache={}; // 그룹 이름 한글 번역 캐시
 
 function resizeAllTexts() {
     document.querySelectorAll('.word-en-container').forEach(container => {
@@ -489,26 +522,25 @@ function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.
 function openInfoModal(){document.getElementById('info-modal').classList.remove('hidden','opacity-0');document.getElementById('info-modal-content').classList.remove('scale-95');}
 function closeInfoModal(){document.getElementById('info-modal').classList.add('opacity-0');document.getElementById('info-modal-content').classList.add('scale-95');setTimeout(()=>document.getElementById('info-modal').classList.add('hidden'),200);}
 
-// 💡 수정사항: 통계 기록 로딩 및 저장
 function loadData(){
   const raw=localStorage.getItem('myWordbook');
   if(raw){try{words=JSON.parse(raw);}catch{words=[];}}else{words=[];}
-  
   const actRaw = localStorage.getItem('myActivity');
   if(actRaw){try{activityLog=JSON.parse(actRaw);}catch{activityLog={};}}
-  
+  const lblRaw = localStorage.getItem('myLabelCache');
+  if(lblRaw){try{labelCache=JSON.parse(lblRaw);}catch{labelCache={};}}
   renderWords();
 }
 function saveData(){
   localStorage.setItem('myWordbook',JSON.stringify(words));
   localStorage.setItem('myActivity', JSON.stringify(activityLog));
+  localStorage.setItem('myLabelCache', JSON.stringify(labelCache));
   renderWords();
-  if(window.triggerCloudSave) window.triggerCloudSave({words, activityLog}); // 클라우드에 통계도 같이 백업
+  if(window.triggerCloudSave) window.triggerCloudSave({words, activityLog}); 
 }
 
-// 💡 통계 기록 남기기 함수
 function logActivity(type) {
-    const today = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,''); // YYYY-MM-DD 포맷
+    const today = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,''); 
     if(!activityLog[today]) { activityLog[today] = { added: 0, tested: 0, quizzed: 0 }; }
     activityLog[today][type] = (activityLog[today][type] || 0) + 1;
     saveData();
@@ -516,7 +548,6 @@ function logActivity(type) {
 
 window.updateFromCloud = function(data) {
   words.length = 0;
-  // 하위 호환성 (기존엔 배열이었음)
   if (Array.isArray(data)) {
       words.push(...data);
   } else if (data && data.words) {
@@ -534,8 +565,6 @@ function saveConf(){localStorage.setItem('confMatrix',JSON.stringify(confMatrix)
 
 document.addEventListener('DOMContentLoaded',()=>{loadData();loadConf();buildSimMatrix();});
 
-// 💡 수정사항: 탭 순서 변경 (manage, test, quiz, analysis, group, stats)
-const ALL_TABS=['manage','test','quiz','analysis','group','stats'];
 function switchTab(name){
   ALL_TABS.forEach(t=>{
     const btn=document.getElementById(`tab-${t}`),view=document.getElementById(`view-${t}`);
@@ -549,9 +578,7 @@ function switchTab(name){
   });
   if(name!=='test') resetTestView(); if(name!=='quiz') resetQuizView();
   if(name!=='analysis') document.getElementById('analysis-dropdown').classList.add('hidden');
-  
   if(name==='manage') setTimeout(resizeAllTexts, 50);
-  // 그룹핑 탭일 때 자동 렌더링 삭제 (유저가 직접 버튼 누르게 유도하여 과도한 API 호출 방지)
   if(name==='stats') renderStats();
 }
 
@@ -559,9 +586,9 @@ function addWord(){
   const enEl=document.getElementById('input-en'),koEl=document.getElementById('input-ko');
   const en=enEl.value.trim(),ko=koEl.value.trim();
   if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
-  words.push({id:Date.now(),en,ko,wrongCount:0, quizCount:0});
+  words.push({id:Date.now(),en,ko,wrongCount:0, quizCount:0, nlp:null});
   buildSimMatrix();currentPage=1;
-  logActivity('added'); // 💡 통계 연동
+  logActivity('added'); 
   saveData();
   enEl.value='';koEl.value='';enEl.focus();
   showToast('단어 추가 완료! ✨');
@@ -575,9 +602,7 @@ function executeDelete(){
     if(pendingDeleteId !== null){
         const idx = words.findIndex(w => w.id === pendingDeleteId);
         if(idx !== -1) {
-            if(idx !== words.length - 1) {
-                words[idx] = words[words.length - 1];
-            }
+            if(idx !== words.length - 1) { words[idx] = words[words.length - 1]; }
             words.pop();
             buildSimMatrix();
             saveData();
@@ -598,7 +623,11 @@ function saveEditWord() {
   const en=document.getElementById('edit-en').value.trim(),ko=document.getElementById('edit-ko').value.trim();
   if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
   const idx=words.findIndex(w=>w.id===editingWordId);
-  if(idx!==-1){words[idx].en=en;words[idx].ko=ko;buildSimMatrix();saveData();showToast('수정되었습니다. ✏️');closeEditModal();}
+  if(idx!==-1){
+      words[idx].en=en;words[idx].ko=ko;
+      words[idx].nlp=null; 
+      buildSimMatrix();saveData();showToast('수정되었습니다. ✏️');closeEditModal();
+  }
 }
 
 function changePage(d){currentPage+=d;renderWords();document.getElementById('word-list').scrollTop=0;}
@@ -678,7 +707,7 @@ function renderWords(){
 }
 
 function exportData(){if(!words.length)return showToast('저장할 단어가 없습니다.','error');const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'})),download:`영단어장.json`});document.body.appendChild(a);a.click();a.remove();}
-function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0, quizCount:iw.quizCount||0});}});buildSimMatrix();saveData();currentPage=1;showToast(`단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};r.readAsText(file);e.target.value='';}
+function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0, quizCount:iw.quizCount||0, nlp:null});}});buildSimMatrix();saveData();currentPage=1;showToast(`단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};r.readAsText(file);e.target.value='';}
 
 function resetTestView(){
     testQueue=[];testPool=[];testIdx=0;testCorrect=0;
@@ -757,7 +786,7 @@ function markAnswer(ok){
         const i=words.findIndex(x=>x.id===testQueue[testIdx].id);
         if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
     }
-    logActivity('tested'); // 💡 통계 연동
+    logActivity('tested'); 
     testIdx++;
     if(testIdx>=testQueue.length){
         document.getElementById('test-active').classList.add('hidden');
@@ -768,7 +797,6 @@ function markAnswer(ok){
     }
 }
 
-// 기존 한국어 뜻 기반 유사도 로직 (단어 목록의 중복 체크 용도 유지)
 const KO_SUF=['스럽다','스러운','하다','하는','하여','하게','한','함','히','이다','이란','되다','되는','된','됨','적인','적으로','적','롭다','로운','없다','없는','있다','있는','지다','진','ㄴ','는','을','를','이','가','의','에','로','과','와','도'].sort((a,b)=>b.length-a.length);
 function tokenize(str){const tokens=new Set();str.split(/[,\/\s]+/).map(s=>s.trim()).filter(Boolean).forEach(c=>{let stem=c;for(const suf of KO_SUF){if(stem.length>suf.length&&stem.endsWith(suf)){stem=stem.slice(0,-suf.length);break;}}if(stem.length>=1)tokens.add(stem);});return tokens;}
 function semSim(a,b){const tA=tokenize(a),tB=tokenize(b);if(!tA.size||!tB.size)return 0;let ex=0;tA.forEach(t=>{if(tB.has(t))ex++;});const jac=ex/new Set([...tA,...tB]).size;let part=0;tA.forEach(a=>tB.forEach(b=>{if(a!==b&&(a.includes(b)||b.includes(a)))part+=0.3;}));const cA=new Set([...a.replace(/[,\/\s]/g,'')]),cB=new Set([...b.replace(/[,\/\s]/g,'')]);let co=0;cA.forEach(c=>{if(cB.has(c))co++;});return Math.min(100,jac*70+part*15+(co/Math.max(cA.size,cB.size))*15);}
@@ -831,251 +859,274 @@ function selectQuiz(btn,ok,selId){
         confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;saveConf();
     }
     document.getElementById('quiz-score').textContent=quizS;
-    logActivity('quizzed'); // 💡 통계 연동
+    logActivity('quizzed'); 
     setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
 }
 
 function showQuizResult(){document.getElementById('quiz-active').classList.add('hidden');document.getElementById('quiz-result').classList.remove('hidden');document.getElementById('quiz-final-score').textContent=quizS;document.getElementById('quiz-total-score').textContent=Math.max(0,quizQ-1);renderWords();}
 
 // =====================================
-// 💡 그룹핑 (영어 사전 뜻 기반 알고리즘 개편)
+// 💡 사전 컴파일 기반 (Precompiled) NLP 오프라인 그룹핑 로직
 // =====================================
-const EN_STOP_WORDS = new Set(['the','and','for','with','that','this','from','are','have','has','had','not','but','what','all','were','when','can','said','there','use','each','which','she','how','their','will','other','about','many','then','them','these','some','her','would','make','like','him','into','time','has','look','two','more','write','see','number','way','could','people','than','first','water','been','call','who','oil','its','now','find','long','down','day','did','get','come','made','may','part','something','someone','used','relating','having','take','took','one','three','any','being','person','state','act']);
 
-async function fetchEnglishTokens(word) {
+const EN_STOP_WORDS = new Set(['the','and','for','with','that','this','from','are','have','has','had','not','but','what','all','were','when','can','said','there','use','each','which','she','how','their','will','other','about','many','then','them','these','some','her','would','make','like','him','into','time','look','two','more','write','see','number','way','could','people','than','first','water','been','call','who','oil','its','now','find','long','down','day','did','get','come','made','may','part','something','someone','used','relating','having','take','took','one','three','any','being','person','state','act']);
+
+// 커스텀 JS 형태소 분석기 (Stemmer)
+function getStem(w) {
+    let s = w.toLowerCase();
+    if(s.length < 4) return s;
+    if(s.endsWith('ies') && s.length>4) return s.slice(0,-3)+'y';
+    if(s.endsWith('es') && s.length>4) return s.slice(0,-2);
+    if(s.endsWith('s') && s.length>3 && !s.endsWith('ss')) return s.slice(0,-1);
+    if(s.endsWith('ing') && s.length>5) return s.slice(0,-3);
+    if(s.endsWith('ed') && s.length>4) return s.slice(0,-2);
+    if(s.endsWith('tion') && s.length>5) return s.slice(0,-4);
+    if(s.endsWith('ment') && s.length>5) return s.slice(0,-4);
+    if(s.endsWith('ity') && s.length>5) return s.slice(0,-3);
+    if(s.endsWith('ive') && s.length>4) return s.slice(0,-3);
+    if(s.endsWith('ly') && s.length>4) return s.slice(0,-2);
+    return s;
+}
+
+// 오프라인용 정적 접두사 규칙 테이블 (Precompiled Mapping Table)
+const PREFIX_DICT = [
+    {p: 'trans', m: '가로질러/바꾸어'}, {p: 'inter', m: '상호/사이에'}, {p: 'super', m: '초과/위에'},
+    {p: 'under', m: '아래에/부족한'}, {p: 'over', m: '넘어서/과도한'}, {p: 'anti', m: '반대/항'},
+    {p: 'auto', m: '스스로/자동'}, {p: 'multi', m: '많은/다중'}, {p: 'poly', m: '많은/다중'},
+    {p: 'semi', m: '반/절반'}, {p: 'tele', m: '멀리'}, {p: 'micro', m: '작은'}, {p: 'macro', m: '큰'},
+    {p: 'pre', m: '미리/이전'}, {p: 'post', m: '이후'}, {p: 'dis', m: '부정/분리'},
+    {p: 'mis', m: '잘못된'}, {p: 'non', m: '아닌'}, {p: 'sub', m: '아래'}, {p: 're', m: '다시/뒤로'},
+    {p: 'un', m: '부정/반대'}, {p: 'in', m: '안으로/부정'}, {p: 'im', m: '안으로/부정'},
+    {p: 'il', m: '부정'}, {p: 'ir', m: '부정'}, {p: 'com', m: '함께'}, {p: 'con', m: '함께'},
+    {p: 'co', m: '함께'}, {p: 'ex', m: '밖으로'}
+];
+
+function getPrefix(w) {
+    let s = w.toLowerCase();
+    for(let pr of PREFIX_DICT) {
+        if(s.startsWith(pr.p) && s.length > pr.p.length + 2) return pr;
+    }
+    return null;
+}
+
+// 백그라운드 단방향 지식 수집 (One-time fetch & permanent cache)
+async function enrichWord(w) {
+    if(w.nlp && w.nlp.fetched) return false;
+    w.nlp = { ml: [], syn: [], ant: [], tokens: [], fetched: false };
+
     try {
-        const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-        if (!r.ok) return [];
-        const data = await r.json();
-        let text = "";
-        data[0]?.meanings?.forEach(m => {
-            m.definitions?.forEach(d => {
-                text += " " + d.definition;
+        const [resMl, resSyn, resAnt, resDict] = await Promise.allSettled([
+            fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(w.en)}&max=15`).then(r=>r.json()),
+            fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(w.en)}&max=5`).then(r=>r.json()),
+            fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(w.en)}&max=5`).then(r=>r.json()),
+            fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.en)}`).then(r=>r.json())
+        ]);
+
+        if(resMl.status === 'fulfilled' && Array.isArray(resMl.value)) w.nlp.ml = resMl.value.map(x=>x.word);
+        if(resSyn.status === 'fulfilled' && Array.isArray(resSyn.value)) w.nlp.syn = resSyn.value.map(x=>x.word);
+        if(resAnt.status === 'fulfilled' && Array.isArray(resAnt.value)) w.nlp.ant = resAnt.value.map(x=>x.word);
+        
+        if(resDict.status === 'fulfilled' && Array.isArray(resDict.value)) {
+            let text = "";
+            resDict.value[0]?.meanings?.forEach(m => {
+                m.definitions?.forEach(d => { text += " " + d.definition; });
             });
-        });
-        const extracted = text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
-        return Array.from(new Set(extracted.filter(w => !EN_STOP_WORDS.has(w))));
+            const extracted = text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
+            w.nlp.tokens = Array.from(new Set(extracted.filter(t => !EN_STOP_WORDS.has(t))));
+        }
+        
+        w.nlp.stem = getStem(w.en);
+        w.nlp.prefix = getPrefix(w.en);
+        w.nlp.fetched = true;
+        return true;
     } catch(e) {
-        return [];
+        console.error("Enrichment failed for", w.en);
+        return false;
     }
 }
 
-async function renderGroups() {
-    const container = document.getElementById('group-container');
-    const loadingUI = document.getElementById('group-loading');
+// 오프라인 그룹핑 메인 엔진
+async function runNLPGrouping() {
+    if(words.length < 2) return showToast('비교할 단어가 부족합니다.', 'error');
     
-    if(words.length === 0) {
-        container.innerHTML = '<div class="col-span-full flex flex-col items-center justify-center text-gray-500 py-20"><span class="text-5xl mb-4 opacity-50">📭</span><p class="font-bold">단어가 없습니다.</p></div>';
-        return;
-    }
-
-    container.classList.add('hidden');
+    document.getElementById('group-container').classList.add('hidden');
+    const loadingUI = document.getElementById('group-loading');
     loadingUI.classList.remove('hidden');
     loadingUI.classList.add('flex');
-
-    // 1. 모든 단어의 영영사전 키워드 확보 (캐싱 활용)
-    let updated = false;
-    for(let w of words) {
-        if(!w.en_tokens || w.en_tokens.length === 0) {
-            w.en_tokens = await fetchEnglishTokens(w.en);
-            updated = true;
-        }
-    }
-    if(updated) saveData(); // 확보된 토큰 저장
-
-    // 2. 단어 간 유사도(교집합 개수) 계산하여 묶기
-    let groups = [];
-    let unassigned = [...words];
-
-    while(unassigned.length > 0) {
-        let currentWord = unassigned.shift();
-        let currentGroup = [currentWord];
-        let i = 0;
-
-        while (i < unassigned.length) {
-            let candidate = unassigned[i];
-            
-            // 현재 그룹 내 단어 중 하나라도 공유하는 키워드가 1개 이상 있으면 묶음 (임계값 1)
-            let isSimilar = currentGroup.some(gWord => {
-                if(!gWord.en_tokens || !candidate.en_tokens) return false;
-                const intersect = gWord.en_tokens.filter(val => candidate.en_tokens.includes(val));
-                return intersect.length >= 1; 
-            });
-
-            if (isSimilar) {
-                currentGroup.push(candidate);
-                unassigned.splice(i, 1);
-            } else {
-                i++;
-            }
-        }
-        groups.push(currentGroup);
-    }
-
-    const multiGroups = groups.filter(g => g.length > 1).sort((a,b) => b.length - a.length);
-    const singleWords = groups.filter(g => g.length === 1).map(g => g[0]);
-
-    container.innerHTML = '';
     
-    if(multiGroups.length === 0 && singleWords.length > 0) {
-         container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10 font-bold bg-gray-800 rounded-2xl border border-gray-700">영영사전 의미가 겹치는 단어가 충분하지 않습니다.<br>다양한 단어를 추가해 보세요!</div>';
+    const progressText = document.getElementById('nlp-progress-text');
+    const progressBar = document.getElementById('nlp-progress-bar');
+    
+    let updated = false;
+    let offlineWarning = false;
+
+    // 1️⃣ 단어장 전수조사 및 필요한 경우에만 1회성 데이터 패치 수행
+    for(let i=0; i<words.length; i++) {
+        let w = words[i];
+        if(!w.nlp || !w.nlp.fetched) {
+            if(!navigator.onLine) {
+                offlineWarning = true;
+                continue; // 오프라인이면 기존 데이터만 사용
+            }
+            const didFetch = await enrichWord(w);
+            if(didFetch) updated = true;
+        }
+        progressText.textContent = `${i+1} / ${words.length}`;
+        progressBar.style.width = `${Math.round(((i+1)/words.length)*100)}%`;
     }
+    
+    if(updated) saveData(); 
+    if(offlineWarning) showToast("오프라인 상태입니다. 이미 캐싱된 지식 데이터만 활용합니다.", "info");
 
-    // 각 그룹을 화면에 렌더링
-    for (let idx = 0; idx < multiGroups.length; idx++) {
-        let group = multiGroups[idx];
-        
-        // 공통 영어 키워드 찾기
-        let counts = {};
-        group.forEach(w => {
-            (w.en_tokens || []).forEach(t => counts[t] = (counts[t]||0) + 1);
-        });
-        let topKeywordEn = '';
-        let maxCount = 0;
-        for(let t in counts) {
-            if(counts[t] > maxCount) {
-                maxCount = counts[t];
-                topKeywordEn = t;
-            }
-        }
-
-        let groupTitleKo = `유사 단어 그룹 ${idx + 1}`;
-        if(topKeywordEn && maxCount > 1) {
-            try {
-                // 뽑은 공통 영어 키워드를 구글 번역 API로 한글 변환
-                const trRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(topKeywordEn)}`);
-                const trData = await trRes.json();
-                const koWord = trData[0][0][0] || topKeywordEn;
-                groupTitleKo = `'${koWord}' 관련 단어`;
-            } catch(e) {
-                groupTitleKo = `'${topKeywordEn}' 관련 단어`;
-            }
-        }
-
+    function buildCard(title, groupArr) {
         const card = document.createElement('div');
-        card.className = 'bg-gray-800 p-6 rounded-[2rem] shadow-lg border border-gray-700 flex flex-col h-full fade-in hover:border-indigo-500/50 transition-colors';
-        
-        let chipsHtml = group.map(w => {
-            return `<span class="chip bg-indigo-900/30 text-indigo-300 border border-indigo-800/50 shadow-sm" onclick="openAnalysis(${w.id})" title="클릭하여 상세 분석">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-medium">${w.ko}</span></span>`;
-        }).join('');
-
+        card.className = 'bg-gray-800 p-6 rounded-3xl shadow-lg border border-gray-700 flex flex-col h-full fade-in hover:border-indigo-500/50 transition-colors';
+        let chipsHtml = groupArr.map(w => `<span class="chip bg-gray-900 text-gray-300 border border-gray-600 hover:bg-gray-700" onclick="openAnalysis(${w.id})" title="클릭하여 상세 분석">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-medium">${w.ko}</span></span>`).join('');
         card.innerHTML = `
-            <div class="flex items-center justify-between mb-5 pb-3 border-b border-gray-700/50">
-                <h3 class="text-base sm:text-lg font-black text-indigo-400 flex items-center gap-2 truncate pr-2">🔗 ${groupTitleKo}</h3>
-                <span class="text-[11px] font-bold text-gray-400 bg-gray-900 px-2.5 py-1 rounded-full whitespace-nowrap border border-gray-700">${group.length}단어</span>
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-700/50">
+                <h4 class="text-base font-bold text-gray-200 flex items-center gap-2 truncate pr-2 trans-title">${title}</h4>
+                <span class="text-[10px] font-bold text-gray-400 bg-gray-900 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span>
             </div>
-            <div class="flex flex-wrap gap-2.5 items-start content-start flex-1">
-                ${chipsHtml}
-            </div>
+            <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>
         `;
-        container.appendChild(card);
+        return card;
     }
 
-    if(singleWords.length > 0) {
-        const singleCard = document.createElement('div');
-        singleCard.className = 'bg-gray-800/50 p-6 rounded-[2rem] shadow-sm border border-gray-700 border-dashed flex flex-col h-full fade-in md:col-span-2 lg:col-span-3 mt-4';
-        
-        let chipsHtml = singleWords.map(w => {
-            return `<span class="chip bg-gray-900 text-gray-400 border border-gray-700" onclick="openAnalysis(${w.id})">${w.en} <span class="text-[10px] text-gray-600 ml-1 font-medium">${w.ko}</span></span>`;
-        }).join('');
-
-        singleCard.innerHTML = `
-            <div class="flex items-center justify-between mb-5 pb-3 border-b border-gray-700/50">
-                <h3 class="text-base sm:text-lg font-black text-gray-500 flex items-center gap-2">🧩 미분류 단어 (독립적)</h3>
-                <span class="text-[11px] font-bold text-gray-500 bg-gray-900 px-2.5 py-1 rounded-full whitespace-nowrap border border-gray-700">${singleWords.length}단어</span>
-            </div>
-            <div class="flex flex-wrap gap-2.5 items-start content-start flex-1 opacity-70">
-                ${chipsHtml}
-            </div>
-        `;
-        container.appendChild(singleCard);
+    // 2️⃣ 오프라인 결정론적 Jaccard 군집화 (Topic Clustering)
+    let topicGroups = [];
+    let unassigned = [...words];
+    while(unassigned.length > 0) {
+        let current = unassigned.shift();
+        let group = [current];
+        let i = 0;
+        while(i < unassigned.length) {
+            let cand = unassigned[i];
+            let isSimilar = group.some(g => {
+                if(!g.nlp || !cand.nlp) return false;
+                const mlJac = nlpJaccard(g.nlp.ml, cand.nlp.ml);
+                const tokenJac = nlpJaccard(g.nlp.tokens, cand.nlp.tokens);
+                return Math.max(mlJac, tokenJac) > 0.03; // 임계값
+            });
+            if(isSimilar) { group.push(cand); unassigned.splice(i, 1); } 
+            else i++;
+        }
+        if(group.length > 1) topicGroups.push(group);
     }
+
+    // 3️⃣ 라벨 추출 및 번역 연동 로직
+    const topicGrid = document.getElementById('nlp-topic-grid');
+    topicGrid.innerHTML = topicGroups.length ? '' : '<p class="text-gray-500 text-sm">의미 교집합이 충분한 단어가 없습니다.</p>';
+    
+    // 번역해야 할 키워드 목록 수집
+    let topKeywords = [];
+    let groupData = [];
+    topicGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => {
+        let counts = {};
+        g.forEach(w => {
+            (w.nlp?.ml || []).forEach(t => counts[t] = (counts[t]||0)+1);
+            (w.nlp?.tokens || []).forEach(t => counts[t] = (counts[t]||0)+1);
+        });
+        let topKeyword = Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0];
+        topKeywords.push(topKeyword);
+        groupData.push({g: g, keyword: topKeyword, idx: idx});
+    });
+
+    // 오프라인 환경도 대응 가능한 라벨 매핑 작업
+    let keywordsToTranslate = [...new Set(topKeywords)].filter(k => k && !labelCache[k]);
+    if(keywordsToTranslate.length > 0 && navigator.onLine) {
+        await Promise.all(keywordsToTranslate.map(async (k) => {
+            try {
+                let res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(k)}`);
+                let data = await res.json();
+                labelCache[k] = data[0][0][0] || k;
+            } catch(e) { labelCache[k] = k; } // fallback
+        }));
+        saveData();
+    }
+
+    groupData.forEach(item => {
+        let finalTitle = `그룹 ${item.idx+1}`;
+        if(item.keyword) {
+            let koWord = labelCache[item.keyword] || item.keyword;
+            finalTitle = `'<span class="text-indigo-400">${koWord}</span>' 속성`;
+        }
+        topicGrid.appendChild(buildCard(finalTitle, item.g));
+    });
+
+    // 4️⃣ 어근 파생어 (Stemming Family)
+    let stemGroups = {};
+    words.forEach(w => {
+        if(w.nlp && w.nlp.stem && w.nlp.stem.length >= 3) {
+            if(!stemGroups[w.nlp.stem]) stemGroups[w.nlp.stem] = [];
+            stemGroups[w.nlp.stem].push(w);
+        }
+    });
+    const stemGrid = document.getElementById('nlp-stem-grid');
+    stemGrid.innerHTML = '';
+    let stemFound = false;
+    Object.keys(stemGroups).forEach(stem => {
+        if(stemGroups[stem].length > 1) {
+            stemGrid.appendChild(buildCard(`어근 [ ${stem} ]`, stemGroups[stem]));
+            stemFound = true;
+        }
+    });
+    if(!stemFound) stemGrid.innerHTML = '<p class="text-gray-500 text-sm">같은 어근을 공유하는 단어가 없습니다.</p>';
+
+    // 5️⃣ 접두사 매칭 (Prefix Rules)
+    let prefixGroups = {};
+    words.forEach(w => {
+        if(w.nlp && w.nlp.prefix) {
+            let pkey = w.nlp.prefix.p;
+            if(!prefixGroups[pkey]) prefixGroups[pkey] = { title: `${pkey}- (${w.nlp.prefix.m})`, arr: [] };
+            prefixGroups[pkey].arr.push(w);
+        }
+    });
+    const prefixGrid = document.getElementById('nlp-prefix-grid');
+    prefixGrid.innerHTML = '';
+    let prefixFound = false;
+    Object.keys(prefixGroups).forEach(pk => {
+        if(prefixGroups[pk].arr.length > 1) {
+            prefixGrid.appendChild(buildCard(prefixGroups[pk].title, prefixGroups[pk].arr));
+            prefixFound = true;
+        }
+    });
+    if(!prefixFound) prefixGrid.innerHTML = '<p class="text-gray-500 text-sm">공통 접두사를 가진 단어가 없습니다.</p>';
+
+    // 6️⃣ 유의어/반의어 망 (Syn/Ant Graph)
+    let synAntGroups = [];
+    unassigned = [...words];
+    while(unassigned.length > 0) {
+        let current = unassigned.shift();
+        let group = [current];
+        let i = 0;
+        while(i < unassigned.length) {
+            let cand = unassigned[i];
+            let isConnected = group.some(g => {
+                if(!g.nlp || !cand.nlp) return false;
+                const inSyn = (g.nlp.syn || []).includes(cand.en.toLowerCase()) || (cand.nlp.syn || []).includes(g.en.toLowerCase());
+                const inAnt = (g.nlp.ant || []).includes(cand.en.toLowerCase()) || (cand.nlp.ant || []).includes(g.en.toLowerCase());
+                return inSyn || inAnt;
+            });
+            if(isConnected) { group.push(cand); unassigned.splice(i, 1); } 
+            else i++;
+        }
+        if(group.length > 1) synAntGroups.push(group);
+    }
+    const synantGrid = document.getElementById('nlp-synant-grid');
+    synantGrid.innerHTML = synAntGroups.length ? '' : '<p class="text-gray-500 text-sm">유의어/반의어로 묶이는 단어가 없습니다.</p>';
+    synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => {
+        synantGrid.appendChild(buildCard(`상호 연결된 그물망 ${idx+1}`, g));
+    });
 
     loadingUI.classList.add('hidden');
     loadingUI.classList.remove('flex');
-    container.classList.remove('hidden');
+    document.getElementById('group-container').classList.remove('hidden');
+    document.getElementById('group-container').classList.add('flex');
 }
 
-
 // =====================================
-// 💡 통계 (Statistics) 화면 렌더링
+// 💡 분석 (Analysis) 탭 유틸
 // =====================================
-function renderStats() {
-    const todayStr = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
-    const todayData = activityLog[todayStr] || { added: 0, tested: 0, quizzed: 0 };
-    
-    document.getElementById('stat-added').textContent = todayData.added || 0;
-    document.getElementById('stat-tested').textContent = todayData.tested || 0;
-    document.getElementById('stat-quizzed').textContent = todayData.quizzed || 0;
-
-    // 연속 학습일(Streak) 계산
-    let streak = 0;
-    let checkDate = new Date();
-    while(true) {
-        let dStr = checkDate.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
-        let dData = activityLog[dStr];
-        if(dData && (dData.added > 0 || dData.tested > 0 || dData.quizzed > 0)) {
-            streak++;
-            checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-            // 오늘이 0이더라도 어제까지 기록이 있으면 스트릭 유지
-            if(streak === 0) {
-                checkDate.setDate(checkDate.getDate() - 1);
-                dStr = checkDate.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
-                dData = activityLog[dStr];
-                if(dData && (dData.added > 0 || dData.tested > 0 || dData.quizzed > 0)) {
-                    streak++;
-                    checkDate.setDate(checkDate.getDate() - 1);
-                    continue;
-                }
-            }
-            break;
-        }
-    }
-    document.getElementById('stat-streak').innerHTML = `현재 <span class="text-emerald-400 font-bold">${streak}일째</span> 연속 학습 중! 🔥`;
-
-    // 35일 잔디 심기 (5주 * 7일)
-    const grid = document.getElementById('grass-grid');
-    grid.innerHTML = '';
-    
-    // 모바일/PC 모두 보기 좋게 7일씩 열(Column)로 묶어서 표현
-    const totalDays = 35;
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - totalDays + 1);
-
-    for (let col = 0; col < 5; col++) {
-        const colDiv = document.createElement('div');
-        colDiv.className = 'flex flex-col gap-2';
-        for(let row = 0; row < 7; row++) {
-            const currentObj = new Date(startDate);
-            currentObj.setDate(startDate.getDate() + (col * 7 + row));
-            const cStr = currentObj.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
-            
-            const aData = activityLog[cStr];
-            const totalAction = aData ? (aData.added||0) + (aData.tested||0) + (aData.quizzed||0) : 0;
-            
-            let colorClass = 'grass-0';
-            if(totalAction >= 30) colorClass = 'grass-4';
-            else if(totalAction >= 15) colorClass = 'grass-3';
-            else if(totalAction >= 5) colorClass = 'grass-2';
-            else if(totalAction >= 1) colorClass = 'grass-1';
-
-            const box = document.createElement('div');
-            box.className = `w-4 h-4 sm:w-5 sm:h-5 rounded-md ${colorClass} transition-colors hover:scale-110 cursor-help relative group`;
-            
-            // 마우스 올리면 나오는 툴팁
-            const tooltip = document.createElement('div');
-            tooltip.className = 'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none border border-gray-700 shadow-xl';
-            tooltip.textContent = `${cStr}: ${totalAction} 활동`;
-            box.appendChild(tooltip);
-
-            colDiv.appendChild(box);
-        }
-        grid.appendChild(colDiv);
-    }
-}
-
-
 function openAnalysis(id){const w=words.find(x=>x.id===id);if(!w)return;switchTab('analysis');setTimeout(()=>selectAnalysisWord(w),60);}
 function filterAnalysisWords(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
 function showAnalysisDropdown(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
@@ -1206,6 +1257,78 @@ async function runAnalysis(w){
   if (scrollContainer) scrollContainer.scrollTop = 0;
 }
 function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();}
+
+// =====================================
+// 💡 통계 (Statistics) 화면 렌더링
+// =====================================
+function renderStats() {
+    const todayStr = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
+    const todayData = activityLog[todayStr] || { added: 0, tested: 0, quizzed: 0 };
+    
+    document.getElementById('stat-added').textContent = todayData.added || 0;
+    document.getElementById('stat-tested').textContent = todayData.tested || 0;
+    document.getElementById('stat-quizzed').textContent = todayData.quizzed || 0;
+
+    let streak = 0;
+    let checkDate = new Date();
+    while(true) {
+        let dStr = checkDate.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
+        let dData = activityLog[dStr];
+        if(dData && (dData.added > 0 || dData.tested > 0 || dData.quizzed > 0)) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+            if(streak === 0) {
+                checkDate.setDate(checkDate.getDate() - 1);
+                dStr = checkDate.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
+                dData = activityLog[dStr];
+                if(dData && (dData.added > 0 || dData.tested > 0 || dData.quizzed > 0)) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                    continue;
+                }
+            }
+            break;
+        }
+    }
+    document.getElementById('stat-streak').innerHTML = `현재 <span class="text-emerald-400 font-bold">${streak}일째</span> 연속 학습 중! 🔥`;
+
+    const grid = document.getElementById('grass-grid');
+    grid.innerHTML = '';
+    const totalDays = 35;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - totalDays + 1);
+
+    for (let col = 0; col < 5; col++) {
+        const colDiv = document.createElement('div');
+        colDiv.className = 'flex flex-col gap-2';
+        for(let row = 0; row < 7; row++) {
+            const currentObj = new Date(startDate);
+            currentObj.setDate(startDate.getDate() + (col * 7 + row));
+            const cStr = currentObj.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
+            
+            const aData = activityLog[cStr];
+            const totalAction = aData ? (aData.added||0) + (aData.tested||0) + (aData.quizzed||0) : 0;
+            
+            let colorClass = 'grass-0';
+            if(totalAction >= 30) colorClass = 'grass-4';
+            else if(totalAction >= 15) colorClass = 'grass-3';
+            else if(totalAction >= 5) colorClass = 'grass-2';
+            else if(totalAction >= 1) colorClass = 'grass-1';
+
+            const box = document.createElement('div');
+            box.className = `w-4 h-4 sm:w-5 sm:h-5 rounded-md ${colorClass} transition-colors hover:scale-110 cursor-help relative group`;
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none border border-gray-700 shadow-xl';
+            tooltip.textContent = `${cStr}: ${totalAction} 활동`;
+            box.appendChild(tooltip);
+
+            colDiv.appendChild(box);
+        }
+        grid.appendChild(colDiv);
+    }
+}
 </script>
 
 <!-- ========================================== -->
@@ -1267,7 +1390,6 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
           updateCloudStatus('emerald', '동기화 완료 ☁️');
           if (docSnap.exists()) {
               const data = docSnap.data();
-              // 서버에서 받은 데이터에 wordsList뿐 아니라 activityLog가 합쳐진 경우 처리
               if(data.wordsList) {
                   try {
                       const parsedData = JSON.parse(data.wordsList);
@@ -1277,7 +1399,6 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
               }
           } else {
               if (window.words && window.words.length > 0) {
-                  // words 배열과 통계 activityLog 객체를 한꺼번에 클라우드로 보냄
                   window.triggerCloudSave({words: window.words, activityLog: window.activityLog});
                   window.showToast("☁️ 기존 데이터를 클라우드에 백업했습니다.");
               }
