@@ -59,7 +59,14 @@
 <div id="login-overlay" class="absolute inset-0 bg-white z-[300] flex flex-col items-center justify-center fade-in">
     <div class="text-6xl mb-6">🔒</div>
     <h2 class="text-3xl font-bold mb-4 text-gray-800">단어장 로그인</h2>
-    <p class="text-gray-500 mb-8 text-center px-6 leading-relaxed">안전한 데이터 백업과<br>모든 기기 실시간 동기화를 위해<br>구글 계정으로 로그인해주세요.</p>
+    <p class="text-gray-500 mb-6 text-center px-6 leading-relaxed">안전한 데이터 백업과<br>모든 기기 실시간 동기화를 위해<br>구글 계정으로 로그인해주세요.</p>
+    
+    <!-- 로그인 유지 체크박스 추가 -->
+    <label class="flex items-center gap-2 mb-8 cursor-pointer group bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 shadow-sm hover:bg-gray-100 transition-colors">
+        <input type="checkbox" id="keep-login-chk" checked class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer accent-indigo-600">
+        <span class="text-sm font-bold text-gray-600 group-hover:text-indigo-600 transition-colors">자동 로그인 유지 (개인 기기 권장)</span>
+    </label>
+
     <button onclick="loginWithGoogle()" class="flex items-center gap-3 bg-white border-2 border-gray-200 px-6 py-4 rounded-2xl shadow-sm hover:bg-gray-50 active:scale-95 transition-all">
         <svg class="w-6 h-6" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20c11 0 20-9 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571c.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
         <span class="font-bold text-gray-700 text-lg">Google로 시작하기</span>
@@ -446,7 +453,7 @@ function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.
 function openInfoModal(){document.getElementById('info-modal').classList.remove('hidden','opacity-0');document.getElementById('info-modal-content').classList.remove('scale-95');}
 function closeInfoModal(){document.getElementById('info-modal').classList.add('opacity-0');document.getElementById('info-modal-content').classList.add('scale-95');setTimeout(()=>document.getElementById('info-modal').classList.add('hidden'),200);}
 
-// [수정된 부분] 로컬 & 클라우드 저장 로직 병합
+// 로컬 & 클라우드 저장 로직 병합
 function loadData(){
   const raw=localStorage.getItem('myWordbook');
   if(raw){try{words=JSON.parse(raw);}catch{words=[];}}
@@ -460,7 +467,7 @@ function saveData(){
   if(window.triggerCloudSave) window.triggerCloudSave(words);
 }
 
-// [새로 추가된 부분] 클라우드에서 데이터가 내려올 때 실행됨
+// 클라우드에서 데이터가 내려올 때 실행됨
 window.updateFromCloud = function(cloudWords) {
   words.length = 0; // 기존 배열 비우기
   words.push(...cloudWords); // 클라우드 데이터로 채우기
@@ -591,16 +598,159 @@ function showAnalysisDropdown(){renderAnalysisDD(document.getElementById('analys
 function renderAnalysisDD(q=''){const dd=document.getElementById('analysis-dropdown');const f=words.filter(w=>w.en.toLowerCase().includes(q)||w.ko.includes(q));if(!f.length)return dd.classList.add('hidden');dd.innerHTML=f.map(w=>`<button class="w-full text-left px-5 py-4 hover:bg-indigo-50 flex justify-between" onclick="selectAnalysisWord(words.find(x=>x.id===${w.id}))"><span class="font-bold">${w.en}</span><span class="text-sm text-gray-500">${w.ko}</span></button>`).join('');dd.classList.remove('hidden');}
 function selectAnalysisWord(w){if(!w)return;analysisWord=w;document.getElementById('analysis-search').value='';document.getElementById('analysis-dropdown').classList.add('hidden');document.getElementById('analysis-word-en-display').textContent=w.en;document.getElementById('analysis-word-ko-display').textContent=w.ko;document.getElementById('analysis-selected-word').classList.remove('hidden');runAnalysis(w);}
 function clearAnalysisWord(){analysisWord=null;document.getElementById('analysis-selected-word').classList.add('hidden');document.getElementById('analysis-result').classList.add('hidden');document.getElementById('analysis-loading').classList.add('hidden');document.getElementById('analysis-placeholder').classList.remove('hidden');}
+
 async function runAnalysis(w){
-  document.getElementById('analysis-placeholder').classList.add('hidden');document.getElementById('analysis-result').classList.add('hidden');document.getElementById('analysis-loading').classList.remove('hidden');
-  const d=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${w.en}`).then(r=>r.json()).catch(()=>null);
-  document.getElementById('analysis-loading').classList.add('hidden');document.getElementById('analysis-result').classList.remove('hidden');
+  document.getElementById('analysis-placeholder').classList.add('hidden');
+  document.getElementById('analysis-result').classList.add('hidden');
+  document.getElementById('analysis-loading').classList.remove('hidden');
+
+  // ✅ API 호출 확장: 유의어, 반의어, 연관어, 상/하위어, 앞뒤 동반어 등 총 10가지 관계 데이터 동시 병렬 로드
+  const fetchDM = async (p) => fetch(`https://api.datamuse.com/words?${p}`).then(r=>r.json()).catch(()=>[]);
+  
+  const[dictData, syn1, syn2, ants, rel1, rel2, col1, col2, col3, col4] = await Promise.all([
+    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${w.en}`).then(r=>r.ok?r.json():null).then(d=>Array.isArray(d)?d[0]:null).catch(()=>null),
+    fetchDM(`rel_syn=${w.en}&max=15`), // 직접 유의어
+    fetchDM(`ml=${w.en}&max=15`),      // 의미 유사어
+    fetchDM(`rel_ant=${w.en}&max=15`), // 반의어
+    fetchDM(`rel_trg=${w.en}&max=15`), // 연상/트리거 단어
+    fetchDM(`rel_spc=${w.en}&max=10`), // 하위 분류 단어
+    fetchDM(`rel_jja=${w.en}&max=10`), // 자주 수식하는 명사
+    fetchDM(`rel_jjb=${w.en}&max=10`), // 자주 수식하는 형용사
+    fetchDM(`rel_bga=${w.en}&max=10`), // 자주 뒤에 오는 단어
+    fetchDM(`rel_bgb=${w.en}&max=10`)  // 자주 앞에 오는 단어
+  ]);
+
+  document.getElementById('analysis-loading').classList.add('hidden');
+  document.getElementById('analysis-result').classList.remove('hidden');
+
   document.getElementById('ar-word').textContent=w.en;
-  if(d&&d[0]){
-    document.getElementById('ar-definition').textContent=d[0].meanings[0]?.definitions[0]?.definition||'사전 정보 없음';
-    document.getElementById('ar-phonetic').textContent=d[0].phonetic||'';
-  }else{document.getElementById('ar-definition').textContent='사전 정보를 불러올 수 없습니다.';document.getElementById('ar-phonetic').textContent='';}
+  let dictSyns = [], dictAnts = [];
+  const examplesEl = document.getElementById('ar-examples');
+  examplesEl.innerHTML = '';
+  
+  if(dictData){
+    document.getElementById('ar-definition').textContent=dictData.meanings?.[0]?.definitions?.[0]?.definition||'사전 정보 없음';
+    document.getElementById('ar-phonetic').textContent=dictData.phonetics?.find(p=>p.text)?.text||'';
+    const aUrl = dictData.phonetics?.find(p=>p.audio)?.audio||null;
+    const aBtn = document.getElementById('ar-audio-btn');
+    if(aUrl){aBtn.classList.remove('hidden');aBtn.onclick=()=>new Audio(aUrl).play();}else{aBtn.classList.add('hidden');}
+    
+    const posSet = new Set();
+    dictData.meanings?.forEach(m => {
+      if(m.partOfSpeech) posSet.add(m.partOfSpeech);
+      if(m.synonyms) dictSyns.push(...m.synonyms.map(s=>({word:s})));
+      if(m.antonyms) dictAnts.push(...m.antonyms.map(a=>({word:a})));
+    });
+    const posStr = Array.from(posSet).join(', ');
+    const posEl = document.getElementById('ar-partOfSpeech');
+    posEl.textContent = posStr; posEl.style.display = posStr ? '' : 'none';
+
+    const allExamples=[];
+    dictData.meanings?.forEach(m=>{
+      m.definitions?.forEach(d=>{if(d.example&&allExamples.length<3)allExamples.push(d.example);});
+    });
+    if(allExamples.length){
+      examplesEl.innerHTML = allExamples.map((ex,i)=>`<div class="flex gap-4 items-start bg-gray-50 p-4 rounded-xl border border-gray-100"><span class="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-700 text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span><p class="text-base text-gray-700 italic leading-relaxed">"${ex}"</p></div>`).join('');
+    } else {
+      examplesEl.innerHTML = '<p class="text-sm text-gray-400 italic bg-gray-50 p-4 rounded-xl">이 단어가 포함된 예문을 찾을 수 없습니다.</p>';
+    }
+  } else {
+    document.getElementById('ar-definition').textContent='사전 정보를 불러올 수 없습니다.';
+    document.getElementById('ar-phonetic').textContent='';
+    document.getElementById('ar-partOfSpeech').style.display='none';
+    document.getElementById('ar-audio-btn').classList.add('hidden');
+    examplesEl.innerHTML = '<p class="text-sm text-gray-400">예문을 불러올 수 없습니다.</p>';
+  }
+
+  const simRow=simMatrix[w.id]||{};
+  const internals=words.filter(x=>x.id!==w.id).map(x=>({word:x,sim:simRow[x.id]||0})).filter(x=>x.sim>8).sort((a,b)=>b.sim-a.sim).slice(0,7);
+  const intEl=document.getElementById('ar-internal-list');
+  if(internals.length){
+    intEl.innerHTML=internals.map(({word:iw,sim})=>{
+      const pct=Math.round(sim);
+      const bar=pct>=SIM_DUP?'bg-amber-400':pct>=SIM_CONF?'bg-violet-400':'bg-indigo-300';
+      const lbl=pct>=SIM_DUP?'<span class="text-[10px] bg-amber-100 text-amber-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">⚠️ 중복</span>':pct>=SIM_CONF?'<span class="text-[10px] bg-violet-100 text-violet-600 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">혼동 주의</span>':'';
+      return `<div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap mb-1"><span class="font-bold text-base text-gray-800">${iw.en}</span><span class="text-xs text-gray-500 truncate">${iw.ko}</span>${lbl}</div><div class="flex items-center gap-3"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="${bar} h-2 rounded-full transition-all duration-700" style="width:${pct}%"></div></div><span class="text-xs text-gray-400 font-mono w-8 text-right font-bold">${pct}%</span></div></div></div>`;
+    }).join('');
+  } else {
+    intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-3xl mb-2">🤷‍♂️</span><p class="text-sm text-gray-400">단어장 내에 의미가 비슷한 단어가 아직 없습니다.</p></div>';
+  }
+
+  const existingEn=new Set(words.map(x=>x.en.toLowerCase()));
+  const newCands=new Set();
+
+  function renderChips(elId, items, cls){
+    const el=document.getElementById(elId);
+    if(!items.length){el.innerHTML='<span class="text-sm text-gray-400">검색 결과 없음</span>';return;}
+    el.innerHTML='';
+    items.forEach(item=>{
+      const inBook=existingEn.has(item.word.toLowerCase());
+      if(!inBook)newCands.add(item.word);
+      const span=document.createElement('span');
+      span.className='chip '+cls;
+      span.onclick=()=>{
+        const found=words.find(x=>x.en.toLowerCase()===item.word.toLowerCase());
+        if(found)selectAnalysisWord(found);else{
+          switchTab('manage');
+          document.getElementById('input-en').value=item.word;
+          document.getElementById('input-ko').focus();
+          showToast('단어 추가 모드로 이동합니다.');
+        }
+      };
+      const inBookWord=words.find(x=>x.en.toLowerCase()===item.word.toLowerCase());
+      const knownKo=inBookWord?inBookWord.ko:null;
+      
+      span.appendChild(document.createTextNode((inBook?'✅ ':'')+item.word));
+      const tooltip=document.createElement('span');
+      tooltip.className='chip-tooltip'+(knownKo?'':' loading');
+      tooltip.textContent=knownKo||'뜻 번역 중...';
+      span.appendChild(tooltip);
+
+      if(!knownKo){
+        let fetched=false;
+        span.addEventListener('mouseenter',async()=>{
+          if(fetched)return; fetched=true;
+          try{
+            const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(item.word)}`);
+            const data = await r.json();
+            tooltip.textContent = data[0][0][0] || '뜻 정보 없음';
+            tooltip.classList.remove('loading');
+          }catch{tooltip.textContent='번역 실패';}
+        });
+      }
+      el.appendChild(span);
+    });
+  }
+
+  // ✅ 중복 제거 및 데이터 깔끔하게 병합
+  const mergeWords = (...arrays) => {
+    const map = new Map();
+    arrays.flat().forEach(item => {
+      if(item && item.word && item.word.toLowerCase() !== w.en.toLowerCase()) {
+        map.set(item.word.toLowerCase(), item);
+      }
+    });
+    return Array.from(map.values());
+  };
+
+  const finalSyns = mergeWords(dictSyns, syn1, syn2).slice(0, 20);
+  const finalAnts = mergeWords(dictAnts, ants).slice(0, 15);
+  const finalRels = mergeWords(rel1, rel2).slice(0, 20);
+  const finalCols = mergeWords(col1, col2, col3, col4).slice(0, 20);
+
+  renderChips('ar-synonyms', finalSyns, 'chip-syn');
+  renderChips('ar-antonyms', finalAnts, 'chip-ant');
+  renderChips('ar-related', finalRels, 'chip-rel');
+  renderChips('ar-collocations', finalCols, 'chip-freq');
+
+  const recEl=document.getElementById('ar-recommendations');
+  const recs=[...newCands].slice(0,25);
+  recEl.innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new shadow-sm border border-blue-100" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm text-gray-400">추천할 새 단어가 없습니다.</span>';
+  
+  const scrollContainer = document.getElementById('analysis-result').parentElement;
+  if (scrollContainer) scrollContainer.scrollTop = 0;
 }
+
 function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();}
 </script>
 
@@ -609,8 +759,8 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
 <!-- ========================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  // ✅ 팝업 로그인 방식인 signInWithPopup 사용으로 변경
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  // ✅ Persistence 모듈 추가 (로그인 상태 유지 설정용)
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -642,13 +792,22 @@ function quickAdd(en){switchTab('manage');document.getElementById('input-en').va
       cloudStatusText.textContent = text;
   };
 
-  // Google 로그인 함수 (팝업 방식 적용 - 쿠키 차단 우회)
-  window.loginWithGoogle = () => {
+  // Google 로그인 함수 (사용자 선택에 따른 유지 기간 설정 포함)
+  window.loginWithGoogle = async () => {
       window.showToast("구글 로그인 진행 중...", "info");
-      signInWithPopup(auth, provider).catch(error => {
+      
+      // 체크박스 상태 확인 (true: 기기에 유지 / false: 브라우저 닫으면 로그아웃)
+      const keepLogin = document.getElementById('keep-login-chk').checked;
+      const persistenceType = keepLogin ? browserLocalPersistence : browserSessionPersistence;
+      
+      try {
+          // 먼저 유지 정책을 설정한 뒤 로그인 팝업을 띄웁니다.
+          await setPersistence(auth, persistenceType);
+          await signInWithPopup(auth, provider);
+      } catch (error) {
           console.error("로그인 에러:", error);
           window.showToast("로그인 실패: " + error.message, "error");
-      });
+      }
   };
 
   // 로그아웃 함수
