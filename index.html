@@ -982,8 +982,8 @@ function selectQuiz(btn,ok,selId){
     document.getElementById('quiz-score').textContent=quizS;
     logActivity('quizzed'); 
     
-    // 빠른 반응성: 맞히면 0.4초, 틀리면 0.8초 딜레이
-    quizTimer = setTimeout(()=>nextQuiz(), ok ? 400 : 800); 
+    // 💡 정답을 여유롭게 읽고 넘어갈 수 있도록 딜레이 복구 (정답 시 1초, 오답 시 1.5초)
+    quizTimer = setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
 }
 
 function showQuizResult(){
