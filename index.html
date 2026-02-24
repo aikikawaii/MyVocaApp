@@ -66,8 +66,7 @@
   .grass-3 { background-color: #10b981; border: 1px solid #34d399; box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); } 
   .grass-4 { background-color: #34d399; border: 1px solid #6ee7b7; box-shadow: 0 0 15px rgba(52, 211, 153, 0.6); }
 
-  /* ✨ 정갈해진 네온/글래스모피즘 시스템 ✨ 
-     과도한 빛번짐을 줄이고 선명함과 터치감에 집중했습니다. */
+  /* ✨ 정갈해진 네온/글래스모피즘 시스템 ✨ */
   .neon-card {
     background-color: rgba(31, 41, 55, 0.7); /* gray-800 반투명 */
     backdrop-filter: blur(10px);
@@ -258,14 +257,19 @@
   </div>
 </div>
 
-<!-- ===== 3. 사지선다 ===== -->
+<!-- ===== 3. 사지선다 (랜덤/오답 모드 추가됨) ===== -->
 <div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-2xl">
       <div class="text-6xl mb-6">🎯</div>
       <h2 class="text-3xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">무한 사지선다</h2>
       <p class="text-gray-400 mb-10 text-base font-bold">의미 유사도 기반으로 헷갈리는 선지가 구성돼요!</p>
-      <button onclick="startQuiz()" class="active-bounce w-full bg-indigo-600 text-white font-black py-5 text-lg rounded-2xl hover:bg-indigo-500 border border-indigo-500 shadow-md">시작 🚀</button>
+      
+      <!-- 💡 사지선다 시작 버튼 두 개로 분리 -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="startQuiz('random')" class="active-bounce flex-1 bg-indigo-600 text-white font-black py-4 sm:py-5 text-lg rounded-2xl hover:bg-indigo-500 border border-indigo-500 shadow-md">완전 무작위 🚀</button>
+        <button onclick="startQuiz('wrong')" class="active-bounce flex-1 bg-gray-800 text-rose-400 font-black py-4 sm:py-5 text-lg rounded-2xl hover:bg-gray-700 border border-gray-600 hover:border-rose-500/50 shadow-sm">오답 집중 복습 🎯</button>
+      </div>
     </div>
   </div>
   
@@ -480,7 +484,7 @@
 </div>
 </div><!-- /wrapper -->
 
-<!-- 모달 영역 (공통 터치 피드백) -->
+<!-- 모달 영역 -->
 <div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
   <div class="neon-card p-8 w-full max-w-sm mx-4 rounded-[2rem] transform scale-95 transition-transform duration-200" id="delete-modal-content">
     <div class="text-center mb-8"><div class="text-6xl mb-5">🗑️</div><h3 class="text-2xl font-black text-white mb-2 tracking-tight">정말 삭제할까요?</h3></div>
@@ -555,13 +559,16 @@ const ALL_TABS = ['manage', 'test', 'quiz', 'analysis', 'group', 'stats'];
 let words=[], currentPage=1;
 const IPP=12; 
 
+// 💡 퀴즈 모드 변수 추가
 let quizQ=0, quizS=0, quizAnswered=0, quizWord=null, quizQueue=[], quizIdx=0, quizTimer=null;
+let quizMode = 'random'; // 'random' or 'wrong'
+let quizPool = [];
+
 let testQueue=[],testPool=[],testIdx=0,testCorrect=0,testMode='all'; 
 let analysisWord=null,audioUrl=null;
 const SIM_DUP=75,SIM_CONF=50;
 let simMatrix={},confMatrix={};
 let activityLog={};
-
 
 function resizeAllTexts() {
     document.querySelectorAll('.word-en-container').forEach(container => {
@@ -730,7 +737,6 @@ function renderWords(){
     const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 border border-amber-500/50 text-[10px] font-black rounded-full whitespace-nowrap tracking-wide">⚠️ 중복</span>`:'';
     const li=document.createElement('li');
     
-    /* 깔끔한 디자인 적용 */
     li.className='neon-card p-3.5 sm:p-4 rounded-2xl flex justify-between items-center w-full h-full';
     li.innerHTML=`
       <div class="flex flex-col flex-1 pr-3 min-w-0 word-en-container overflow-hidden justify-center h-full">
@@ -869,46 +875,81 @@ function tokenize(str){const tokens=new Set();str.split(/[,\/\s]+/).map(s=>s.tri
 function semSim(a,b){const tA=tokenize(a),tB=tokenize(b);if(!tA.size||!tB.size)return 0;let ex=0;tA.forEach(t=>{if(tB.has(t))ex++;});const jac=ex/new Set([...tA,...tB]).size;let part=0;tA.forEach(a=>tB.forEach(b=>{if(a!==b&&(a.includes(b)||b.includes(a)))part+=0.3;}));const cA=new Set([...a.replace(/[,\/\s]/g,'')]),cB=new Set([...b.replace(/[,\/\s]/g,'')]);let co=0;cA.forEach(c=>{if(cB.has(c))co++;});return Math.min(100,jac*70+part*15+(co/Math.max(cA.size,cB.size))*15);}
 function buildSimMatrix(){simMatrix={};for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++){if(i===j)continue;const a=words[i],b=words[j];if(!simMatrix[a.id])simMatrix[a.id]={};simMatrix[a.id][b.id]=semSim(a.ko,b.ko);}}
 
+// 💡 사지선다 초기화 및 모드 설정 추가
 function resetQuizView(){
     if(quizTimer) clearTimeout(quizTimer); 
-    quizQueue=[];quizIdx=0;
+    quizQueue=[]; quizIdx=0; quizPool=[]; quizMode='random';
     document.getElementById('quiz-intro').classList.remove('hidden');
     document.getElementById('quiz-active').classList.add('hidden');
     document.getElementById('quiz-result').classList.add('hidden');
 }
 
-function startQuiz(){
-    if(words.length<4)return showToast('단어가 4개 이상 필요합니다!','error');
-    quizQ=0; quizS=0; quizAnswered=0; 
-    quizQueue = [...words].sort((a,b) => {
-        const scoreA = (a.wrongCount||0)*5 - (a.quizCount||0)*2 + Math.random()*5;
-        const scoreB = (b.wrongCount||0)*5 - (b.quizCount||0)*2 + Math.random()*5;
-        return scoreB - scoreA;
-    });
-    quizIdx=0;
+// 💡 퀴즈 시작 시 모드 구분 로직 적용
+function startQuiz(mode){
+    if(words.length < 4) return showToast('단어가 전체 4개 이상 필요합니다! (선지 구성용)','error');
+    
+    quizMode = mode;
+    if (mode === 'wrong') {
+        quizPool = words.filter(w => (w.wrongCount || 0) > 0);
+        if (quizPool.length === 0) return showToast('틀린 단어가 없습니다! 🎉', 'info');
+    } else {
+        quizPool = [...words];
+    }
+
+    quizQ = 0; quizS = 0; quizAnswered = 0; quizIdx = 0;
+    
+    if (mode === 'random') {
+        quizQueue = shuffle([...quizPool]);
+    } else {
+        // 오답 모드 초기 정렬: 틀린 횟수가 많은 순서대로 출제
+        quizQueue = [...quizPool].sort((a,b) => (b.wrongCount||0) - (a.wrongCount||0));
+    }
+
     document.getElementById('quiz-intro').classList.add('hidden');
     document.getElementById('quiz-active').classList.remove('hidden');
     nextQuiz();
 }
-function getDistractors(target){const mat=confMatrix[target.id]||{},sim=simMatrix[target.id]||{};const cands=words.filter(w=>w.id!==target.id&&(sim[w.id]||0)<SIM_DUP);return cands.map(w=>({word:w,score:(sim[w.id]||0)*5+(mat[w.id]||0)*10+Math.random()*3})).sort((a,b)=>b.score-a.score).slice(0,3).map(s=>s.word);}
 
+function getDistractors(target){
+    const mat=confMatrix[target.id]||{}, sim=simMatrix[target.id]||{};
+    // 선지(Distractor)는 항상 전체 words에서 가져옴
+    const cands=words.filter(w=>w.id!==target.id&&(sim[w.id]||0)<SIM_DUP);
+    return cands.map(w=>({word:w,score:(sim[w.id]||0)*5+(mat[w.id]||0)*10+Math.random()*3})).sort((a,b)=>b.score-a.score).slice(0,3).map(s=>s.word);
+}
+
+// 💡 다음 퀴즈 진행 및 모드별 큐(Queue) 충전 로직
 function nextQuiz(){
-    if(quizIdx>=quizQueue.length){
-        quizQueue = [...words].sort((a,b) => ((b.wrongCount||0)*5 - (b.quizCount||0)*2 + Math.random()*5) - ((a.wrongCount||0)*5 - (a.quizCount||0)*2 + Math.random()*5));
+    if(quizIdx >= quizQueue.length){
+        if (quizMode === 'random') {
+            quizQueue = shuffle([...quizPool]);
+        } else {
+            // 오답 모드: 복습 중에 맞혀서 오답 카운트가 변경되었을 수 있으므로 풀 업데이트
+            quizPool = words.filter(w => (w.wrongCount || 0) > 0);
+            if (quizPool.length === 0) {
+                showToast('모든 오답을 복습했습니다! 👏', 'info');
+                showQuizResult();
+                return;
+            }
+            quizQueue = shuffle([...quizPool]);
+        }
         quizIdx=0;
     }
+    
     quizQ++;
     document.getElementById('quiz-progress').textContent=`${quizQ}번째`;
     document.getElementById('quiz-score').textContent=quizS;
     quizWord=quizQueue[quizIdx++];
+    
     const wIdx = words.findIndex(w=>w.id===quizWord.id);
     if(wIdx !== -1) { words[wIdx].quizCount = (words[wIdx].quizCount || 0) + 1; saveData(); }
+    
     document.getElementById('quiz-word-en').textContent=quizWord.en;
     const opts=document.getElementById('quiz-options');
     opts.innerHTML='';
+    
     shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach(opt=>{
         const btn=document.createElement('button');
-        btn.className='game-btn w-full neon-card font-black py-6 rounded-2xl text-xl break-words px-4 text-white';
+        btn.className='game-btn active-bounce w-full neon-card font-black py-6 rounded-2xl text-xl break-words px-4 text-white';
         btn.textContent=opt.word.ko;
         btn.dataset.correct = opt.ok; 
         btn.onclick=()=>selectQuiz(btn,opt.ok,opt.word.id);
@@ -922,6 +963,11 @@ function selectQuiz(btn,ok,selId){
     if(ok){
         quizS++;
         btn.classList.add('correct-answer');
+        // 오답 모드에서 맞히면 오답 카운트 차감 로직 추가
+        if (quizMode === 'wrong') {
+            const i=words.findIndex(w=>w.id===quizWord.id);
+            if(i!==-1 && words[i].wrongCount > 0) { words[i].wrongCount -= 1; saveData(); }
+        }
     }else{
         btn.classList.add('wrong-answer');
         document.querySelectorAll('#quiz-options button').forEach(b => {
@@ -929,13 +975,15 @@ function selectQuiz(btn,ok,selId){
         });
         const i=words.findIndex(w=>w.id===quizWord.id);
         if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
+        
         if(!confMatrix[quizWord.id])confMatrix[quizWord.id]={};
         confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;saveConf();
     }
     document.getElementById('quiz-score').textContent=quizS;
     logActivity('quizzed'); 
     
-    quizTimer = setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
+    // 빠른 반응성: 맞히면 0.4초, 틀리면 0.8초 딜레이
+    quizTimer = setTimeout(()=>nextQuiz(), ok ? 400 : 800); 
 }
 
 function showQuizResult(){
