@@ -855,19 +855,23 @@ function loadTestCard(){
 function revealAnswer(){document.getElementById('btn-reveal').classList.add('hidden');document.getElementById('test-word-ko').classList.remove('hidden');document.getElementById('test-actions').classList.remove('hidden');}
 function markAnswer(ok){
     if(ok) testCorrect++;
-    else{
-        const i=words.findIndex(x=>x.id===testQueue[testIdx].id);
-        if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
-    }
-    logActivity('tested'); 
-    testIdx++;
-    if(testIdx>=testQueue.length){
-        document.getElementById('test-active').classList.add('hidden');
-        document.getElementById('test-result').classList.remove('hidden');
-        renderWords();
-    }else{
-        loadTestCard();
-    }
+    
+    // 💡 터치 즉시 버튼 애니메이션이 부드럽게 작동할 수 있도록 데이터 처리를 아주 살짝 지연 (50ms)
+    setTimeout(() => {
+        if(!ok){
+            const i=words.findIndex(x=>x.id===testQueue[testIdx].id);
+            if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
+        }
+        logActivity('tested'); 
+        testIdx++;
+        if(testIdx>=testQueue.length){
+            document.getElementById('test-active').classList.add('hidden');
+            document.getElementById('test-result').classList.remove('hidden');
+            renderWords();
+        }else{
+            loadTestCard();
+        }
+    }, 50);
 }
 
 const KO_SUF=['스럽다','스러운','하다','하는','하여','하게','한','함','히','이다','이란','되다','되는','된','됨','적인','적으로','적','롭다','로운','없다','없는','있다','있는','지다','진','ㄴ','는','을','를','이','가','의','에','로','과','와','도'].sort((a,b)=>b.length-a.length);
@@ -963,27 +967,34 @@ function selectQuiz(btn,ok,selId){
     if(ok){
         quizS++;
         btn.classList.add('correct-answer');
-        // 오답 모드에서 맞히면 오답 카운트 차감 로직 추가
-        if (quizMode === 'wrong') {
-            const i=words.findIndex(w=>w.id===quizWord.id);
-            if(i!==-1 && words[i].wrongCount > 0) { words[i].wrongCount -= 1; saveData(); }
-        }
     }else{
         btn.classList.add('wrong-answer');
         document.querySelectorAll('#quiz-options button').forEach(b => {
             if(b.dataset.correct === 'true') { b.classList.add('correct-answer'); }
         });
-        const i=words.findIndex(w=>w.id===quizWord.id);
-        if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
-        
-        if(!confMatrix[quizWord.id])confMatrix[quizWord.id]={};
-        confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;saveConf();
     }
     document.getElementById('quiz-score').textContent=quizS;
-    logActivity('quizzed'); 
     
-    // 💡 정답을 여유롭게 읽고 넘어갈 수 있도록 딜레이 복구 (정답 시 1초, 오답 시 1.5초)
-    quizTimer = setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
+    // 💡 터치 즉시 정답/오답 색상이 렌더링되도록, 멈춤을 유발하는 무거운 데이터 처리를 50ms 미룸
+    setTimeout(() => {
+        if(ok){
+            // 오답 모드에서 맞히면 오답 카운트 차감 로직
+            if (quizMode === 'wrong') {
+                const i=words.findIndex(w=>w.id===quizWord.id);
+                if(i!==-1 && words[i].wrongCount > 0) { words[i].wrongCount -= 1; saveData(); }
+            }
+        }else{
+            const i=words.findIndex(w=>w.id===quizWord.id);
+            if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
+            
+            if(!confMatrix[quizWord.id])confMatrix[quizWord.id]={};
+            confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;saveConf();
+        }
+        logActivity('quizzed'); 
+        
+        // 정답을 확인할 시간을 주기 위해 딜레이 복구 (정답 시 1초, 오답 시 1.5초)
+        quizTimer = setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
+    }, 50);
 }
 
 function showQuizResult(){
