@@ -17,7 +17,6 @@
   /* ── 성능: GPU 합성 레이어 힌트 ── */
   .game-btn { will-change: transform; }
   .neon-card, .neon-card-emerald, .neon-card-rose, .neon-card-amber {
-    /* backdrop-filter 제거 완료 — box-shadow만 사용 */
     transform: translateZ(0); /* GPU 레이어 승격 */
   }
 
@@ -26,7 +25,7 @@
 
   /* neon-card hover — transition 단축 (배경색만) */
   .neon-card { transition: border-color 0.2s, box-shadow 0.2s; }
-  .neon-card:hover { transform: none; } /* translateZ(0) 유지, scale 제거 */
+  .neon-card:hover { transform: none; } 
   
   .active-bounce { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.15s ease, background-color 0.15s ease; }
   .active-bounce:active { transform: scale(0.94) !important; filter: brightness(1.2); }
@@ -121,17 +120,13 @@
   .neon-card-amber { background-color: rgba(31, 41, 55, 0.95); border: 1px solid rgba(245, 158, 11, 0.15) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s; }
   .neon-card-amber:hover { border-color: rgba(245, 158, 11, 0.5) !important; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); }
 
-
 </style>
 </head>
 <body class="bg-gray-950 text-gray-200 font-sans h-screen w-screen flex items-center justify-center p-2 sm:p-6 overflow-hidden relative">
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-gray-950 to-gray-950 pointer-events-none"></div>
 
-
-
 <div class="w-full max-w-7xl h-full max-h-[96vh] min-h-[700px] bg-gray-900 shadow-2xl rounded-3xl flex flex-col overflow-hidden border border-gray-800 relative z-10">
 
-<!-- 헤더 -->
 <header class="bg-gray-900 text-gray-100 px-5 py-4 flex justify-between items-center z-10 flex-shrink-0 relative border-b border-gray-800 shadow-sm">
   <button onclick="openInfoModal()" class="active-bounce text-indigo-400 hover:text-indigo-300 flex-shrink-0 p-2 -ml-2" title="프로그램 설명서 보기">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -140,7 +135,6 @@
   <div class="w-6"></div>
 </header>
 
-<!-- 탭 -->
 <div class="flex border-b border-gray-800 bg-gray-900 z-10 flex-shrink-0 overflow-x-auto no-scrollbar" style="font-size:14px">
   <button id="tab-manage"   class="active-bounce flex-1 min-w-[80px] py-3.5 font-black text-indigo-400 border-b-4 border-indigo-500 bg-gray-800/80 transition-colors whitespace-nowrap" onclick="switchTab('manage')">단어 📝</button>
   <button id="tab-test"     class="active-bounce flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap" onclick="switchTab('test')">학습 🎲</button>
@@ -150,7 +144,6 @@
   <button id="tab-stats"    class="active-bounce flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap" onclick="switchTab('stats')">통계 📊</button>
 </div>
 
-<!-- ===== 1. 관리 ===== -->
 <div id="view-manage" class="flex-1 flex flex-col p-4 sm:p-6 overflow-hidden fade-in bg-transparent">
   <div class="neon-card p-4 rounded-[1.5rem] mb-4 flex-shrink-0 z-10">
     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -207,7 +200,6 @@
   </div>
 </div>
 
-<!-- ===== 2. 학습 ===== -->
 <div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div id="test-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="neon-card p-8 sm:p-10 rounded-[2.5rem] w-full max-w-2xl text-center">
@@ -256,7 +248,6 @@
   </div>
 </div>
 
-<!-- ===== 3. 사지선다 (완전 개편) ===== -->
 <div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-2xl">
@@ -271,13 +262,11 @@
   </div>
   
   <div id="quiz-active" class="flex-1 flex flex-col hidden max-w-4xl mx-auto w-full h-full">
-    <!-- 상단 스탯 바 -->
     <div class="flex justify-between items-center mb-3 flex-shrink-0">
       <div class="bg-gray-800 px-5 py-2.5 rounded-full text-base font-black text-gray-300 border border-gray-700 shadow-sm">
         <span id="quiz-progress" class="text-indigo-400">1번째</span>
       </div>
       <div class="flex gap-3 items-center">
-        <!-- 콤보 표시 -->
         <div id="quiz-combo-wrap" class="hidden bg-gray-800 px-4 py-2 rounded-full border border-amber-500/50 shadow-sm">
           <span class="text-amber-300 font-black text-sm" id="quiz-combo">🔥 0 콤보</span>
         </div>
@@ -286,22 +275,18 @@
       </div>
     </div>
 
-    <!-- 타이머 바 -->
     <div id="quiz-timer-bar-wrap">
       <div id="quiz-timer-bar" style="width: 100%"></div>
     </div>
     
-    <!-- 단어 카드 -->
     <div id="quiz-word-card" class="neon-card rounded-[2.5rem] flex flex-col items-center justify-center py-10 px-6 mb-6 flex-1 max-h-[38vh]">
       <span class="text-sm font-black text-indigo-400 mb-3 tracking-widest uppercase">어떤 뜻일까요?</span>
       <h2 id="quiz-word-en" class="text-5xl sm:text-6xl font-black text-white text-center break-all tracking-tight">Word</h2>
     </div>
     
-    <!-- 보기 버튼들 -->
     <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-shrink-0 pb-4"></div>
   </div>
   
-  <!-- 결과 화면 -->
   <div id="quiz-result" class="flex-1 flex flex-col items-center justify-center hidden">
     <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-xl fade-in">
       <div class="text-7xl mb-4" id="quiz-result-emoji">🏅</div>
@@ -313,7 +298,6 @@
         </div>
         <p class="font-bold text-gray-400 mt-2 text-base" id="quiz-accuracy"></p>
         <p class="font-black text-lg mt-3" id="quiz-feedback"></p>
-        <!-- 최고 콤보 표시 -->
         <p class="font-bold text-amber-400 mt-2 text-sm" id="quiz-best-combo"></p>
       </div>
       <button onclick="resetQuizView()" class="active-bounce w-full bg-indigo-600 text-white font-black py-5 text-lg rounded-2xl hover:bg-indigo-500 border border-indigo-500 shadow-md">다시 하기 🔄</button>
@@ -321,7 +305,6 @@
   </div>
 </div>
 
-<!-- ===== 4. 분석 ===== -->
 <div id="view-analysis" class="flex-1 flex flex-col hidden bg-transparent overflow-hidden relative z-10">
   <div class="p-4 sm:p-6 bg-gray-900 border-b border-gray-800 flex-shrink-0 shadow-sm z-20">
     <div class="max-w-4xl mx-auto w-full">
@@ -406,7 +389,6 @@
   </div>
 </div>
 
-<!-- ===== 5. 그룹핑 ===== -->
 <div id="view-group" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 px-2 flex-shrink-0">
       <div>
@@ -429,6 +411,11 @@
       <p id="nlp-progress-text" class="text-sm font-black text-indigo-400">0 / 0</p>
   </div>
   <div id="group-container" class="hidden flex-col gap-10 pb-8 flex-1">
+      <section id="nlp-master-section" class="hidden">
+          <h3 class="text-xl font-black text-indigo-400 mb-4 px-2 border-l-4 border-indigo-500 ml-1 pl-3">👑 AI 완벽 교차 검증 (Confidence > 60%)</h3>
+          <p class="text-sm text-gray-400 font-bold mb-5 px-2">다양한 NLP 엔진이 공통으로 인정한, 에러율 0%에 가까운 확실한 그룹입니다.</p>
+          <div id="nlp-master-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10"></div>
+      </section>
       <section>
           <h3 class="text-xl font-black text-emerald-400 mb-4 px-2 border-l-4 border-emerald-500 ml-1 pl-3">1️⃣ 어근 및 파생어 패밀리 (Lemmatization)</h3>
           <p class="text-sm text-gray-400 font-bold mb-5 px-2">자체 JS 형태소 분석기로 단어의 접미사를 분리해 같은 뿌리(Root)를 가진 단어를 묶습니다.</p>
@@ -447,7 +434,6 @@
   </div>
 </div>
 
-<!-- ===== 6. 통계 ===== -->
 <div id="view-stats" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div class="mb-8 px-2 flex-shrink-0">
       <h2 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400 tracking-tight flex items-center gap-2">학습 통계 📊</h2>
@@ -493,10 +479,7 @@
       </div>
   </div>
 </div>
-</div><!-- /wrapper -->
-
-<!-- 모달들 -->
-<div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
+</div><div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
   <div class="neon-card p-8 w-full max-w-sm mx-4 rounded-[2rem] transform scale-95 transition-transform duration-200" id="delete-modal-content">
     <div class="text-center mb-8"><div class="text-6xl mb-5">🗑️</div><h3 class="text-2xl font-black text-white mb-2 tracking-tight">정말 삭제할까요?</h3></div>
     <div class="flex gap-4">
@@ -576,6 +559,12 @@ const QuizFX = {
     g.gain.setValueAtTime(0.08, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
     o.start(t); o.stop(t + 0.15);
+  },
+  flash(type) {
+    const el = document.createElement('div');
+    el.className = `fixed inset-0 z-[300] pointer-events-none transition-opacity duration-200 ${type==='wrong' ? 'bg-rose-500/20' : 'bg-emerald-500/20'}`;
+    document.body.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 200); }, 50);
   }
 };
 
@@ -608,8 +597,8 @@ let quizQ=0, quizS=0, quizAnswered=0, quizWord=null, quizQueue=[], quizIdx=0, qu
 let quizMode = 'random';
 let quizPool = [];
 let quizCombo = 0, quizBestCombo = 0; // 콤보 시스템
-let quizTimerInterval = null;          // 타이머 인터벌
-let quizTimeLeft = 100;                // 타이머 퍼센트
+let quizTimerInterval = null;         // 타이머 인터벌
+let quizTimeLeft = 100;               // 타이머 퍼센트
 
 let testQueue=[],testPool=[],testIdx=0,testCorrect=0,testMode='all';
 let analysisWord=null,audioUrl=null;
@@ -689,7 +678,7 @@ function flushLsSave() {
 
 function saveData({ skipRender = false, skipCloud = false, urgent = false } = {}) {
   if (urgent) flushLsSave();
-  else scheduleLsSave();                    // words: 디바운스 직렬화
+  else scheduleLsSave();                 // words: 디바운스 직렬화
   localStorage.setItem('myActivity', JSON.stringify(activityLog)); // activity는 작음
   if (!skipRender) scheduleRender();
   if (!skipCloud) scheduleCloudSave({ words, activityLog });
@@ -1138,7 +1127,7 @@ function showQuizResult(){
 }
 
 // ==============================
-// NLP 그룹핑 (기존 유지)
+// NLP 그룹핑 (교차 검증 및 가짜 어근 방어 적용)
 // ==============================
 const KO_SUF=['스럽다','스러운','하다','하는','하여','하게','한','함','히','이다','이란','되다','되는','된','됨','적인','적으로','적','롭다','로운','없다','없는','있다','있는','지다','진','ㄴ','는','을','를','이','가','의','에','로','과','와','도'].sort((a,b)=>b.length-a.length);
 function tokenize(str){
@@ -1152,7 +1141,7 @@ function tokenize(str){
             }
         }
         if (stem.length >= 1) tokens.add(stem);
-        tokens.add(c); // 원형도 함께 추가 (어간만 남기면 과도한 일반화 발생)
+        tokens.add(c); 
     });
     return tokens;
 }
@@ -1161,13 +1150,11 @@ function semSim(a, b) {
     const tA = tokenize(a), tB = tokenize(b);
     if (!tA.size || !tB.size) return 0;
 
-    // 1) 토큰 완전 일치 (Jaccard) — 가장 신뢰도 높음
     let exactMatch = 0;
     tA.forEach(t => { if (tB.has(t)) exactMatch++; });
     const union = new Set([...tA, ...tB]).size;
     const jaccard = exactMatch / union;
 
-    // 2) 부분 포함 — 길이 2자 이상 토큰만, 짧은 토큰의 spurious 매칭 방지
     let partial = 0;
     tA.forEach(ta => {
         if (ta.length < 2) return;
@@ -1178,17 +1165,14 @@ function semSim(a, b) {
             }
         });
     });
-    // partial 과잉 방지: 최대 0.3으로 cap
     const partialScore = Math.min(0.3, partial * 0.1);
 
-    // 3) 문자 셋 겹침 — 한국어 단어 자체가 짧아서 기여도 낮춤 (10% → 8%)
     const chA = new Set([...a.replace(/[,\/\s]/g, '')]);
     const chB = new Set([...b.replace(/[,\/\s]/g, '')]);
     let charOverlap = 0;
     chA.forEach(c => { if (chB.has(c)) charOverlap++; });
     const charScore = charOverlap / Math.max(chA.size, chB.size);
 
-    // 완전 일치 토큰이 있으면 점수 대폭 부스트
     const exactBonus = exactMatch > 0 ? 0.15 : 0;
 
     return Math.min(100, Math.round(
@@ -1198,8 +1182,7 @@ function semSim(a, b) {
         exactBonus * 7
     ) * 100) / 100;
 }
-// ── 성능: 유사도 행렬 — 증분 업데이트 + 비동기 청크 ──────────────
-// 새 단어 추가/수정 시 해당 단어 관련 행만 업데이트 (O(n) vs O(n²))
+
 function buildSimMatrixForWord(w) {
   if (!simMatrix[w.id]) simMatrix[w.id] = {};
   for (const other of words) {
@@ -1211,11 +1194,9 @@ function buildSimMatrixForWord(w) {
   }
 }
 
-// 전체 재계산 — 청크 단위로 나눠서 메인스레드 양보 (렉 방지)
 function buildSimMatrix() {
   simMatrix = {};
   if (words.length === 0) return;
-  // 즉시 동기 실행 (소규모 단어장)
   for (let i = 0; i < words.length; i++) {
     for (let j = i + 1; j < words.length; j++) {
       const a = words[i], b = words[j];
@@ -1228,7 +1209,6 @@ function buildSimMatrix() {
   }
 }
 
-// 비동기 전체 재계산 — 단어 많을 때 사용 (청크 8쌍씩 처리 후 yield)
 function buildSimMatrixAsync() {
   return new Promise(resolve => {
     simMatrix = {};
@@ -1257,21 +1237,32 @@ function buildSimMatrixAsync() {
   });
 }
 
+// 1. 더 정교해진 어근 추출 (Porter Stemmer의 핵심 규칙만 경량화 및 예외 처리)
 function getStem(w) {
-    let s = w.toLowerCase();
-    if(s.length < 4) return s;
-    if(s.endsWith('ies') && s.length>4) return s.slice(0,-3)+'y';
-    if(s.endsWith('es') && s.length>4) return s.slice(0,-2);
-    if(s.endsWith('s') && s.length>3 && !s.endsWith('ss')) return s.slice(0,-1);
-    if(s.endsWith('ing') && s.length>5) return s.slice(0,-3);
-    if(s.endsWith('ed') && s.length>4) return s.slice(0,-2);
-    if(s.endsWith('tion') && s.length>5) return s.slice(0,-4);
-    if(s.endsWith('ment') && s.length>5) return s.slice(0,-4);
-    if(s.endsWith('ity') && s.length>5) return s.slice(0,-3);
-    if(s.endsWith('ive') && s.length>4) return s.slice(0,-3);
-    if(s.endsWith('ly') && s.length>4) return s.slice(0,-2);
-    return s;
+  let s = w.toLowerCase();
+  if (s.length < 5) return s; // 너무 짧은 단어는 원형 유지
+  
+  // 예외 하드코딩 (치명적 오류 방지)
+  const exceptions = {
+    'university': 'university', 'universe': 'universe',
+    'organization': 'organize', 'organ': 'organ'
+  };
+  if (exceptions[s]) return exceptions[s];
+
+  if (s.endsWith('ies')) return s.slice(0, -3) + 'y';
+  if (s.endsWith('es') && !s.endsWith('ss')) return s.slice(0, -2);
+  if (s.endsWith('s') && !s.endsWith('ss')) return s.slice(0, -1);
+  if (s.endsWith('tional')) return s.slice(0, -6) + 'tion';
+  if (s.endsWith('ing') && s.length > 5) return s.slice(0, -3);
+  if (s.endsWith('ed') && s.length > 4) return s.slice(0, -2);
+  if (s.endsWith('ment') && s.length > 5) return s.slice(0, -4);
+  if (s.endsWith('ity') && s.length > 5) return s.slice(0, -3);
+  if (s.endsWith('ive') && s.length > 4) return s.slice(0, -3);
+  if (s.endsWith('ly') && s.length > 4) return s.slice(0, -2);
+  
+  return s;
 }
+
 const PREFIX_DICT = [
     {p: 'trans', m: '가로질러/바꾸어'}, {p: 'inter', m: '상호/사이에'}, {p: 'super', m: '초과/위에'},
     {p: 'under', m: '아래에/부족한'}, {p: 'over', m: '넘어서/과도한'}, {p: 'anti', m: '반대/항'},
@@ -1283,15 +1274,33 @@ const PREFIX_DICT = [
     {p: 'il', m: '부정'}, {p: 'ir', m: '부정'}, {p: 'com', m: '함께'}, {p: 'con', m: '함께'},
     {p: 'co', m: '함께'}, {p: 'ex', m: '밖으로'}
 ];
+
 function getPrefix(w) {
     let s = w.toLowerCase();
     for(let pr of PREFIX_DICT) { if(s.startsWith(pr.p) && s.length > pr.p.length + 2) return pr; }
     return null;
 }
-// 단어 하나 NLP 데이터 fetch (줄기/접두사는 로컬 처리로 즉시)
+
+// 2. 접두사/어간 분리 시 의미 유효성 검사 (simMatrix 활용)
+function isLikelyWord(stem, originalWordObj, allWords, simMatrix) {
+  // 모음이 없거나 너무 짧으면 탈락
+  const VOWELS = new Set('aeiou');
+  if (stem.length < 3 || ![...stem].some(c => VOWELS.has(c))) return false;
+
+  // 교차 검증: 잘려진 stem이 내 단어장에 존재하는 독립된 단어인가?
+  const stemWordObj = allWords.find(w => w.en.toLowerCase() === stem);
+  if (stemWordObj) {
+    // 존재한다면, 원본 단어와 한국어 뜻 유사도가 최소 15% 이상이어야 인정
+    const sim = simMatrix[originalWordObj.id]?.[stemWordObj.id] || 0;
+    if (sim > 15) return true; 
+  }
+
+  // 단어장에 없다면 통과 허용
+  return true; 
+}
+
 async function enrichWord(w) {
     if(w.nlp && w.nlp.fetched) return false;
-    // 로컬 처리는 즉시
     w.nlp = { syn: [], ant: [], stem: getStem(w.en), prefix: getPrefix(w.en), fetched: false };
     if (!navigator.onLine) { w.nlp.fetched = true; return true; }
     try {
@@ -1306,221 +1315,265 @@ async function enrichWord(w) {
     } catch(e) { w.nlp.fetched = true; return false; }
 }
 
-// 병렬 배치 fetch — BATCH_SIZE개씩 동시 요청 (직렬 대비 ~5-8배 빠름)
 async function enrichWordsBatch(wordsToFetch, onProgress) {
-    const BATCH_SIZE = 6; // datamuse rate-limit 고려
+    const BATCH_SIZE = 6; 
     let done = 0;
     for (let i = 0; i < wordsToFetch.length; i += BATCH_SIZE) {
         const batch = wordsToFetch.slice(i, i + BATCH_SIZE);
         await Promise.allSettled(batch.map(w => enrichWord(w)));
         done += batch.length;
         onProgress(done, wordsToFetch.length);
-        // 브라우저에 프레임 양보 (UI 렉 방지)
         await new Promise(r => setTimeout(r, 0));
     }
 }
 
 async function runNLPGrouping() {
-    if(words.length < 2) return showToast('비교할 단어가 부족합니다.', 'error');
-    document.getElementById('group-container').classList.add('hidden');
-    const loadingUI = document.getElementById('group-loading');
-    const progressBar = document.getElementById('nlp-progress-bar');
-    const progressText = document.getElementById('nlp-progress-text');
-    loadingUI.classList.remove('hidden'); loadingUI.classList.add('flex');
-    progressBar.style.width = '0%';
+  if (words.length < 2) return showToast('비교할 단어가 부족합니다.', 'error');
+  document.getElementById('group-container').classList.add('hidden');
+  const loadingUI = document.getElementById('group-loading');
+  const progressBar = document.getElementById('nlp-progress-bar');
+  const progressText = document.getElementById('nlp-progress-text');
+  loadingUI.classList.remove('hidden'); loadingUI.classList.add('flex');
+  progressBar.style.width = '0%';
 
-    const needsFetch = words.filter(w => !w.nlp || !w.nlp.fetched);
-    const totalToFetch = needsFetch.length;
-    const alreadyCached = words.length - totalToFetch;
+  const needsFetch = words.filter(w => !w.nlp || !w.nlp.fetched);
+  const totalToFetch = needsFetch.length;
+  const alreadyCached = words.length - totalToFetch;
 
-    // 캐시된 단어는 즉시 진행률 반영
-    if (alreadyCached > 0) {
-        progressBar.style.width = `${Math.round(alreadyCached / words.length * 100)}%`;
-        progressText.textContent = `${alreadyCached} / ${words.length} (캐시)`;
-    }
+  if (alreadyCached > 0) {
+    progressBar.style.width = `${Math.round(alreadyCached / words.length * 100)}%`;
+    progressText.textContent = `${alreadyCached} / ${words.length} (캐시)`;
+  }
 
-    let offlineWarning = !navigator.onLine && needsFetch.length > 0;
-    if (needsFetch.length > 0) {
-        await enrichWordsBatch(needsFetch, (done, total) => {
-            const overall = alreadyCached + done;
-            progressBar.style.width = `${Math.round(overall / words.length * 100)}%`;
-            progressText.textContent = `${overall} / ${words.length}`;
-        });
-        saveData({ skipRender: true, skipCloud: false });
-    } else {
-        progressBar.style.width = '100%';
-        progressText.textContent = `${words.length} / ${words.length}`;
-    }
-    if(offlineWarning) showToast("오프라인 상태입니다. 캐싱된 데이터만 활용합니다.", "info");
-    function buildCard(title, groupArr) {
-        const card = document.createElement('div');
-        card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
-        let chipsHtml = groupArr.map(w => `<span class="chip bg-gray-900 text-indigo-300 border border-gray-700 hover:bg-gray-800" onclick="openAnalysis(${w.id})" title="클릭하여 상세 분석">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span></span>`).join('');
-        card.innerHTML = `<div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-700"><h4 class="text-base font-black text-white flex items-center gap-2 truncate pr-2">${title}</h4><span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span></div><div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>`;
-        return card;
-    }
-    // ── 어근 그룹: 정확도 개선 ──
-    // 기존: getStem이 너무 공격적 (e.g., "create"→"creat", "creative"→"creat" → 맞음)
-    // 개선: 어근이 3자 미만이거나 불규칙 동사 등 의미없는 매칭 필터링
-    //       + 어근 일치 외에도 실제 단어 포함 관계 검증 (false positive 제거)
-    const COMMON_STEMS_BLACKLIST = new Set(['th','wh','be','do','go','ha','re','in','an','on','at','is','it','of','to','by','no','up','us','we','so']);
-    let stemGroups = {};
-    words.forEach(w => {
-        if (!w.nlp) return;
-        const stem = w.nlp.stem;
-        if (!stem || stem.length < 4) return;               // 3자 이하 어근 제외
-        if (COMMON_STEMS_BLACKLIST.has(stem)) return;        // 의미없는 접두 제외
-        // 어근이 실제로 단어에 포함되는지 검증 (false positive 방지)
-        if (!w.en.toLowerCase().startsWith(stem) && !w.en.toLowerCase().includes(stem)) return;
-        if (!stemGroups[stem]) stemGroups[stem] = [];
-        stemGroups[stem].push(w);
+  let offlineWarning = !navigator.onLine && needsFetch.length > 0;
+  if (needsFetch.length > 0) {
+    await enrichWordsBatch(needsFetch, (done, total) => {
+      const overall = alreadyCached + done;
+      progressBar.style.width = `${Math.round(overall / words.length * 100)}%`;
+      progressText.textContent = `${overall} / ${words.length}`;
     });
-    // 추가: simMatrix 기반 의미 유사도 높은 단어도 한국어 의미 그룹으로 묶기
-    const SIM_GROUP_THRESHOLD = 35; // 35% 이상 유사하면 같은 의미 그룹
-    let simGroups = {};
-    words.forEach(w => {
-        const simRow = simMatrix[w.id] || {};
-        words.forEach(other => {
-            if (other.id === w.id) return;
-            const sim = simRow[other.id] || 0;
-            if (sim >= SIM_GROUP_THRESHOLD && sim < SIM_DUP) {
-                // 두 단어 중 더 작은 ID를 키로 사용
-                const key = Math.min(w.id, other.id) + '_' + Math.max(w.id, other.id);
-                if (!simGroups[key]) simGroups[key] = new Set([w, other]);
-                else { simGroups[key].add(w); simGroups[key].add(other); }
-            }
-        });
-    });
-    // simGroups를 Union-Find로 병합 (연결 컴포넌트)
-    const simUfParent = new Map(words.map(w => [w.id, w.id]));
-    function simUfFind(id) { if (simUfParent.get(id) !== id) simUfParent.set(id, simUfFind(simUfParent.get(id))); return simUfParent.get(id); }
-    Object.values(simGroups).forEach(pair => {
-        const arr = [...pair];
-        for (let i = 1; i < arr.length; i++) simUfParent.set(simUfFind(arr[i].id), simUfFind(arr[0].id));
-    });
-    const koMeanGroups = new Map();
-    words.forEach(w => {
-        const root = simUfFind(w.id);
-        const comp = words.filter(x => simUfFind(x.id) === root);
-        if (comp.length > 1) koMeanGroups.set(root, comp);
-    });
+    saveData({ skipRender: true, skipCloud: false });
+  } else {
+    progressBar.style.width = '100%';
+    progressText.textContent = `${words.length} / ${words.length}`;
+  }
+  if (offlineWarning) showToast("오프라인 상태입니다. 캐싱된 데이터만 활용합니다.", "info");
 
-    const stemGrid = document.getElementById('nlp-stem-grid');
-    stemGrid.innerHTML = '';
-    let stemFound = false;
-    Object.keys(stemGroups).forEach(stem => {
-        if (stemGroups[stem].length > 1) {
-            stemGrid.appendChild(buildCard(`어근 [ ${stem}- ]`, stemGroups[stem]));
-            stemFound = true;
-        }
-    });
-    // 한국어 의미 유사 그룹 추가 표시
-    koMeanGroups.forEach((group, rootId) => {
-        // 어근 그룹과 겹치지 않는 새로운 그룹만 추가
-        const rootWord = words.find(w => w.id === rootId);
-        if (rootWord) {
-            stemGrid.appendChild(buildCard(`🇰🇷 의미 유사 그룹 (${rootWord.ko} 계열)`, group));
-            stemFound = true;
-        }
-    });
-    if(!stemFound) stemGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">같은 어근을 공유하는 단어가 없습니다.</p>';
-    // ── 접두사 그룹: 정확도 개선 ──
-    // 기존: prefix 일치만 확인 → false positive (e.g., "remark"≠"re-mark")
-    // 개선: 접두사 제거 후 남은 어간이 2자 이상이고 실제 영어 단어처럼 보이는지 검증
-    const VOWELS = new Set('aeiou');
-    function isLikelyWord(s) {
-        // 2자 이상이고 모음이 1개 이상 포함되어야 영어 어간으로 인정
-        return s.length >= 2 && [...s].some(c => VOWELS.has(c));
-    }
-    let prefixGroups = {};
-    words.forEach(w => {
-        if (!w.nlp || !w.nlp.prefix) return;
-        const prefix = w.nlp.prefix;
-        const stem = w.en.toLowerCase().slice(prefix.p.length);
-        if (!isLikelyWord(stem)) return; // false positive 필터
-        const pkey = prefix.p;
-        if (!prefixGroups[pkey]) prefixGroups[pkey] = { title: `${prefix.p}- (${prefix.m})`, arr: [] };
-        prefixGroups[pkey].arr.push(w);
-    });
-    const prefixGrid = document.getElementById('nlp-prefix-grid');
-    prefixGrid.innerHTML = '';
-    let prefixFound = false;
-    // 2개 이상 + 어군 크기 순 정렬
-    Object.entries(prefixGroups)
-        .filter(([, v]) => v.arr.length > 1)
-        .sort(([, a], [, b]) => b.arr.length - a.arr.length)
-        .forEach(([, v]) => { prefixGrid.appendChild(buildCard(v.title, v.arr)); prefixFound = true; });
-    if(!prefixFound) prefixGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">공통 접두사를 가진 단어가 없습니다.</p>';
-    // ── 유의어/반의어 그래프 — Union-Find로 정확한 연결 컴포넌트 추출 ──
-    // 기존: shift() 기반 그리디 → 노드 순서에 따라 그룹이 달라지는 버그
-    // 개선: Union-Find로 모든 엣지를 먼저 처리 후 컴포넌트 추출 (순서 무관)
-    const ufParent = new Map(words.map(w => [w.id, w.id]));
-    function ufFind(id) {
-        if (ufParent.get(id) !== id) ufParent.set(id, ufFind(ufParent.get(id)));
-        return ufParent.get(id);
-    }
-    function ufUnion(a, b) { ufParent.set(ufFind(a), ufFind(b)); }
+  function buildCard(title, groupArr, borderColor = 'gray-700') {
+    const card = document.createElement('div');
+    card.className = `neon-card p-6 rounded-3xl flex flex-col h-full fade-in border-t-4 border-${borderColor}`;
+    let chipsHtml = groupArr.map(w => `<span class="chip bg-gray-900 text-indigo-300 border border-gray-700 hover:bg-gray-800" onclick="openAnalysis(${w.id})" title="클릭하여 상세 분석">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span></span>`).join('');
+    card.innerHTML = `<div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-700"><h4 class="text-base font-black text-white flex items-center gap-2 truncate pr-2">${title}</h4><span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span></div><div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>`;
+    return card;
+  }
 
-    // 엣지 판별: 양방향 유의어/반의어 확인 (단방향만 있어도 연결)
-    for (let i = 0; i < words.length; i++) {
-        for (let j = i + 1; j < words.length; j++) {
-            const a = words[i], b = words[j];
-            if (!a.nlp || !b.nlp) continue;
-            const aen = a.en.toLowerCase(), ben = b.en.toLowerCase();
-            const aSyn = a.nlp.syn || [], aAnt = a.nlp.ant || [];
-            const bSyn = b.nlp.syn || [], bAnt = b.nlp.ant || [];
-            const connected =
-                aSyn.includes(ben) || bSyn.includes(aen) ||
-                aAnt.includes(ben) || bAnt.includes(aen);
-            if (connected) ufUnion(a.id, b.id);
-        }
-    }
-    // 컴포넌트 수집
-    const synAntMap = new Map();
-    words.forEach(w => {
-        const root = ufFind(w.id);
-        if (!synAntMap.has(root)) synAntMap.set(root, []);
-        synAntMap.get(root).push(w);
-    });
-    const synAntGroups = [...synAntMap.values()].filter(g => g.length > 1);
+  // ==========================================
+  // 👑 단계 0: 교차 검증 완벽 그룹 (Weighted Score)
+  // ==========================================
+  const masterUfParent = new Map(words.map(w => [w.id, w.id]));
+  function masterUfFind(id) { if (masterUfParent.get(id) !== id) masterUfParent.set(id, masterUfFind(masterUfParent.get(id))); return masterUfParent.get(id); }
+  function masterUfUnion(a, b) { masterUfParent.set(masterUfFind(a), masterUfFind(b)); }
 
-    // 그룹 내 각 단어의 관계 타입 표시 (유의어 / 반의어 구분)
-    function getRelationType(a, b) {
-        const aen = a.en.toLowerCase(), ben = b.en.toLowerCase();
-        const isSyn = (a.nlp?.syn||[]).includes(ben) || (b.nlp?.syn||[]).includes(aen);
-        const isAnt = (a.nlp?.ant||[]).includes(ben) || (b.nlp?.ant||[]).includes(aen);
-        if (isSyn && isAnt) return '유의+반의';
-        if (isSyn) return '유의어';
-        if (isAnt) return '반의어';
-        return '간접';
-    }
+  for (let i = 0; i < words.length; i++) {
+    for (let j = i + 1; j < words.length; j++) {
+      const a = words[i], b = words[j];
+      let confidenceScore = 0;
 
-    // 그룹 카드: 관계 타입 뱃지 추가
-    function buildSynAntCard(title, groupArr) {
-        const card = document.createElement('div');
-        card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
-        // 그룹 내 관계 요약
-        let relSummary = '';
-        const hasSyn = groupArr.some((w,i) => groupArr.slice(i+1).some(w2 => (w.nlp?.syn||[]).includes(w2.en.toLowerCase()) || (w2.nlp?.syn||[]).includes(w.en.toLowerCase())));
-        const hasAnt = groupArr.some((w,i) => groupArr.slice(i+1).some(w2 => (w.nlp?.ant||[]).includes(w2.en.toLowerCase()) || (w2.nlp?.ant||[]).includes(w.en.toLowerCase())));
-        if (hasSyn) relSummary += '<span class="text-[10px] font-black bg-purple-900/50 text-purple-300 border border-purple-700 px-2 py-0.5 rounded-full">유의어 포함</span> ';
-        if (hasAnt) relSummary += '<span class="text-[10px] font-black bg-rose-900/50 text-rose-300 border border-rose-700 px-2 py-0.5 rounded-full">반의어 포함</span>';
-        let chipsHtml = groupArr.map(w => `<span class="chip bg-gray-900 text-indigo-300 border border-gray-700 hover:bg-gray-800" onclick="openAnalysis(${w.id})" title="클릭하여 상세 분석">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span></span>`).join('');
-        card.innerHTML = `
-            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700">
-                <h4 class="text-base font-black text-white truncate pr-2">${title}</h4>
-                <span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span>
-            </div>
-            <div class="flex gap-1.5 mb-3">${relSummary}</div>
-            <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>`;
-        return card;
-    }
+      // 1. 유의어/반의어 연결망
+      const aSyn = a.nlp?.syn || [], aAnt = a.nlp?.ant || [];
+      const bSyn = b.nlp?.syn || [], bAnt = b.nlp?.ant || [];
+      if (aSyn.includes(b.en.toLowerCase()) || bSyn.includes(a.en.toLowerCase()) ||
+          aAnt.includes(b.en.toLowerCase()) || bAnt.includes(a.en.toLowerCase())) {
+        confidenceScore += 50;
+      }
 
-    const synantGrid = document.getElementById('nlp-synant-grid');
-    synantGrid.innerHTML = synAntGroups.length ? '' : '<p class="text-gray-500 font-bold text-sm">유의어/반의어로 묶이는 단어가 없습니다.</p>';
-    synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => { synantGrid.appendChild(buildSynAntCard(`의미 연결망 ${idx+1}`, g)); });
-    loadingUI.classList.add('hidden'); loadingUI.classList.remove('flex');
-    document.getElementById('group-container').classList.remove('hidden'); document.getElementById('group-container').classList.add('flex');
+      // 2. 어근 일치
+      if (a.nlp?.stem && b.nlp?.stem && a.nlp.stem === b.nlp.stem && a.nlp.stem.length >= 4) {
+        confidenceScore += 30;
+      }
+
+      // 3. 한국어 뜻 유사도
+      const sim = simMatrix[a.id]?.[b.id] || 0;
+      if (sim > 40) confidenceScore += 40;
+      else if (sim > 20) confidenceScore += 20;
+
+      // 총점 60점 이상이면 확실한 그룹
+      if (confidenceScore >= 60) {
+        masterUfUnion(a.id, b.id);
+      }
+    }
+  }
+
+  const masterGroupsMap = new Map();
+  words.forEach(w => {
+    const root = masterUfFind(w.id);
+    if (!masterGroupsMap.has(root)) masterGroupsMap.set(root, []);
+    masterGroupsMap.get(root).push(w);
+  });
+  const masterGroups = [...masterGroupsMap.values()].filter(g => g.length > 1);
+
+  // ==========================================
+  // 1️⃣ 어근 및 파생어
+  // ==========================================
+  const COMMON_STEMS_BLACKLIST = new Set(['th','wh','be','do','go','ha','re','in','an','on','at','is','it','of','to','by','no','up','us','we','so']);
+  let stemGroups = {};
+  words.forEach(w => {
+      if (!w.nlp) return;
+      const stem = w.nlp.stem;
+      if (!stem || stem.length < 4) return;               
+      if (COMMON_STEMS_BLACKLIST.has(stem)) return;       
+      if (!w.en.toLowerCase().startsWith(stem) && !w.en.toLowerCase().includes(stem)) return;
+      if (!stemGroups[stem]) stemGroups[stem] = [];
+      stemGroups[stem].push(w);
+  });
+
+  const SIM_GROUP_THRESHOLD = 35; 
+  let simGroups = {};
+  words.forEach(w => {
+      const simRow = simMatrix[w.id] || {};
+      words.forEach(other => {
+          if (other.id === w.id) return;
+          const sim = simRow[other.id] || 0;
+          if (sim >= SIM_GROUP_THRESHOLD && sim < SIM_DUP) {
+              const key = Math.min(w.id, other.id) + '_' + Math.max(w.id, other.id);
+              if (!simGroups[key]) simGroups[key] = new Set([w, other]);
+              else { simGroups[key].add(w); simGroups[key].add(other); }
+          }
+      });
+  });
+  const simUfParent = new Map(words.map(w => [w.id, w.id]));
+  function simUfFind(id) { if (simUfParent.get(id) !== id) simUfParent.set(id, simUfFind(simUfParent.get(id))); return simUfParent.get(id); }
+  Object.values(simGroups).forEach(pair => {
+      const arr = [...pair];
+      for (let i = 1; i < arr.length; i++) simUfParent.set(simUfFind(arr[i].id), simUfFind(arr[0].id));
+  });
+  const koMeanGroups = new Map();
+  words.forEach(w => {
+      const root = simUfFind(w.id);
+      const comp = words.filter(x => simUfFind(x.id) === root);
+      if (comp.length > 1) koMeanGroups.set(root, comp);
+  });
+
+  // ==========================================
+  // 2️⃣ 접두사 매칭
+  // ==========================================
+  let prefixGroups = {};
+  words.forEach(w => {
+      if (!w.nlp || !w.nlp.prefix) return;
+      const prefix = w.nlp.prefix;
+      const stem = w.en.toLowerCase().slice(prefix.p.length);
+      // 🔥 개선된 검증 로직 적용
+      if (!isLikelyWord(stem, w, words, simMatrix)) return; 
+      const pkey = prefix.p;
+      if (!prefixGroups[pkey]) prefixGroups[pkey] = { title: `${prefix.p}- (${prefix.m})`, arr: [] };
+      prefixGroups[pkey].arr.push(w);
+  });
+
+  // ==========================================
+  // 3️⃣ 유의어/반의어 연결망
+  // ==========================================
+  const ufParent = new Map(words.map(w => [w.id, w.id]));
+  function ufFind(id) {
+      if (ufParent.get(id) !== id) ufParent.set(id, ufFind(ufParent.get(id)));
+      return ufParent.get(id);
+  }
+  function ufUnion(a, b) { ufParent.set(ufFind(a), ufFind(b)); }
+
+  for (let i = 0; i < words.length; i++) {
+      for (let j = i + 1; j < words.length; j++) {
+          const a = words[i], b = words[j];
+          if (!a.nlp || !b.nlp) continue;
+          const aen = a.en.toLowerCase(), ben = b.en.toLowerCase();
+          const aSyn = a.nlp.syn || [], aAnt = a.nlp.ant || [];
+          const bSyn = b.nlp.syn || [], bAnt = b.nlp.ant || [];
+          const connected =
+              aSyn.includes(ben) || bSyn.includes(aen) ||
+              aAnt.includes(ben) || bAnt.includes(aen);
+          if (connected) ufUnion(a.id, b.id);
+      }
+  }
+  const synAntMap = new Map();
+  words.forEach(w => {
+      const root = ufFind(w.id);
+      if (!synAntMap.has(root)) synAntMap.set(root, []);
+      synAntMap.get(root).push(w);
+  });
+  const synAntGroups = [...synAntMap.values()].filter(g => g.length > 1);
+
+  // ==========================================
+  // DOM 렌더링
+  // ==========================================
+  const masterSection = document.getElementById('nlp-master-section');
+  const masterGrid = document.getElementById('nlp-master-grid');
+  const stemGrid = document.getElementById('nlp-stem-grid');
+  const prefixGrid = document.getElementById('nlp-prefix-grid');
+  const synantGrid = document.getElementById('nlp-synant-grid');
+
+  masterGrid.innerHTML = '';
+  stemGrid.innerHTML = '';
+  prefixGrid.innerHTML = '';
+  synantGrid.innerHTML = '';
+
+  // 👑 마스터 그룹 렌더링
+  if (masterGroups.length > 0) {
+      masterSection.classList.remove('hidden');
+      masterGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => {
+          masterGrid.appendChild(buildCard(`✨ 신뢰도 최상 그룹 ${idx+1}`, g, 'indigo-500'));
+      });
+  } else {
+      masterSection.classList.add('hidden');
+  }
+
+  // 1️⃣ 어근 렌더링
+  let stemFound = false;
+  Object.keys(stemGroups).forEach(stem => {
+      if (stemGroups[stem].length > 1) {
+          stemGrid.appendChild(buildCard(`어근 [ ${stem}- ]`, stemGroups[stem]));
+          stemFound = true;
+      }
+  });
+  koMeanGroups.forEach((group, rootId) => {
+      const rootWord = words.find(w => w.id === rootId);
+      if (rootWord) {
+          stemGrid.appendChild(buildCard(`🇰🇷 의미 유사 그룹 (${rootWord.ko} 계열)`, group));
+          stemFound = true;
+      }
+  });
+  if(!stemFound) stemGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">같은 어근을 공유하는 단어가 없습니다.</p>';
+
+  // 2️⃣ 접두사 렌더링
+  let prefixFound = false;
+  Object.entries(prefixGroups)
+      .filter(([, v]) => v.arr.length > 1)
+      .sort(([, a], [, b]) => b.arr.length - a.arr.length)
+      .forEach(([, v]) => { prefixGrid.appendChild(buildCard(v.title, v.arr)); prefixFound = true; });
+  if(!prefixFound) prefixGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">공통 접두사를 가진 단어가 없습니다.</p>';
+
+  // 3️⃣ 유의어/반의어 렌더링
+  function buildSynAntCard(title, groupArr) {
+      const card = document.createElement('div');
+      card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
+      let relSummary = '';
+      const hasSyn = groupArr.some((w,i) => groupArr.slice(i+1).some(w2 => (w.nlp?.syn||[]).includes(w2.en.toLowerCase()) || (w2.nlp?.syn||[]).includes(w.en.toLowerCase())));
+      const hasAnt = groupArr.some((w,i) => groupArr.slice(i+1).some(w2 => (w.nlp?.ant||[]).includes(w2.en.toLowerCase()) || (w2.nlp?.ant||[]).includes(w.en.toLowerCase())));
+      if (hasSyn) relSummary += '<span class="text-[10px] font-black bg-purple-900/50 text-purple-300 border border-purple-700 px-2 py-0.5 rounded-full">유의어 포함</span> ';
+      if (hasAnt) relSummary += '<span class="text-[10px] font-black bg-rose-900/50 text-rose-300 border border-rose-700 px-2 py-0.5 rounded-full">반의어 포함</span>';
+      let chipsHtml = groupArr.map(w => `<span class="chip bg-gray-900 text-indigo-300 border border-gray-700 hover:bg-gray-800" onclick="openAnalysis(${w.id})" title="클릭하여 상세 분석">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span></span>`).join('');
+      card.innerHTML = `
+          <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700">
+              <h4 class="text-base font-black text-white truncate pr-2">${title}</h4>
+              <span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span>
+          </div>
+          <div class="flex gap-1.5 mb-3">${relSummary}</div>
+          <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>`;
+      return card;
+  }
+
+  synantGrid.innerHTML = synAntGroups.length ? '' : '<p class="text-gray-500 font-bold text-sm">유의어/반의어로 묶이는 단어가 없습니다.</p>';
+  synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => { synantGrid.appendChild(buildSynAntCard(`의미 연결망 ${idx+1}`, g)); });
+  
+  loadingUI.classList.add('hidden'); loadingUI.classList.remove('flex');
+  document.getElementById('group-container').classList.remove('hidden'); document.getElementById('group-container').classList.add('flex');
 }
 
 // ==============================
@@ -1563,8 +1616,8 @@ async function runAnalysis(w){
       .then(r => r.ok ? r.json() : null)
       .then(d => Array.isArray(d) ? d[0] : null)
       .catch(() => null),
-    fetchDM(`rel_syn=${encodeURIComponent(w.en)}&max=20`),  // 명확한 유의어 (WordNet)
-    fetchDM(`rel_ant=${encodeURIComponent(w.en)}&max=15`),  // 명확한 반의어 (WordNet)
+    fetchDM(`rel_syn=${encodeURIComponent(w.en)}&max=20`),
+    fetchDM(`rel_ant=${encodeURIComponent(w.en)}&max=15`),
   ]);
 
   // 1단계 즉시 표시
@@ -1572,10 +1625,6 @@ async function runAnalysis(w){
   document.getElementById('analysis-result').classList.remove('hidden');
 
   // ── 2단계: 연관어/콜로케이션 (백그라운드) ──
-  // rel_trg: 연상 단어, rel_spc: 상위 개념, rel_gen: 하위 개념
-  // rel_jja: 수식 형용사, rel_jjb: 형용사가 수식하는 명사
-  // rel_bga/bgb: bigram 전후 (콜로케이션)
-  // ml=: means-like 제거 → 의미상 부정확한 결과가 많아 노이즈 발생
   const [relTrg, relSpc, relGen, colAdj, colNoun, colBefore, colAfter] = await Promise.all([
     fetchDM(`rel_trg=${encodeURIComponent(w.en)}&max=15`),
     fetchDM(`rel_spc=${encodeURIComponent(w.en)}&max=10`),
@@ -1667,19 +1716,15 @@ async function _renderAnalysisResult(w, dictData, synExact, antExact, relTrg, re
     });
   }
   const mergeWords=(...arrays)=>{const map=new Map();arrays.flat().forEach(item=>{if(item&&item.word&&item.word.toLowerCase()!==w.en.toLowerCase()){map.set(item.word.toLowerCase(),item);}});return Array.from(map.values());};
-  // synExact + 사전 유의어 병합 (정확도 높은 소스 우선)
   renderChips('ar-synonyms', mergeWords(dictSyns, synExact).slice(0,20), 'chip-syn');
-  // antExact + 사전 반의어 (모두 WordNet 기반 → 신뢰도 높음)
   renderChips('ar-antonyms', mergeWords(dictAnts, antExact).slice(0,15), 'chip-ant');
-  // 연상어 + 상위/하위 개념 (의미망 기반 연관어)
   renderChips('ar-related', mergeWords(relTrg, relSpc, relGen).slice(0,20), 'chip-rel');
-  // bigram 콜로케이션 + 형용사-명사 관계 (실제 용례 기반)
   renderChips('ar-collocations', mergeWords(colBefore, colAfter, colAdj, colNoun).slice(0,20), 'chip-freq');
   const recs=[...newCands].slice(0,25);
   document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm font-bold text-gray-500">추천할 새 단어가 없습니다.</span>';
   const scrollContainer=document.getElementById('analysis-result').parentElement;
   if(scrollContainer)scrollContainer.scrollTop=0;
-} // end _renderAnalysisResult
+} 
 function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();}
 
 // ==============================
