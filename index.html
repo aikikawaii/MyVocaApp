@@ -13,206 +13,76 @@
   
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── 성능: GPU 합성 레이어 힌트 ── */
+  .game-btn { will-change: transform; }
+  .neon-card, .neon-card-emerald, .neon-card-rose, .neon-card-amber {
+    /* backdrop-filter 제거 완료 — box-shadow만 사용 */
+    transform: translateZ(0); /* GPU 레이어 승격 */
+  }
+
+  /* ── 성능: 숨겨진 탭 뷰는 렌더링 스킵 ── */
+  [id^="view-"]:not(.hidden) { content-visibility: auto; }
+
+  /* neon-card hover — transition 단축 (배경색만) */
+  .neon-card { transition: border-color 0.2s, box-shadow 0.2s; }
+  .neon-card:hover { transform: none; } /* translateZ(0) 유지, scale 제거 */
   
   .active-bounce { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.15s ease, background-color 0.15s ease; }
   .active-bounce:active { transform: scale(0.94) !important; filter: brightness(1.2); }
 
-  /* ===== 🎯 완전히 새로워진 사지선다 버튼 시스템 ===== */
+  /* ===== 🎯 사지선다 버튼 시스템 (깔끔 미니멀) ===== */
   .game-btn {
     position: relative;
     overflow: hidden;
-    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                box-shadow 0.18s ease,
-                border-color 0.15s ease,
-                background-color 0.15s ease;
+    transition: transform 0.12s ease, border-color 0.12s ease, background-color 0.12s ease, opacity 0.15s ease;
     cursor: pointer;
     -webkit-user-select: none;
     user-select: none;
   }
-  
-  /* 기본 호버 */
   .game-btn:not(:disabled):hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+    transform: translateY(-2px);
     border-color: rgba(99, 102, 241, 0.5) !important;
   }
-  
-  /* 클릭 압축 효과 */
   .game-btn:not(:disabled):active {
-    transform: scale(0.95) !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-  
-  /* 클릭 파문 효과 */
-  .game-btn .ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-    transform: scale(0);
-    animation: ripple-expand 0.5s linear;
-    pointer-events: none;
-  }
-  @keyframes ripple-expand {
-    to { transform: scale(4); opacity: 0; }
+    transform: scale(0.97) !important;
   }
 
-  /* 정답 효과 */
+  /* 정답 */
   .game-btn.correct-answer {
-    background: linear-gradient(135deg, #059669, #10b981) !important;
+    background: #059669 !important;
     color: #fff !important;
-    border-color: #34d399 !important;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.4) !important;
-    animation: correctPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
-  }
-  @keyframes correctPop {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.07); }
-    70%  { transform: scale(0.97); }
-    100% { transform: scale(1.03); }
+    border-color: #10b981 !important;
+    transform: scale(1.02) !important;
+    transition: all 0.1s ease !important;
   }
 
-  /* 오답 효과 */
+  /* 오답 */
   .game-btn.wrong-answer {
-    background: linear-gradient(135deg, #be123c, #e11d48) !important;
+    background: #be123c !important;
     color: #fff !important;
     border-color: #f43f5e !important;
-    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.3), 0 0 40px rgba(244, 63, 94, 0.4) !important;
-    animation: wrongShake 0.45s ease forwards !important;
+    animation: wrongShake 0.3s ease !important;
+    transition: background-color 0.1s ease, border-color 0.1s ease !important;
   }
   @keyframes wrongShake {
-    0%   { transform: translateX(0); }
-    15%  { transform: translateX(-8px) rotate(-1deg); }
-    30%  { transform: translateX(8px) rotate(1deg); }
-    45%  { transform: translateX(-6px); }
-    60%  { transform: translateX(6px); }
-    75%  { transform: translateX(-3px); }
-    100% { transform: translateX(0); }
+    0%,100% { transform: translateX(0); }
+    25%      { transform: translateX(-6px); }
+    75%      { transform: translateX(6px); }
   }
 
-  /* 정답지 하이라이트 (오답 선택 시 정답 표시) */
+  /* 정답 밝히기 (오답 선택 시) */
   .game-btn.reveal-correct {
-    background: linear-gradient(135deg, #059669, #10b981) !important;
+    background: #059669 !important;
     color: #fff !important;
-    border-color: #34d399 !important;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.4) !important;
-    animation: correctPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both !important;
+    border-color: #10b981 !important;
+    transition: all 0.15s ease 0.1s !important;
   }
 
-  /* 흐려지는 버튼 (선택 안된 다른 보기) */
+  /* 선택 안된 보기 */
   .game-btn.dimmed {
-    opacity: 0.35;
-    transform: scale(0.97);
-    filter: grayscale(0.5);
-  }
-
-  /* ===== 화면 플래시 오버레이 ===== */
-  #quiz-flash-overlay {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 999;
-    opacity: 0;
-    border-radius: inherit;
-  }
-  #quiz-flash-overlay.flash-correct {
-    background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
-    animation: flashAnim 0.5s ease-out forwards;
-  }
-  #quiz-flash-overlay.flash-wrong {
-    background: radial-gradient(ellipse at center, rgba(244, 63, 94, 0.25) 0%, transparent 70%);
-    animation: flashAnim 0.5s ease-out forwards;
-  }
-  @keyframes flashAnim {
-    0%   { opacity: 0; }
-    20%  { opacity: 1; }
-    100% { opacity: 0; }
-  }
-
-  /* ===== 파티클 컨테이너 ===== */
-  #quiz-particles {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 998;
-    overflow: hidden;
-  }
-  .particle {
-    position: absolute;
-    border-radius: 50%;
-    animation: particleFly var(--dur) ease-out forwards;
-  }
-  @keyframes particleFly {
-    0%   { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-  }
-
-  /* ===== 점수 팝업 ===== */
-  .score-popup {
-    position: fixed;
-    font-size: 2.5rem;
-    font-weight: 900;
-    pointer-events: none;
-    z-index: 1000;
-    animation: scoreFloat 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-  }
-  @keyframes scoreFloat {
-    0%   { transform: translateY(0) scale(0.5); opacity: 0; }
-    20%  { transform: translateY(-10px) scale(1.3); opacity: 1; }
-    80%  { transform: translateY(-60px) scale(1); opacity: 1; }
-    100% { transform: translateY(-90px) scale(0.8); opacity: 0; }
-  }
-
-  /* ===== 문제 카드 등장 애니메이션 ===== */
-  .quiz-card-enter {
-    animation: cardEnter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
-  @keyframes cardEnter {
-    from { opacity: 0; transform: scale(0.92) translateY(10px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  /* ===== 타이머 바 ===== */
-  #quiz-timer-bar-wrap {
-    height: 5px;
-    background: rgba(55, 65, 81, 0.8);
-    border-radius: 999px;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-    flex-shrink: 0;
-  }
-  #quiz-timer-bar {
-    height: 100%;
-    border-radius: 999px;
-    transition: width 0.1s linear, background-color 0.3s ease;
-    background: linear-gradient(90deg, #6366f1, #a78bfa);
-  }
-  #quiz-timer-bar.warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-  #quiz-timer-bar.danger  { background: linear-gradient(90deg, #ef4444, #f87171); animation: timerPulse 0.5s ease infinite; }
-  @keyframes timerPulse { 0%,100%{ opacity:1; } 50%{ opacity:0.6; } }
-
-  /* ===== 콤보 표시 ===== */
-  #quiz-combo {
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    font-variant-numeric: tabular-nums;
-  }
-  .combo-pop {
-    animation: comboPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes comboPop {
-    0%  { transform: scale(1); }
-    50% { transform: scale(1.5); }
-    100%{ transform: scale(1); }
-  }
-
-  /* ===== 단어 카드 내 이모지 폭발 ===== */
-  .result-emoji {
-    animation: emojiPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    display: inline-block;
-  }
-  @keyframes emojiPop {
-    from { transform: scale(0) rotate(-20deg); }
-    to   { transform: scale(1) rotate(0); }
+    opacity: 0.4;
+    transition: opacity 0.15s ease !important;
   }
 
   /* ===== 기존 스타일 유지 ===== */
@@ -251,36 +121,13 @@
   .neon-card-amber { background-color: rgba(31, 41, 55, 0.95); border: 1px solid rgba(245, 158, 11, 0.15) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s; }
   .neon-card-amber:hover { border-color: rgba(245, 158, 11, 0.5) !important; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); }
 
-  /* ===== 퀴즈 결과 카드 임팩트 ===== */
-  .quiz-result-card {
-    animation: resultReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
-  @keyframes resultReveal {
-    from { transform: scale(0.8) translateY(20px); opacity: 0; }
-    to   { transform: scale(1) translateY(0); opacity: 1; }
-  }
-  
-  /* 별 애니메이션 */
-  .star-burst {
-    position: absolute;
-    font-size: 1.5rem;
-    animation: starBurst 1s ease-out forwards;
-    pointer-events: none;
-  }
-  @keyframes starBurst {
-    0%   { transform: scale(0) rotate(0); opacity: 1; }
-    50%  { transform: scale(1.5) rotate(180deg); opacity: 1; }
-    100% { transform: scale(0.5) rotate(360deg) translateY(-60px); opacity: 0; }
-  }
+
 </style>
 </head>
 <body class="bg-gray-950 text-gray-200 font-sans h-screen w-screen flex items-center justify-center p-2 sm:p-6 overflow-hidden relative">
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-gray-950 to-gray-950 pointer-events-none"></div>
 
-  <!-- 화면 플래시 오버레이 (전역) -->
-  <div id="quiz-flash-overlay"></div>
-  <!-- 파티클 레이어 (전역) -->
-  <div id="quiz-particles"></div>
+
 
 <div class="w-full max-w-7xl h-full max-h-[96vh] min-h-[700px] bg-gray-900 shadow-2xl rounded-3xl flex flex-col overflow-hidden border border-gray-800 relative z-10">
 
@@ -456,8 +303,8 @@
   
   <!-- 결과 화면 -->
   <div id="quiz-result" class="flex-1 flex flex-col items-center justify-center hidden">
-    <div class="quiz-result-card neon-card p-10 rounded-[2.5rem] text-center w-full max-w-xl relative overflow-hidden">
-      <div class="text-7xl mb-4 result-emoji" id="quiz-result-emoji">🏅</div>
+    <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-xl fade-in">
+      <div class="text-7xl mb-4" id="quiz-result-emoji">🏅</div>
       <h2 class="text-4xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">퀴즈 종료!</h2>
       <div class="bg-gray-900/80 rounded-3xl p-8 my-6 border border-gray-700 shadow-inner">
         <div class="text-6xl font-black text-indigo-400">
@@ -699,110 +546,36 @@
 
 <script>
 // ==============================
-// 🎯 퀴즈 이펙트 시스템
+// 🎯 퀴즈 이펙트 (미니멀)
 // ==============================
 const QuizFX = {
-  // 웹 오디오로 효과음 생성
   ctx: null,
   getCtx() {
-    if (!this.ctx) {
-      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-    }
+    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
     return this.ctx;
   },
-
   playCorrect() {
     const ctx = this.getCtx(); if (!ctx) return;
     const t = ctx.currentTime;
-    [523.25, 659.25, 783.99].forEach((freq, i) => {
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = freq;
-      o.type = 'sine';
-      g.gain.setValueAtTime(0, t + i * 0.07);
-      g.gain.linearRampToValueAtTime(0.18, t + i * 0.07 + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.25);
-      o.start(t + i * 0.07);
-      o.stop(t + i * 0.07 + 0.25);
-    });
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.setValueAtTime(520, t);
+    o.frequency.linearRampToValueAtTime(780, t + 0.12);
+    o.type = 'sine';
+    g.gain.setValueAtTime(0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    o.start(t); o.stop(t + 0.18);
   },
-
   playWrong() {
     const ctx = this.getCtx(); if (!ctx) return;
     const t = ctx.currentTime;
-    [220, 196].forEach((freq, i) => {
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = freq;
-      o.type = 'sawtooth';
-      g.gain.setValueAtTime(0.15, t + i * 0.12);
-      g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.2);
-      o.start(t + i * 0.12);
-      o.stop(t + i * 0.12 + 0.2);
-    });
-  },
-
-  // 화면 플래시
-  flash(type) {
-    const overlay = document.getElementById('quiz-flash-overlay');
-    overlay.className = '';
-    void overlay.offsetWidth; // reflow
-    overlay.className = type === 'correct' ? 'flash-correct' : 'flash-wrong';
-    setTimeout(() => overlay.className = '', 500);
-  },
-
-  // 파티클 폭발
-  burst(x, y, isCorrect) {
-    const container = document.getElementById('quiz-particles');
-    const colors = isCorrect
-      ? ['#10b981','#34d399','#6ee7b7','#a7f3d0','#fbbf24','#fff']
-      : ['#f43f5e','#fb7185','#fda4af','#e11d48'];
-    
-    for (let i = 0; i < (isCorrect ? 22 : 12); i++) {
-      const p = document.createElement('div');
-      const angle = (i / (isCorrect ? 22 : 12)) * 360;
-      const dist = 60 + Math.random() * 120;
-      const size = 4 + Math.random() * 8;
-      const dur = 0.5 + Math.random() * 0.5;
-      const tx = Math.cos(angle * Math.PI / 180) * dist;
-      const ty = Math.sin(angle * Math.PI / 180) * dist - 50;
-
-      p.className = 'particle';
-      p.style.cssText = `
-        left: ${x}px; top: ${y}px;
-        width: ${size}px; height: ${size}px;
-        background: ${colors[i % colors.length]};
-        --tx: ${tx}px; --ty: ${ty}px;
-        --dur: ${dur}s;
-        animation-delay: ${Math.random() * 0.1}s;
-      `;
-      if (Math.random() > 0.6) p.style.borderRadius = '2px'; // 일부는 사각형
-      container.appendChild(p);
-      setTimeout(() => p.remove(), (dur + 0.2) * 1000);
-    }
-  },
-
-  // 점수 팝업
-  scorePopup(x, y, text, color) {
-    const popup = document.createElement('div');
-    popup.className = 'score-popup';
-    popup.style.cssText = `left:${x}px; top:${y}px; color:${color};`;
-    popup.textContent = text;
-    document.body.appendChild(popup);
-    setTimeout(() => popup.remove(), 1000);
-  },
-
-  // 리플 효과
-  ripple(btn, e) {
-    const rect = btn.getBoundingClientRect();
-    const r = document.createElement('span');
-    const size = Math.max(rect.width, rect.height);
-    const x = (e.clientX || rect.left + rect.width/2) - rect.left - size/2;
-    const y = (e.clientY || rect.top + rect.height/2) - rect.top - size/2;
-    r.className = 'ripple';
-    r.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
-    btn.appendChild(r);
-    setTimeout(() => r.remove(), 600);
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 200;
+    o.type = 'square';
+    g.gain.setValueAtTime(0.08, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    o.start(t); o.stop(t + 0.15);
   }
 };
 
@@ -879,18 +652,54 @@ function loadData(){
   if(actRaw){try{activityLog=JSON.parse(actRaw);}catch{activityLog={};}}
   renderWords();
 }
-function saveData(){
-  localStorage.setItem('myWordbook',JSON.stringify(words));
-  localStorage.setItem('myActivity', JSON.stringify(activityLog));
-  renderWords();
-  if(window.triggerCloudSave) window.triggerCloudSave({words, activityLog});
+// ═══════════════════════════════════════════════════════════
+// 성능 코어: 퀴즈 중 렉의 실제 원인 = 매 선택마다 JSON.stringify(words)
+// → words 직렬화 디바운스 300ms / confMatrix 디바운스 500ms
+// ═══════════════════════════════════════════════════════════
+let _renderDebounce = null;
+function scheduleRender() {
+  clearTimeout(_renderDebounce);
+  _renderDebounce = setTimeout(renderWords, 80);
+}
+
+let _cloudDebounce = null;
+function scheduleCloudSave(dataObj) {
+  clearTimeout(_cloudDebounce);
+  _cloudDebounce = setTimeout(() => {
+    if (window.triggerCloudSave) window.triggerCloudSave(dataObj);
+  }, 2000);
+}
+
+// words 배열 직렬화 디바운스 — 300ms 내 연속 변경은 한번에 처리
+let _lsPending = false, _lsTimer = null;
+function scheduleLsSave() {
+  clearTimeout(_lsTimer);
+  _lsTimer = setTimeout(() => {
+    localStorage.setItem('myWordbook', JSON.stringify(words));
+    _lsPending = false;
+  }, 300);
+  _lsPending = true;
+}
+// 즉시 저장이 필요할 때 (탭 전환, 내보내기 전 등)
+function flushLsSave() {
+  clearTimeout(_lsTimer);
+  localStorage.setItem('myWordbook', JSON.stringify(words));
+  _lsPending = false;
+}
+
+function saveData({ skipRender = false, skipCloud = false, urgent = false } = {}) {
+  if (urgent) flushLsSave();
+  else scheduleLsSave();                    // words: 디바운스 직렬화
+  localStorage.setItem('myActivity', JSON.stringify(activityLog)); // activity는 작음
+  if (!skipRender) scheduleRender();
+  if (!skipCloud) scheduleCloudSave({ words, activityLog });
 }
 
 function logActivity(type) {
     const today = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
     if(!activityLog[today]) { activityLog[today] = { added: 0, tested: 0, quizzed: 0 }; }
     activityLog[today][type] = (activityLog[today][type] || 0) + 1;
-    saveData();
+    localStorage.setItem('myActivity', JSON.stringify(activityLog));
 }
 
 window.updateFromCloud = function(data) {
@@ -900,14 +709,21 @@ window.updateFromCloud = function(data) {
     words.push(...data.words);
     if(data.activityLog) activityLog = data.activityLog;
   }
-  localStorage.setItem('myWordbook', JSON.stringify(words));
+  flushLsSave();
   localStorage.setItem('myActivity', JSON.stringify(activityLog));
-  buildSimMatrix(); renderWords();
+  buildSimMatrixAsync().then(() => scheduleRender());
 };
 
 function loadConf(){try{confMatrix=JSON.parse(localStorage.getItem('confMatrix')||'{}');}catch{confMatrix={};}}
-function saveConf(){localStorage.setItem('confMatrix',JSON.stringify(confMatrix));}
-document.addEventListener('DOMContentLoaded',()=>{loadData();loadConf();buildSimMatrix();});
+// confMatrix 디바운스 저장 (퀴즈 오답 선택마다 동기 write 방지)
+let _confTimer = null;
+function saveConf() {
+  clearTimeout(_confTimer);
+  _confTimer = setTimeout(() => {
+    localStorage.setItem('confMatrix', JSON.stringify(confMatrix));
+  }, 500);
+}
+document.addEventListener('DOMContentLoaded',()=>{loadData();loadConf();buildSimMatrixAsync().then(()=>scheduleRender());});
 
 function switchTab(name){
   ALL_TABS.forEach(t=>{
@@ -931,10 +747,12 @@ function addWord(){
   const enEl=document.getElementById('input-en'),koEl=document.getElementById('input-ko');
   const en=enEl.value.trim(),ko=koEl.value.trim();
   if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
-  words.push({id:Date.now(),en,ko,wrongCount:0, quizCount:0, nlp:null});
-  buildSimMatrix();currentPage=1;
+  const newWord = {id:Date.now(),en,ko,wrongCount:0, quizCount:0, nlp:null};
+  words.push(newWord);
+  buildSimMatrixForWord(newWord); // 증분 업데이트 O(n) 
+  currentPage=1;
   logActivity('added');
-  saveData();
+  saveData({ urgent: true }); // 단어 추가는 즉시 저장
   enEl.value='';koEl.value='';enEl.focus();
   showToast('단어 추가 완료! ✨');
 }
@@ -946,8 +764,12 @@ function executeDelete(){
     if(pendingDeleteId !== null){
         const idx = words.findIndex(w => w.id === pendingDeleteId);
         if(idx !== -1) {
+            const delId = words[idx].id;
+            _analysisCache.delete(words[idx].en);
+            delete simMatrix[delId];
+            Object.values(simMatrix).forEach(row => delete row[delId]);
             if(idx !== words.length - 1) { words[idx] = words[words.length - 1]; }
-            words.pop(); buildSimMatrix(); saveData(); showToast('삭제되었습니다.');
+            words.pop(); saveData(); showToast('삭제되었습니다.');
         }
         closeDeleteModal();
     }
@@ -955,7 +777,7 @@ function executeDelete(){
 
 function confirmClearAll() {if(words.length===0)return showToast('삭제할 단어가 없습니다.','info');document.getElementById('clear-all-modal').classList.remove('hidden','opacity-0');document.getElementById('clear-all-modal-content').classList.remove('scale-95');}
 function closeClearAllModal() {document.getElementById('clear-all-modal').classList.add('opacity-0');document.getElementById('clear-all-modal-content').classList.add('scale-95');setTimeout(()=>document.getElementById('clear-all-modal').classList.add('hidden'),200);}
-function executeClearAll() {words=[];buildSimMatrix();saveData();closeClearAllModal();showToast('모든 단어가 영구 삭제되었습니다. 🗑️');}
+function executeClearAll() {words=[];simMatrix={};saveData();closeClearAllModal();showToast('모든 단어가 영구 삭제되었습니다. 🗑️');}
 
 let editingWordId = null;
 function openEditModal(id) {const w=words.find(x=>x.id===id);if(!w)return;editingWordId=id;document.getElementById('edit-en').value=w.en;document.getElementById('edit-ko').value=w.ko;document.getElementById('edit-modal').classList.remove('hidden','opacity-0');document.getElementById('edit-modal-content').classList.remove('scale-95');}
@@ -964,7 +786,7 @@ function saveEditWord() {
   const en=document.getElementById('edit-en').value.trim(),ko=document.getElementById('edit-ko').value.trim();
   if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
   const idx=words.findIndex(w=>w.id===editingWordId);
-  if(idx!==-1){words[idx].en=en;words[idx].ko=ko;words[idx].nlp=null;buildSimMatrix();saveData();showToast('수정되었습니다. ✏️');closeEditModal();}
+  if(idx!==-1){_analysisCache.delete(words[idx].en);words[idx].en=en;words[idx].ko=ko;words[idx].nlp=null;buildSimMatrixForWord(words[idx]);saveData();showToast('수정되었습니다. ✏️');closeEditModal();}
 }
 
 function changePage(d){currentPage+=d;renderWords();document.getElementById('word-list').scrollTop=0;}
@@ -984,6 +806,8 @@ function renderWords(){
   if(document.getElementById('sort-select').value==='wrongCount') { disp.sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0)); } 
   else { disp.sort((a,b)=> b.id - a.id); }
   const total=Math.max(1,Math.ceil(disp.length/IPP));currentPage=Math.max(1,Math.min(currentPage,total));
+  // DocumentFragment으로 배치 DOM 삽입 (리플로우 최소화)
+  const frag = document.createDocumentFragment();
   disp.slice((currentPage-1)*IPP,currentPage*IPP).forEach(w=>{
     const simRow=simMatrix[w.id]||{};const dupes=words.filter(x=>x.id!==w.id&&(simRow[x.id]||0)>=SIM_DUP);
     const wBadge=w.wrongCount>0?`<span class="px-2 py-0.5 bg-rose-900/50 text-rose-300 border border-rose-500/50 text-[10px] font-black rounded-full whitespace-nowrap tracking-wide">오답 ${w.wrongCount}회</span>`:'';
@@ -1007,8 +831,9 @@ function renderWords(){
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         </button>
       </div>`;
-    list.appendChild(li);
+    frag.appendChild(li);
   });
+  list.appendChild(frag); // 한 번에 DOM 삽입
   const pgCtrl=document.getElementById('pagination-controls');
   if(total>1){
     pgCtrl.classList.remove('hidden');
@@ -1023,11 +848,11 @@ function renderWords(){
     document.getElementById('btn-prev').disabled=currentPage===1;
     document.getElementById('btn-next').disabled=currentPage===total;
   } else { pgCtrl.classList.add('hidden'); }
-  setTimeout(resizeAllTexts, 10);
+  requestAnimationFrame(resizeAllTexts); // rAF: resize after paint, not blocking
 }
 
 function exportData(){if(!words.length)return showToast('저장할 단어가 없습니다.','error');const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'})),download:`영단어장.json`});document.body.appendChild(a);a.click();a.remove();}
-function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0, quizCount:iw.quizCount||0, nlp:null});}});buildSimMatrix();saveData();currentPage=1;showToast(`단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};r.readAsText(file);e.target.value='';}
+function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0, quizCount:iw.quizCount||0, nlp:null});}});saveData();buildSimMatrixAsync().then(()=>scheduleRender());currentPage=1;showToast(`단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};r.readAsText(file);e.target.value='';}
 
 // ==============================
 // 학습(플래시카드)
@@ -1087,7 +912,7 @@ function revealAnswer(){document.getElementById('btn-reveal').classList.add('hid
 function markAnswer(ok){
     if(ok) testCorrect++;
     setTimeout(() => {
-        if(!ok){ const i=words.findIndex(x=>x.id===testQueue[testIdx].id);if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();} }
+        if(!ok){ const i=words.findIndex(x=>x.id===testQueue[testIdx].id);if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData({skipRender:true});} }
         logActivity('tested'); testIdx++;
         if(testIdx>=testQueue.length){ document.getElementById('test-active').classList.add('hidden');document.getElementById('test-result').classList.remove('hidden');renderWords(); }
         else { loadTestCard(); }
@@ -1140,7 +965,7 @@ function handleTimeOut() {
     updateComboUI();
     
     const i = words.findIndex(w => w.id === quizWord.id);
-    if (i !== -1) { words[i].wrongCount = (words[i].wrongCount||0) + 1; saveData(); }
+    if (i !== -1) { words[i].wrongCount = (words[i].wrongCount||0) + 1; saveData({skipRender:true}); }
     
     QuizFX.playWrong();
     QuizFX.flash('wrong');
@@ -1148,7 +973,7 @@ function handleTimeOut() {
     quizAnswered++;
     
     showToast('⏰ 시간 초과!', 'error');
-    quizTimer = setTimeout(() => nextQuiz(), 1500);
+    quizTimer = setTimeout(() => nextQuiz(), 800);
 }
 
 function updateComboUI() {
@@ -1214,99 +1039,77 @@ function nextQuiz(){
     document.getElementById('quiz-score').textContent=quizS;
     quizWord=quizQueue[quizIdx++];
     
+    // quizCount는 메모리만 업데이트 (localStorage 저장 불필요 — 통계에 미사용)
     const wIdx = words.findIndex(w=>w.id===quizWord.id);
-    if(wIdx !== -1) { words[wIdx].quizCount = (words[wIdx].quizCount || 0) + 1; saveData(); }
-    
-    // 단어 카드 등장 애니메이션
-    const card = document.getElementById('quiz-word-card');
-    card.classList.remove('quiz-card-enter');
-    void card.offsetWidth;
-    card.classList.add('quiz-card-enter');
+    if(wIdx !== -1) { words[wIdx].quizCount = (words[wIdx].quizCount || 0) + 1; }
     
     document.getElementById('quiz-word-en').textContent=quizWord.en;
     
     const opts=document.getElementById('quiz-options');
-    opts.innerHTML='';
-    
-    shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach((opt, idx) => {
+    // Fragment로 버튼 4개 한번에 삽입 (4번 리플로우 → 1번)
+    const optFrag = document.createDocumentFragment();
+    shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach((opt) => {
         const btn=document.createElement('button');
         btn.className='game-btn w-full neon-card font-black py-6 rounded-2xl text-xl break-words px-4 text-white';
-        btn.style.animationDelay = `${idx * 0.05}s`;
         btn.textContent=opt.word.ko;
         btn.dataset.correct = opt.ok;
         btn.addEventListener('click', (e) => {
-            QuizFX.ripple(btn, e);
             selectQuiz(btn, opt.ok, opt.word.id, e);
         });
-        opts.appendChild(btn);
+        optFrag.appendChild(btn);
     });
+    opts.innerHTML='';
+    opts.appendChild(optFrag);
 
     // 타이머 시작
     startQuizTimer();
 }
 
 function selectQuiz(btn, ok, selId, e){
-    stopQuizTimer(); // 타이머 즉시 중단
+    stopQuizTimer();
     document.querySelectorAll('#quiz-options button').forEach(b=>b.disabled=true);
     quizAnswered++;
-    
-    // 선택된 버튼 즉각 반응
-    const rect = btn.getBoundingClientRect();
-    const cx = e ? e.clientX : rect.left + rect.width/2;
-    const cy = e ? e.clientY : rect.top + rect.height/2;
 
     if(ok){
         btn.classList.add('correct-answer');
-        // 나머지 흐리기
         document.querySelectorAll('#quiz-options button').forEach(b => { if(b !== btn) b.classList.add('dimmed'); });
         quizS++;
         quizCombo++;
         if (quizCombo > quizBestCombo) quizBestCombo = quizCombo;
         updateComboUI();
-
-        // 이펙트
         QuizFX.playCorrect();
-        QuizFX.flash('correct');
-        QuizFX.burst(cx, cy, true);
-        
-        // 콤보에 따라 다른 점수 팝업
-        const comboBonus = quizCombo >= 5 ? '🔥 COMBO!' : quizCombo >= 3 ? '✨ NICE!' : '⭕';
-        QuizFX.scorePopup(cx - 30, cy - 40, comboBonus, quizCombo >= 5 ? '#fbbf24' : '#10b981');
-        
     } else {
         btn.classList.add('wrong-answer');
-        // 정답 표시
         document.querySelectorAll('#quiz-options button').forEach(b => {
-            if (b.dataset.correct === 'true') { b.classList.add('reveal-correct'); }
-            else if (b !== btn) { b.classList.add('dimmed'); }
+            if (b.dataset.correct === 'true') b.classList.add('reveal-correct');
+            else if (b !== btn) b.classList.add('dimmed');
         });
         quizCombo = 0;
         updateComboUI();
-
         QuizFX.playWrong();
-        QuizFX.flash('wrong');
-        QuizFX.burst(cx, cy, false);
-        QuizFX.scorePopup(cx - 15, cy - 40, '❌', '#f43f5e');
     }
-    
-    document.getElementById('quiz-score').textContent=quizS;
-    
-    // 데이터 처리 지연
-    setTimeout(() => {
+
+    document.getElementById('quiz-score').textContent = quizS;
+
+    // UI 반응 즉시 → 다음 프레임 이후 데이터 처리 (requestIdleCallback 우선)
+    const _settle = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
+    _settle(() => {
         if(ok){
             if (quizMode === 'wrong') {
                 const i=words.findIndex(w=>w.id===quizWord.id);
-                if(i!==-1 && words[i].wrongCount > 0) { words[i].wrongCount -= 1; saveData(); }
+                if(i!==-1 && words[i].wrongCount > 0) { words[i].wrongCount--; saveData({skipRender:true}); }
             }
         } else {
             const i=words.findIndex(w=>w.id===quizWord.id);
-            if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
-            if(!confMatrix[quizWord.id])confMatrix[quizWord.id]={};
-            confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;saveConf();
+            if(i!==-1){ words[i].wrongCount=(words[i].wrongCount||0)+1; saveData({skipRender:true}); }
+            if(!confMatrix[quizWord.id]) confMatrix[quizWord.id]={};
+            confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;
+            saveConf(); // debounced
         }
         logActivity('quizzed');
-        quizTimer = setTimeout(()=>nextQuiz(), ok ? 900 : 1400);
-    }, 50);
+    });
+    // 정답: 500ms, 오답: 800ms
+    quizTimer = setTimeout(()=>nextQuiz(), ok ? 500 : 800);
 }
 
 function showQuizResult(){
@@ -1320,12 +1123,8 @@ function showQuizResult(){
     const acc = quizAnswered > 0 ? Math.round(quizS / quizAnswered * 100) : 0;
     document.getElementById('quiz-accuracy').textContent = `정확도 ${acc}%`;
     
-    const emojis = ['😭','😟','🤔','😊','😄','🎉','🏆','🔥'];
-    const emojiEl = document.getElementById('quiz-result-emoji');
-    emojiEl.textContent = acc >= 90 ? '🏆' : acc >= 70 ? '🎉' : acc >= 50 ? '😊' : '🤔';
-    emojiEl.classList.remove('result-emoji');
-    void emojiEl.offsetWidth;
-    emojiEl.classList.add('result-emoji');
+    document.getElementById('quiz-result-emoji').textContent = 
+        acc >= 90 ? '🏆' : acc >= 70 ? '🎉' : acc >= 50 ? '😊' : '🤔';
     
     document.getElementById('quiz-feedback').textContent = 
         acc >= 90 ? '🔥 완벽해요! 최고입니다!' :
@@ -1335,21 +1134,6 @@ function showQuizResult(){
     document.getElementById('quiz-best-combo').textContent = 
         quizBestCombo >= 3 ? `🔥 최고 콤보: ${quizBestCombo}연속` : '';
     
-    // 좋은 결과면 축하 파티클
-    if (acc >= 70) {
-        setTimeout(() => {
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    QuizFX.burst(
-                        window.innerWidth * (0.2 + Math.random() * 0.6),
-                        window.innerHeight * (0.3 + Math.random() * 0.3),
-                        true
-                    );
-                }, i * 200);
-            }
-        }, 400);
-    }
-    
     renderWords();
 }
 
@@ -1357,9 +1141,121 @@ function showQuizResult(){
 // NLP 그룹핑 (기존 유지)
 // ==============================
 const KO_SUF=['스럽다','스러운','하다','하는','하여','하게','한','함','히','이다','이란','되다','되는','된','됨','적인','적으로','적','롭다','로운','없다','없는','있다','있는','지다','진','ㄴ','는','을','를','이','가','의','에','로','과','와','도'].sort((a,b)=>b.length-a.length);
-function tokenize(str){const tokens=new Set();str.split(/[,\/\s]+/).map(s=>s.trim()).filter(Boolean).forEach(c=>{let stem=c;for(const suf of KO_SUF){if(stem.length>suf.length&&stem.endsWith(suf)){stem=stem.slice(0,-suf.length);break;}}if(stem.length>=1)tokens.add(stem);});return tokens;}
-function semSim(a,b){const tA=tokenize(a),tB=tokenize(b);if(!tA.size||!tB.size)return 0;let ex=0;tA.forEach(t=>{if(tB.has(t))ex++;});const jac=ex/new Set([...tA,...tB]).size;let part=0;tA.forEach(a=>tB.forEach(b=>{if(a!==b&&(a.includes(b)||b.includes(a)))part+=0.3;}));const cA=new Set([...a.replace(/[,\/\s]/g,'')]),cB=new Set([...b.replace(/[,\/\s]/g,'')]);let co=0;cA.forEach(c=>{if(cB.has(c))co++;});return Math.min(100,jac*70+part*15+(co/Math.max(cA.size,cB.size))*15);}
-function buildSimMatrix(){simMatrix={};for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++){if(i===j)continue;const a=words[i],b=words[j];if(!simMatrix[a.id])simMatrix[a.id]={};simMatrix[a.id][b.id]=semSim(a.ko,b.ko);}}
+function tokenize(str){
+    const tokens = new Set();
+    str.split(/[,\/\s·]+/).map(s => s.trim()).filter(Boolean).forEach(c => {
+        let stem = c;
+        for (const suf of KO_SUF) {
+            if (stem.length > suf.length + 1 && stem.endsWith(suf)) {
+                stem = stem.slice(0, -suf.length);
+                break;
+            }
+        }
+        if (stem.length >= 1) tokens.add(stem);
+        tokens.add(c); // 원형도 함께 추가 (어간만 남기면 과도한 일반화 발생)
+    });
+    return tokens;
+}
+
+function semSim(a, b) {
+    const tA = tokenize(a), tB = tokenize(b);
+    if (!tA.size || !tB.size) return 0;
+
+    // 1) 토큰 완전 일치 (Jaccard) — 가장 신뢰도 높음
+    let exactMatch = 0;
+    tA.forEach(t => { if (tB.has(t)) exactMatch++; });
+    const union = new Set([...tA, ...tB]).size;
+    const jaccard = exactMatch / union;
+
+    // 2) 부분 포함 — 길이 2자 이상 토큰만, 짧은 토큰의 spurious 매칭 방지
+    let partial = 0;
+    tA.forEach(ta => {
+        if (ta.length < 2) return;
+        tB.forEach(tb => {
+            if (tb.length < 2 && ta === tb) return;
+            if (ta !== tb && ta.length >= 2 && tb.length >= 2) {
+                if (ta.includes(tb) || tb.includes(ta)) partial += 0.25;
+            }
+        });
+    });
+    // partial 과잉 방지: 최대 0.3으로 cap
+    const partialScore = Math.min(0.3, partial * 0.1);
+
+    // 3) 문자 셋 겹침 — 한국어 단어 자체가 짧아서 기여도 낮춤 (10% → 8%)
+    const chA = new Set([...a.replace(/[,\/\s]/g, '')]);
+    const chB = new Set([...b.replace(/[,\/\s]/g, '')]);
+    let charOverlap = 0;
+    chA.forEach(c => { if (chB.has(c)) charOverlap++; });
+    const charScore = charOverlap / Math.max(chA.size, chB.size);
+
+    // 완전 일치 토큰이 있으면 점수 대폭 부스트
+    const exactBonus = exactMatch > 0 ? 0.15 : 0;
+
+    return Math.min(100, Math.round(
+        jaccard * 65 +
+        partialScore * 20 +
+        charScore * 8 +
+        exactBonus * 7
+    ) * 100) / 100;
+}
+// ── 성능: 유사도 행렬 — 증분 업데이트 + 비동기 청크 ──────────────
+// 새 단어 추가/수정 시 해당 단어 관련 행만 업데이트 (O(n) vs O(n²))
+function buildSimMatrixForWord(w) {
+  if (!simMatrix[w.id]) simMatrix[w.id] = {};
+  for (const other of words) {
+    if (other.id === w.id) continue;
+    if (!simMatrix[other.id]) simMatrix[other.id] = {};
+    const s = semSim(w.ko, other.ko);
+    simMatrix[w.id][other.id] = s;
+    simMatrix[other.id][w.id] = s;
+  }
+}
+
+// 전체 재계산 — 청크 단위로 나눠서 메인스레드 양보 (렉 방지)
+function buildSimMatrix() {
+  simMatrix = {};
+  if (words.length === 0) return;
+  // 즉시 동기 실행 (소규모 단어장)
+  for (let i = 0; i < words.length; i++) {
+    for (let j = i + 1; j < words.length; j++) {
+      const a = words[i], b = words[j];
+      if (!simMatrix[a.id]) simMatrix[a.id] = {};
+      if (!simMatrix[b.id]) simMatrix[b.id] = {};
+      const s = semSim(a.ko, b.ko);
+      simMatrix[a.id][b.id] = s;
+      simMatrix[b.id][a.id] = s;
+    }
+  }
+}
+
+// 비동기 전체 재계산 — 단어 많을 때 사용 (청크 8쌍씩 처리 후 yield)
+function buildSimMatrixAsync() {
+  return new Promise(resolve => {
+    simMatrix = {};
+    if (words.length === 0) { resolve(); return; }
+    const pairs = [];
+    for (let i = 0; i < words.length; i++)
+      for (let j = i + 1; j < words.length; j++)
+        pairs.push([i, j]);
+    let idx = 0;
+    const CHUNK = 30;
+    function processChunk() {
+      const end = Math.min(idx + CHUNK, pairs.length);
+      for (; idx < end; idx++) {
+        const [i, j] = pairs[idx];
+        const a = words[i], b = words[j];
+        if (!simMatrix[a.id]) simMatrix[a.id] = {};
+        if (!simMatrix[b.id]) simMatrix[b.id] = {};
+        const s = semSim(a.ko, b.ko);
+        simMatrix[a.id][b.id] = s;
+        simMatrix[b.id][a.id] = s;
+      }
+      if (idx < pairs.length) setTimeout(processChunk, 0);
+      else resolve();
+    }
+    processChunk();
+  });
+}
 
 function getStem(w) {
     let s = w.toLowerCase();
@@ -1392,9 +1288,12 @@ function getPrefix(w) {
     for(let pr of PREFIX_DICT) { if(s.startsWith(pr.p) && s.length > pr.p.length + 2) return pr; }
     return null;
 }
+// 단어 하나 NLP 데이터 fetch (줄기/접두사는 로컬 처리로 즉시)
 async function enrichWord(w) {
     if(w.nlp && w.nlp.fetched) return false;
-    w.nlp = { syn: [], ant: [], fetched: false };
+    // 로컬 처리는 즉시
+    w.nlp = { syn: [], ant: [], stem: getStem(w.en), prefix: getPrefix(w.en), fetched: false };
+    if (!navigator.onLine) { w.nlp.fetched = true; return true; }
     try {
         const [resSyn, resAnt] = await Promise.allSettled([
             fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(w.en)}&max=5`).then(r=>r.json()),
@@ -1402,27 +1301,56 @@ async function enrichWord(w) {
         ]);
         if(resSyn.status === 'fulfilled' && Array.isArray(resSyn.value)) w.nlp.syn = resSyn.value.map(x=>x.word);
         if(resAnt.status === 'fulfilled' && Array.isArray(resAnt.value)) w.nlp.ant = resAnt.value.map(x=>x.word);
-        w.nlp.stem = getStem(w.en); w.nlp.prefix = getPrefix(w.en); w.nlp.fetched = true;
+        w.nlp.fetched = true;
         return true;
-    } catch(e) { return false; }
+    } catch(e) { w.nlp.fetched = true; return false; }
 }
+
+// 병렬 배치 fetch — BATCH_SIZE개씩 동시 요청 (직렬 대비 ~5-8배 빠름)
+async function enrichWordsBatch(wordsToFetch, onProgress) {
+    const BATCH_SIZE = 6; // datamuse rate-limit 고려
+    let done = 0;
+    for (let i = 0; i < wordsToFetch.length; i += BATCH_SIZE) {
+        const batch = wordsToFetch.slice(i, i + BATCH_SIZE);
+        await Promise.allSettled(batch.map(w => enrichWord(w)));
+        done += batch.length;
+        onProgress(done, wordsToFetch.length);
+        // 브라우저에 프레임 양보 (UI 렉 방지)
+        await new Promise(r => setTimeout(r, 0));
+    }
+}
+
 async function runNLPGrouping() {
     if(words.length < 2) return showToast('비교할 단어가 부족합니다.', 'error');
     document.getElementById('group-container').classList.add('hidden');
     const loadingUI = document.getElementById('group-loading');
+    const progressBar = document.getElementById('nlp-progress-bar');
+    const progressText = document.getElementById('nlp-progress-text');
     loadingUI.classList.remove('hidden'); loadingUI.classList.add('flex');
-    let updated = false, offlineWarning = false;
-    for(let i=0; i<words.length; i++) {
-        let w = words[i];
-        if(!w.nlp || !w.nlp.fetched) {
-            if(!navigator.onLine) { offlineWarning = true; continue; }
-            const didFetch = await enrichWord(w);
-            if(didFetch) updated = true;
-        }
-        document.getElementById('nlp-progress-text').textContent = `${i+1} / ${words.length}`;
-        document.getElementById('nlp-progress-bar').style.width = `${Math.round(((i+1)/words.length)*100)}%`;
+    progressBar.style.width = '0%';
+
+    const needsFetch = words.filter(w => !w.nlp || !w.nlp.fetched);
+    const totalToFetch = needsFetch.length;
+    const alreadyCached = words.length - totalToFetch;
+
+    // 캐시된 단어는 즉시 진행률 반영
+    if (alreadyCached > 0) {
+        progressBar.style.width = `${Math.round(alreadyCached / words.length * 100)}%`;
+        progressText.textContent = `${alreadyCached} / ${words.length} (캐시)`;
     }
-    if(updated) saveData();
+
+    let offlineWarning = !navigator.onLine && needsFetch.length > 0;
+    if (needsFetch.length > 0) {
+        await enrichWordsBatch(needsFetch, (done, total) => {
+            const overall = alreadyCached + done;
+            progressBar.style.width = `${Math.round(overall / words.length * 100)}%`;
+            progressText.textContent = `${overall} / ${words.length}`;
+        });
+        saveData({ skipRender: true, skipCloud: false });
+    } else {
+        progressBar.style.width = '100%';
+        progressText.textContent = `${words.length} / ${words.length}`;
+    }
     if(offlineWarning) showToast("오프라인 상태입니다. 캐싱된 데이터만 활용합니다.", "info");
     function buildCard(title, groupArr) {
         const card = document.createElement('div');
@@ -1431,33 +1359,166 @@ async function runNLPGrouping() {
         card.innerHTML = `<div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-700"><h4 class="text-base font-black text-white flex items-center gap-2 truncate pr-2">${title}</h4><span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span></div><div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>`;
         return card;
     }
+    // ── 어근 그룹: 정확도 개선 ──
+    // 기존: getStem이 너무 공격적 (e.g., "create"→"creat", "creative"→"creat" → 맞음)
+    // 개선: 어근이 3자 미만이거나 불규칙 동사 등 의미없는 매칭 필터링
+    //       + 어근 일치 외에도 실제 단어 포함 관계 검증 (false positive 제거)
+    const COMMON_STEMS_BLACKLIST = new Set(['th','wh','be','do','go','ha','re','in','an','on','at','is','it','of','to','by','no','up','us','we','so']);
     let stemGroups = {};
-    words.forEach(w => { if(w.nlp && w.nlp.stem && w.nlp.stem.length >= 3) { if(!stemGroups[w.nlp.stem]) stemGroups[w.nlp.stem] = []; stemGroups[w.nlp.stem].push(w); } });
+    words.forEach(w => {
+        if (!w.nlp) return;
+        const stem = w.nlp.stem;
+        if (!stem || stem.length < 4) return;               // 3자 이하 어근 제외
+        if (COMMON_STEMS_BLACKLIST.has(stem)) return;        // 의미없는 접두 제외
+        // 어근이 실제로 단어에 포함되는지 검증 (false positive 방지)
+        if (!w.en.toLowerCase().startsWith(stem) && !w.en.toLowerCase().includes(stem)) return;
+        if (!stemGroups[stem]) stemGroups[stem] = [];
+        stemGroups[stem].push(w);
+    });
+    // 추가: simMatrix 기반 의미 유사도 높은 단어도 한국어 의미 그룹으로 묶기
+    const SIM_GROUP_THRESHOLD = 35; // 35% 이상 유사하면 같은 의미 그룹
+    let simGroups = {};
+    words.forEach(w => {
+        const simRow = simMatrix[w.id] || {};
+        words.forEach(other => {
+            if (other.id === w.id) return;
+            const sim = simRow[other.id] || 0;
+            if (sim >= SIM_GROUP_THRESHOLD && sim < SIM_DUP) {
+                // 두 단어 중 더 작은 ID를 키로 사용
+                const key = Math.min(w.id, other.id) + '_' + Math.max(w.id, other.id);
+                if (!simGroups[key]) simGroups[key] = new Set([w, other]);
+                else { simGroups[key].add(w); simGroups[key].add(other); }
+            }
+        });
+    });
+    // simGroups를 Union-Find로 병합 (연결 컴포넌트)
+    const simUfParent = new Map(words.map(w => [w.id, w.id]));
+    function simUfFind(id) { if (simUfParent.get(id) !== id) simUfParent.set(id, simUfFind(simUfParent.get(id))); return simUfParent.get(id); }
+    Object.values(simGroups).forEach(pair => {
+        const arr = [...pair];
+        for (let i = 1; i < arr.length; i++) simUfParent.set(simUfFind(arr[i].id), simUfFind(arr[0].id));
+    });
+    const koMeanGroups = new Map();
+    words.forEach(w => {
+        const root = simUfFind(w.id);
+        const comp = words.filter(x => simUfFind(x.id) === root);
+        if (comp.length > 1) koMeanGroups.set(root, comp);
+    });
+
     const stemGrid = document.getElementById('nlp-stem-grid');
     stemGrid.innerHTML = '';
     let stemFound = false;
-    Object.keys(stemGroups).forEach(stem => { if(stemGroups[stem].length > 1) { stemGrid.appendChild(buildCard(`어근 [ ${stem} ]`, stemGroups[stem])); stemFound = true; } });
+    Object.keys(stemGroups).forEach(stem => {
+        if (stemGroups[stem].length > 1) {
+            stemGrid.appendChild(buildCard(`어근 [ ${stem}- ]`, stemGroups[stem]));
+            stemFound = true;
+        }
+    });
+    // 한국어 의미 유사 그룹 추가 표시
+    koMeanGroups.forEach((group, rootId) => {
+        // 어근 그룹과 겹치지 않는 새로운 그룹만 추가
+        const rootWord = words.find(w => w.id === rootId);
+        if (rootWord) {
+            stemGrid.appendChild(buildCard(`🇰🇷 의미 유사 그룹 (${rootWord.ko} 계열)`, group));
+            stemFound = true;
+        }
+    });
     if(!stemFound) stemGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">같은 어근을 공유하는 단어가 없습니다.</p>';
+    // ── 접두사 그룹: 정확도 개선 ──
+    // 기존: prefix 일치만 확인 → false positive (e.g., "remark"≠"re-mark")
+    // 개선: 접두사 제거 후 남은 어간이 2자 이상이고 실제 영어 단어처럼 보이는지 검증
+    const VOWELS = new Set('aeiou');
+    function isLikelyWord(s) {
+        // 2자 이상이고 모음이 1개 이상 포함되어야 영어 어간으로 인정
+        return s.length >= 2 && [...s].some(c => VOWELS.has(c));
+    }
     let prefixGroups = {};
-    words.forEach(w => { if(w.nlp && w.nlp.prefix) { let pkey = w.nlp.prefix.p; if(!prefixGroups[pkey]) prefixGroups[pkey] = { title: `${pkey}- (${w.nlp.prefix.m})`, arr: [] }; prefixGroups[pkey].arr.push(w); } });
+    words.forEach(w => {
+        if (!w.nlp || !w.nlp.prefix) return;
+        const prefix = w.nlp.prefix;
+        const stem = w.en.toLowerCase().slice(prefix.p.length);
+        if (!isLikelyWord(stem)) return; // false positive 필터
+        const pkey = prefix.p;
+        if (!prefixGroups[pkey]) prefixGroups[pkey] = { title: `${prefix.p}- (${prefix.m})`, arr: [] };
+        prefixGroups[pkey].arr.push(w);
+    });
     const prefixGrid = document.getElementById('nlp-prefix-grid');
     prefixGrid.innerHTML = '';
     let prefixFound = false;
-    Object.keys(prefixGroups).forEach(pk => { if(prefixGroups[pk].arr.length > 1) { prefixGrid.appendChild(buildCard(prefixGroups[pk].title, prefixGroups[pk].arr)); prefixFound = true; } });
+    // 2개 이상 + 어군 크기 순 정렬
+    Object.entries(prefixGroups)
+        .filter(([, v]) => v.arr.length > 1)
+        .sort(([, a], [, b]) => b.arr.length - a.arr.length)
+        .forEach(([, v]) => { prefixGrid.appendChild(buildCard(v.title, v.arr)); prefixFound = true; });
     if(!prefixFound) prefixGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">공통 접두사를 가진 단어가 없습니다.</p>';
-    let synAntGroups = [], unassigned = [...words];
-    while(unassigned.length > 0) {
-        let current = unassigned.shift(), group = [current], i = 0;
-        while(i < unassigned.length) {
-            let cand = unassigned[i];
-            let isConnected = group.some(g => { if(!g.nlp || !cand.nlp) return false; const inSyn = (g.nlp.syn || []).includes(cand.en.toLowerCase()) || (cand.nlp.syn || []).includes(g.en.toLowerCase()); const inAnt = (g.nlp.ant || []).includes(cand.en.toLowerCase()) || (cand.nlp.ant || []).includes(g.en.toLowerCase()); return inSyn || inAnt; });
-            if(isConnected) { group.push(cand); unassigned.splice(i, 1); } else i++;
-        }
-        if(group.length > 1) synAntGroups.push(group);
+    // ── 유의어/반의어 그래프 — Union-Find로 정확한 연결 컴포넌트 추출 ──
+    // 기존: shift() 기반 그리디 → 노드 순서에 따라 그룹이 달라지는 버그
+    // 개선: Union-Find로 모든 엣지를 먼저 처리 후 컴포넌트 추출 (순서 무관)
+    const ufParent = new Map(words.map(w => [w.id, w.id]));
+    function ufFind(id) {
+        if (ufParent.get(id) !== id) ufParent.set(id, ufFind(ufParent.get(id)));
+        return ufParent.get(id);
     }
+    function ufUnion(a, b) { ufParent.set(ufFind(a), ufFind(b)); }
+
+    // 엣지 판별: 양방향 유의어/반의어 확인 (단방향만 있어도 연결)
+    for (let i = 0; i < words.length; i++) {
+        for (let j = i + 1; j < words.length; j++) {
+            const a = words[i], b = words[j];
+            if (!a.nlp || !b.nlp) continue;
+            const aen = a.en.toLowerCase(), ben = b.en.toLowerCase();
+            const aSyn = a.nlp.syn || [], aAnt = a.nlp.ant || [];
+            const bSyn = b.nlp.syn || [], bAnt = b.nlp.ant || [];
+            const connected =
+                aSyn.includes(ben) || bSyn.includes(aen) ||
+                aAnt.includes(ben) || bAnt.includes(aen);
+            if (connected) ufUnion(a.id, b.id);
+        }
+    }
+    // 컴포넌트 수집
+    const synAntMap = new Map();
+    words.forEach(w => {
+        const root = ufFind(w.id);
+        if (!synAntMap.has(root)) synAntMap.set(root, []);
+        synAntMap.get(root).push(w);
+    });
+    const synAntGroups = [...synAntMap.values()].filter(g => g.length > 1);
+
+    // 그룹 내 각 단어의 관계 타입 표시 (유의어 / 반의어 구분)
+    function getRelationType(a, b) {
+        const aen = a.en.toLowerCase(), ben = b.en.toLowerCase();
+        const isSyn = (a.nlp?.syn||[]).includes(ben) || (b.nlp?.syn||[]).includes(aen);
+        const isAnt = (a.nlp?.ant||[]).includes(ben) || (b.nlp?.ant||[]).includes(aen);
+        if (isSyn && isAnt) return '유의+반의';
+        if (isSyn) return '유의어';
+        if (isAnt) return '반의어';
+        return '간접';
+    }
+
+    // 그룹 카드: 관계 타입 뱃지 추가
+    function buildSynAntCard(title, groupArr) {
+        const card = document.createElement('div');
+        card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
+        // 그룹 내 관계 요약
+        let relSummary = '';
+        const hasSyn = groupArr.some((w,i) => groupArr.slice(i+1).some(w2 => (w.nlp?.syn||[]).includes(w2.en.toLowerCase()) || (w2.nlp?.syn||[]).includes(w.en.toLowerCase())));
+        const hasAnt = groupArr.some((w,i) => groupArr.slice(i+1).some(w2 => (w.nlp?.ant||[]).includes(w2.en.toLowerCase()) || (w2.nlp?.ant||[]).includes(w.en.toLowerCase())));
+        if (hasSyn) relSummary += '<span class="text-[10px] font-black bg-purple-900/50 text-purple-300 border border-purple-700 px-2 py-0.5 rounded-full">유의어 포함</span> ';
+        if (hasAnt) relSummary += '<span class="text-[10px] font-black bg-rose-900/50 text-rose-300 border border-rose-700 px-2 py-0.5 rounded-full">반의어 포함</span>';
+        let chipsHtml = groupArr.map(w => `<span class="chip bg-gray-900 text-indigo-300 border border-gray-700 hover:bg-gray-800" onclick="openAnalysis(${w.id})" title="클릭하여 상세 분석">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span></span>`).join('');
+        card.innerHTML = `
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700">
+                <h4 class="text-base font-black text-white truncate pr-2">${title}</h4>
+                <span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span>
+            </div>
+            <div class="flex gap-1.5 mb-3">${relSummary}</div>
+            <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>`;
+        return card;
+    }
+
     const synantGrid = document.getElementById('nlp-synant-grid');
     synantGrid.innerHTML = synAntGroups.length ? '' : '<p class="text-gray-500 font-bold text-sm">유의어/반의어로 묶이는 단어가 없습니다.</p>';
-    synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => { synantGrid.appendChild(buildCard(`상호 연결된 그물망 ${idx+1}`, g)); });
+    synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => { synantGrid.appendChild(buildSynAntCard(`의미 연결망 ${idx+1}`, g)); });
     loadingUI.classList.add('hidden'); loadingUI.classList.remove('flex');
     document.getElementById('group-container').classList.remove('hidden'); document.getElementById('group-container').classList.add('flex');
 }
@@ -1472,18 +1533,65 @@ function renderAnalysisDD(q=''){const dd=document.getElementById('analysis-dropd
 function selectAnalysisWord(w){if(!w)return;analysisWord=w;document.getElementById('analysis-search').value='';document.getElementById('analysis-dropdown').classList.add('hidden');document.getElementById('analysis-word-en-display').textContent=w.en;document.getElementById('analysis-word-ko-display').textContent=w.ko;document.getElementById('analysis-selected-word').classList.remove('hidden');runAnalysis(w);}
 function clearAnalysisWord(){analysisWord=null;document.getElementById('analysis-selected-word').classList.add('hidden');document.getElementById('analysis-result').classList.add('hidden');document.getElementById('analysis-loading').classList.add('hidden');document.getElementById('analysis-placeholder').classList.remove('hidden');}
 
+// 분석 결과 메모리 캐시 (같은 세션 내 재방문 시 즉시 표시)
+const _analysisCache = new Map();
+
 async function runAnalysis(w){
   document.getElementById('analysis-placeholder').classList.add('hidden');
   document.getElementById('analysis-result').classList.add('hidden');
   document.getElementById('analysis-loading').classList.remove('hidden');
-  const fetchDM = async (p) => fetch(`https://api.datamuse.com/words?${p}`).then(r=>r.json()).catch(()=>[]);
-  const[dictData, syn1, syn2, ants, rel1, rel2, col1, col2, col3, col4] = await Promise.all([
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${w.en}`).then(r=>r.ok?r.json():null).then(d=>Array.isArray(d)?d[0]:null).catch(()=>null),
-    fetchDM(`rel_syn=${w.en}&max=15`), fetchDM(`ml=${w.en}&max=15`), fetchDM(`rel_ant=${w.en}&max=15`), fetchDM(`rel_trg=${w.en}&max=15`),
-    fetchDM(`rel_spc=${w.en}&max=10`), fetchDM(`rel_jja=${w.en}&max=10`), fetchDM(`rel_jjb=${w.en}&max=10`), fetchDM(`rel_bga=${w.en}&max=10`), fetchDM(`rel_bgb=${w.en}&max=10`)
+
+  // ── 캐시 히트: 로딩 없이 즉시 렌더 ──
+  if (_analysisCache.has(w.en)) {
+    document.getElementById('analysis-loading').classList.add('hidden');
+    document.getElementById('analysis-result').classList.remove('hidden');
+    const cached = _analysisCache.get(w.en);
+    _renderAnalysisResult(w, ...cached);
+    return;
+  }
+
+  const fetchDM = async (p) => {
+    try {
+      const r = await fetch(`https://api.datamuse.com/words?${p}`);
+      return r.ok ? r.json() : [];
+    } catch { return []; }
+  };
+
+  // ── 1단계: 핵심 데이터 (사전 + 명확한 유의어/반의어) ──
+  const [dictData, synExact, antExact] = await Promise.all([
+    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.en)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => Array.isArray(d) ? d[0] : null)
+      .catch(() => null),
+    fetchDM(`rel_syn=${encodeURIComponent(w.en)}&max=20`),  // 명확한 유의어 (WordNet)
+    fetchDM(`rel_ant=${encodeURIComponent(w.en)}&max=15`),  // 명확한 반의어 (WordNet)
   ]);
+
+  // 1단계 즉시 표시
   document.getElementById('analysis-loading').classList.add('hidden');
   document.getElementById('analysis-result').classList.remove('hidden');
+
+  // ── 2단계: 연관어/콜로케이션 (백그라운드) ──
+  // rel_trg: 연상 단어, rel_spc: 상위 개념, rel_gen: 하위 개념
+  // rel_jja: 수식 형용사, rel_jjb: 형용사가 수식하는 명사
+  // rel_bga/bgb: bigram 전후 (콜로케이션)
+  // ml=: means-like 제거 → 의미상 부정확한 결과가 많아 노이즈 발생
+  const [relTrg, relSpc, relGen, colAdj, colNoun, colBefore, colAfter] = await Promise.all([
+    fetchDM(`rel_trg=${encodeURIComponent(w.en)}&max=15`),
+    fetchDM(`rel_spc=${encodeURIComponent(w.en)}&max=10`),
+    fetchDM(`rel_gen=${encodeURIComponent(w.en)}&max=10`),
+    fetchDM(`rel_jja=${encodeURIComponent(w.en)}&max=10`),
+    fetchDM(`rel_jjb=${encodeURIComponent(w.en)}&max=10`),
+    fetchDM(`rel_bga=${encodeURIComponent(w.en)}&max=10`),
+    fetchDM(`rel_bgb=${encodeURIComponent(w.en)}&max=10`),
+  ]);
+
+  const cacheVal = [dictData, synExact, antExact, relTrg, relSpc, relGen, colAdj, colNoun, colBefore, colAfter];
+  _analysisCache.set(w.en, cacheVal);
+  _renderAnalysisResult(w, ...cacheVal);
+}
+
+async function _renderAnalysisResult(w, dictData, synExact, antExact, relTrg, relSpc, relGen, colAdj, colNoun, colBefore, colAfter) {
   document.getElementById('ar-word').textContent=w.en;
   let dictSyns=[], dictAnts=[];
   const examplesEl = document.getElementById('ar-examples');
@@ -1559,15 +1667,19 @@ async function runAnalysis(w){
     });
   }
   const mergeWords=(...arrays)=>{const map=new Map();arrays.flat().forEach(item=>{if(item&&item.word&&item.word.toLowerCase()!==w.en.toLowerCase()){map.set(item.word.toLowerCase(),item);}});return Array.from(map.values());};
-  renderChips('ar-synonyms',mergeWords(dictSyns,syn1,syn2).slice(0,20),'chip-syn');
-  renderChips('ar-antonyms',mergeWords(dictAnts,ants).slice(0,15),'chip-ant');
-  renderChips('ar-related',mergeWords(rel1,rel2).slice(0,20),'chip-rel');
-  renderChips('ar-collocations',mergeWords(col1,col2,col3,col4).slice(0,20),'chip-freq');
+  // synExact + 사전 유의어 병합 (정확도 높은 소스 우선)
+  renderChips('ar-synonyms', mergeWords(dictSyns, synExact).slice(0,20), 'chip-syn');
+  // antExact + 사전 반의어 (모두 WordNet 기반 → 신뢰도 높음)
+  renderChips('ar-antonyms', mergeWords(dictAnts, antExact).slice(0,15), 'chip-ant');
+  // 연상어 + 상위/하위 개념 (의미망 기반 연관어)
+  renderChips('ar-related', mergeWords(relTrg, relSpc, relGen).slice(0,20), 'chip-rel');
+  // bigram 콜로케이션 + 형용사-명사 관계 (실제 용례 기반)
+  renderChips('ar-collocations', mergeWords(colBefore, colAfter, colAdj, colNoun).slice(0,20), 'chip-freq');
   const recs=[...newCands].slice(0,25);
   document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm font-bold text-gray-500">추천할 새 단어가 없습니다.</span>';
   const scrollContainer=document.getElementById('analysis-result').parentElement;
   if(scrollContainer)scrollContainer.scrollTop=0;
-}
+} // end _renderAnalysisResult
 function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();}
 
 // ==============================
