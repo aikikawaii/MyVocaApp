@@ -6,7 +6,6 @@
 <title>나만의 영단어장</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  /* 모바일 기본 터치 하이라이트 제거 (앱 같은 느낌) */
   * { -webkit-tap-highlight-color: transparent; }
 
   .fade-in { animation: fadeIn 0.3s ease; }
@@ -15,19 +14,208 @@
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   
-  /* 공통 터치/클릭 피드백 애니메이션 (쫀득한 느낌) */
   .active-bounce { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.15s ease, background-color 0.15s ease; }
   .active-bounce:active { transform: scale(0.94) !important; filter: brightness(1.2); }
 
-  /* 사지선다 버튼 전용 애니메이션 */
-  .game-btn { transition: transform 0.2s, filter 0.2s, background-color 0.2s, border-color 0.2s; }
-  .game-btn:active { transform: scale(0.95); filter: brightness(1.1); }
+  /* ===== 🎯 완전히 새로워진 사지선다 버튼 시스템 ===== */
+  .game-btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 0.18s ease,
+                border-color 0.15s ease,
+                background-color 0.15s ease;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
   
-  /* 정답/오답 컬러 */
-  .correct-answer { background: #059669 !important; color: #fff !important; border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3) !important; }
-  .wrong-answer { background: #e11d48 !important; color: #fff !important; border-color: #f43f5e !important; box-shadow: 0 0 15px rgba(244, 63, 94, 0.3) !important; }
+  /* 기본 호버 */
+  .game-btn:not(:disabled):hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+    border-color: rgba(99, 102, 241, 0.5) !important;
+  }
   
-  /* 칩(Chip) 컬러 */
+  /* 클릭 압축 효과 */
+  .game-btn:not(:disabled):active {
+    transform: scale(0.95) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  
+  /* 클릭 파문 효과 */
+  .game-btn .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(0);
+    animation: ripple-expand 0.5s linear;
+    pointer-events: none;
+  }
+  @keyframes ripple-expand {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* 정답 효과 */
+  .game-btn.correct-answer {
+    background: linear-gradient(135deg, #059669, #10b981) !important;
+    color: #fff !important;
+    border-color: #34d399 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.4) !important;
+    animation: correctPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  }
+  @keyframes correctPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.07); }
+    70%  { transform: scale(0.97); }
+    100% { transform: scale(1.03); }
+  }
+
+  /* 오답 효과 */
+  .game-btn.wrong-answer {
+    background: linear-gradient(135deg, #be123c, #e11d48) !important;
+    color: #fff !important;
+    border-color: #f43f5e !important;
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.3), 0 0 40px rgba(244, 63, 94, 0.4) !important;
+    animation: wrongShake 0.45s ease forwards !important;
+  }
+  @keyframes wrongShake {
+    0%   { transform: translateX(0); }
+    15%  { transform: translateX(-8px) rotate(-1deg); }
+    30%  { transform: translateX(8px) rotate(1deg); }
+    45%  { transform: translateX(-6px); }
+    60%  { transform: translateX(6px); }
+    75%  { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* 정답지 하이라이트 (오답 선택 시 정답 표시) */
+  .game-btn.reveal-correct {
+    background: linear-gradient(135deg, #059669, #10b981) !important;
+    color: #fff !important;
+    border-color: #34d399 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.4) !important;
+    animation: correctPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both !important;
+  }
+
+  /* 흐려지는 버튼 (선택 안된 다른 보기) */
+  .game-btn.dimmed {
+    opacity: 0.35;
+    transform: scale(0.97);
+    filter: grayscale(0.5);
+  }
+
+  /* ===== 화면 플래시 오버레이 ===== */
+  #quiz-flash-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0;
+    border-radius: inherit;
+  }
+  #quiz-flash-overlay.flash-correct {
+    background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+    animation: flashAnim 0.5s ease-out forwards;
+  }
+  #quiz-flash-overlay.flash-wrong {
+    background: radial-gradient(ellipse at center, rgba(244, 63, 94, 0.25) 0%, transparent 70%);
+    animation: flashAnim 0.5s ease-out forwards;
+  }
+  @keyframes flashAnim {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* ===== 파티클 컨테이너 ===== */
+  #quiz-particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 998;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: particleFly var(--dur) ease-out forwards;
+  }
+  @keyframes particleFly {
+    0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  }
+
+  /* ===== 점수 팝업 ===== */
+  .score-popup {
+    position: fixed;
+    font-size: 2.5rem;
+    font-weight: 900;
+    pointer-events: none;
+    z-index: 1000;
+    animation: scoreFloat 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+  @keyframes scoreFloat {
+    0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+    20%  { transform: translateY(-10px) scale(1.3); opacity: 1; }
+    80%  { transform: translateY(-60px) scale(1); opacity: 1; }
+    100% { transform: translateY(-90px) scale(0.8); opacity: 0; }
+  }
+
+  /* ===== 문제 카드 등장 애니메이션 ===== */
+  .quiz-card-enter {
+    animation: cardEnter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes cardEnter {
+    from { opacity: 0; transform: scale(0.92) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ===== 타이머 바 ===== */
+  #quiz-timer-bar-wrap {
+    height: 5px;
+    background: rgba(55, 65, 81, 0.8);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    flex-shrink: 0;
+  }
+  #quiz-timer-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.1s linear, background-color 0.3s ease;
+    background: linear-gradient(90deg, #6366f1, #a78bfa);
+  }
+  #quiz-timer-bar.warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  #quiz-timer-bar.danger  { background: linear-gradient(90deg, #ef4444, #f87171); animation: timerPulse 0.5s ease infinite; }
+  @keyframes timerPulse { 0%,100%{ opacity:1; } 50%{ opacity:0.6; } }
+
+  /* ===== 콤보 표시 ===== */
+  #quiz-combo {
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-variant-numeric: tabular-nums;
+  }
+  .combo-pop {
+    animation: comboPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes comboPop {
+    0%  { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100%{ transform: scale(1); }
+  }
+
+  /* ===== 단어 카드 내 이모지 폭발 ===== */
+  .result-emoji {
+    animation: emojiPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: inline-block;
+  }
+  @keyframes emojiPop {
+    from { transform: scale(0) rotate(-20deg); }
+    to   { transform: scale(1) rotate(0); }
+  }
+
+  /* ===== 기존 스타일 유지 ===== */
   .chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 9999px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid transparent; position: relative; }
   .chip:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
   .chip:active { transform: scale(0.95); }
@@ -38,87 +226,62 @@
   .chip-freq { background: #422006; color: #fef08a; border-color: #854d0e; }
   .chip-new { background: #082f49; color: #bae6fd; border-color: #0c4a6e; }
 
-  /* 호버 툴팁 */
-  .chip-tooltip {
-    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
-    background: #e0e7ff; color: #312e81; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
-    padding: 4px 10px; border-radius: 8px; pointer-events: none;
-    opacity: 0; transition: opacity 0.15s; z-index: 50; letter-spacing: 0.01em;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  }
-  .chip-tooltip::after {
-    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-    border: 5px solid transparent; border-top-color: #e0e7ff;
-  }
+  .chip-tooltip { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #e0e7ff; color: #312e81; font-size: 0.72rem; font-weight: 700; white-space: nowrap; padding: 4px 10px; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 50; letter-spacing: 0.01em; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  .chip-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #e0e7ff; }
   .chip:hover .chip-tooltip, .chip.force-tooltip .chip-tooltip { opacity: 1; }
   .chip-tooltip.loading { color: #818cf8; }
   
-  /* skeleton */
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   .skeleton { animation: pulse 1.5s infinite; background: rgba(55, 65, 81, 0.5); border-radius: 8px; }
   .origin-left { transform-origin: left center; }
   .text-center-last { text-align-last: center; }
 
-  /* 통계 잔디 컬러 레벨 */
   .grass-0 { background-color: rgba(31, 41, 55, 0.6); border: 1px solid rgba(55, 65, 81, 0.4); } 
   .grass-1 { background-color: #064e3b; border: 1px solid #065f46; box-shadow: 0 0 5px rgba(6, 78, 59, 0.3); } 
   .grass-2 { background-color: #047857; border: 1px solid #059669; box-shadow: 0 0 8px rgba(4, 120, 87, 0.4); } 
   .grass-3 { background-color: #10b981; border: 1px solid #34d399; box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); } 
   .grass-4 { background-color: #34d399; border: 1px solid #6ee7b7; box-shadow: 0 0 15px rgba(52, 211, 153, 0.6); }
 
-  /* ✨ 정갈해진 네온/글래스모피즘 시스템 (Windows 렉 유발 backdrop-filter 제거, transition 최적화) ✨ */
-  .neon-card {
-    background-color: rgba(31, 41, 55, 0.95); /* 배경을 조금 더 불투명하게 */
-    border: 1px solid rgba(99, 102, 241, 0.15) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: border-color 0.25s, background-color 0.25s, box-shadow 0.25s, transform 0.25s;
-  }
-  .neon-card:hover {
-    border-color: rgba(99, 102, 241, 0.5) !important;
-    background-color: rgba(31, 41, 55, 1);
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15);
-  }
+  .neon-card { background-color: rgba(31, 41, 55, 0.95); border: 1px solid rgba(99, 102, 241, 0.15) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: border-color 0.25s, background-color 0.25s, box-shadow 0.25s, transform 0.25s; }
+  .neon-card:hover { border-color: rgba(99, 102, 241, 0.5) !important; background-color: rgba(31, 41, 55, 1); box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15); }
+  .neon-card-emerald { background-color: rgba(31, 41, 55, 0.95); border: 1px solid rgba(16, 185, 129, 0.15) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s; }
+  .neon-card-emerald:hover { border-color: rgba(16, 185, 129, 0.5) !important; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15); }
+  .neon-card-rose { background-color: rgba(31, 41, 55, 0.95); border: 1px solid rgba(225, 29, 72, 0.15) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s; }
+  .neon-card-rose:hover { border-color: rgba(225, 29, 72, 0.5) !important; box-shadow: 0 4px 20px rgba(225, 29, 72, 0.15); }
+  .neon-card-amber { background-color: rgba(31, 41, 55, 0.95); border: 1px solid rgba(245, 158, 11, 0.15) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s; }
+  .neon-card-amber:hover { border-color: rgba(245, 158, 11, 0.5) !important; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); }
 
-  .neon-card-emerald {
-    background-color: rgba(31, 41, 55, 0.95);
-    border: 1px solid rgba(16, 185, 129, 0.15) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  /* ===== 퀴즈 결과 카드 임팩트 ===== */
+  .quiz-result-card {
+    animation: resultReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
-  .neon-card-emerald:hover {
-    border-color: rgba(16, 185, 129, 0.5) !important;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
-  }
-
-  .neon-card-rose {
-    background-color: rgba(31, 41, 55, 0.95);
-    border: 1px solid rgba(225, 29, 72, 0.15) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
-  }
-  .neon-card-rose:hover {
-    border-color: rgba(225, 29, 72, 0.5) !important;
-    box-shadow: 0 4px 20px rgba(225, 29, 72, 0.15);
-  }
-
-  .neon-card-amber {
-    background-color: rgba(31, 41, 55, 0.95);
-    border: 1px solid rgba(245, 158, 11, 0.15) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
-  }
-  .neon-card-amber:hover {
-    border-color: rgba(245, 158, 11, 0.5) !important;
-    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+  @keyframes resultReveal {
+    from { transform: scale(0.8) translateY(20px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
   }
   
+  /* 별 애니메이션 */
+  .star-burst {
+    position: absolute;
+    font-size: 1.5rem;
+    animation: starBurst 1s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes starBurst {
+    0%   { transform: scale(0) rotate(0); opacity: 1; }
+    50%  { transform: scale(1.5) rotate(180deg); opacity: 1; }
+    100% { transform: scale(0.5) rotate(360deg) translateY(-60px); opacity: 0; }
+  }
 </style>
 </head>
 <body class="bg-gray-950 text-gray-200 font-sans h-screen w-screen flex items-center justify-center p-2 sm:p-6 overflow-hidden relative">
-  <!-- 은은하고 심플한 배경 그래디언트 -->
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-gray-950 to-gray-950 pointer-events-none"></div>
 
-<!-- 💡 성능 저하의 원인인 backdrop-blur 제거 및 단색 배경 지정 -->
+  <!-- 화면 플래시 오버레이 (전역) -->
+  <div id="quiz-flash-overlay"></div>
+  <!-- 파티클 레이어 (전역) -->
+  <div id="quiz-particles"></div>
+
 <div class="w-full max-w-7xl h-full max-h-[96vh] min-h-[700px] bg-gray-900 shadow-2xl rounded-3xl flex flex-col overflow-hidden border border-gray-800 relative z-10">
 
 <!-- 헤더 -->
@@ -153,12 +316,10 @@
   <div class="flex flex-col sm:flex-row justify-between items-center mb-3 gap-4 text-sm px-2 flex-shrink-0 z-10">
     <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
       <span class="font-bold text-gray-400 text-base whitespace-nowrap">총 <span id="word-count" class="text-indigo-400 font-black text-xl">0</span>단어</span>
-      
       <div id="cloud-status" class="text-[11px] font-bold text-gray-400 bg-gray-800 border border-gray-700 shadow-sm px-3 py-1.5 rounded-full flex items-center gap-2 cursor-help transition-all" title="클라우드 동기화 상태">
         <span class="w-2 h-2 rounded-full bg-gray-600 transition-colors duration-300" id="cloud-dot"></span>
         <span id="cloud-status-text">로컬 연결 중...</span>
       </div>
-
       <select id="sort-select" onchange="currentPage=1;renderWords()" class="bg-gray-800 border border-gray-700 text-gray-300 py-1.5 px-3 rounded-lg focus:outline-none focus:border-indigo-500 font-bold cursor-pointer transition-colors">
         <option value="newest">최신순</option>
         <option value="wrongCount">오답순</option>
@@ -182,11 +343,10 @@
     <button onclick="changePage(-1)" id="btn-prev" class="active-bounce flex items-center justify-center w-12 h-12 bg-gray-800 text-indigo-400 rounded-full border border-gray-700 hover:border-indigo-500 hover:text-indigo-300 disabled:opacity-30 transition-colors shadow-sm">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
     </button>
-    
     <div class="relative group z-20">
       <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur-sm opacity-30 group-hover:opacity-60 transition duration-300"></div>
       <div class="relative flex items-center bg-gray-900 rounded-full">
-          <select id="page-select" onchange="jumpToPage(this.value)" title="페이지 이동" class="appearance-none text-sm sm:text-base text-indigo-100 font-black bg-transparent px-8 sm:px-12 py-2.5 rounded-full border border-gray-700 hover:border-indigo-500 focus:outline-none text-center-last cursor-pointer tracking-widest uppercase transition-colors">
+          <select id="page-select" onchange="jumpToPage(this.value)" class="appearance-none text-sm sm:text-base text-indigo-100 font-black bg-transparent px-8 sm:px-12 py-2.5 rounded-full border border-gray-700 hover:border-indigo-500 focus:outline-none text-center-last cursor-pointer tracking-widest uppercase transition-colors">
             <option value="1">PAGE 1 / 1</option>
           </select>
           <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-indigo-400">
@@ -194,7 +354,6 @@
           </div>
       </div>
     </div>
-
     <button onclick="changePage(1)" id="btn-next" class="active-bounce flex items-center justify-center w-12 h-12 bg-gray-800 text-indigo-400 rounded-full border border-gray-700 hover:border-indigo-500 hover:text-indigo-300 disabled:opacity-30 transition-colors shadow-sm">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" /></svg>
     </button>
@@ -208,7 +367,6 @@
       <div class="text-6xl mb-6">🧠</div>
       <h2 class="text-3xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">플래시카드 학습</h2>
       <p class="text-gray-400 mb-8 text-base font-bold">단어를 보고 뜻을 맞혀보세요.</p>
-      
       <div id="test-intro-main">
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-4">
             <button onclick="startTest('all')"   class="active-bounce flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-500 text-lg border border-indigo-500 shadow-md">전체 무작위 복습 🚀</button>
@@ -216,7 +374,6 @@
           </div>
           <button onclick="showSetSelection()" class="active-bounce w-full bg-gray-800/80 text-indigo-300 font-black py-4 rounded-2xl hover:bg-gray-700 border border-gray-700 hover:border-indigo-500/50 text-lg shadow-sm">50개씩 세트 순서대로 암기 📦</button>
       </div>
-
       <div id="test-intro-sets" class="hidden">
           <h3 class="text-lg font-black text-indigo-300 mb-4 tracking-widest">학습할 세트를 선택하세요</h3>
           <div id="set-list-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-48 overflow-y-auto no-scrollbar mb-5 p-2 border-y border-gray-700 py-4"></div>
@@ -230,7 +387,6 @@
       <div class="bg-gray-800 border border-gray-700 px-5 py-2.5 rounded-full text-base font-black text-gray-300 shadow-sm">진행 <span id="test-progress" class="text-indigo-400">1/10</span></div>
       <div class="bg-gray-800 border border-gray-700 px-5 py-2.5 rounded-full text-base font-black text-gray-300 shadow-sm">✅ <span id="test-score" class="text-emerald-400">0</span></div>
     </div>
-    
     <div class="flex-1 neon-card rounded-[2.5rem] flex flex-col items-center justify-center p-10 mb-6 text-center relative min-h-[300px]">
       <h2 id="test-word-en" class="text-5xl sm:text-7xl font-black text-white mb-10 break-all px-4 tracking-tight">Apple</h2>
       <div class="h-28 flex items-center justify-center w-full">
@@ -238,7 +394,6 @@
         <p id="test-word-ko" class="text-4xl sm:text-5xl font-black text-indigo-400 hidden fade-in break-words px-4">사과</p>
       </div>
     </div>
-    
     <div id="test-actions" class="flex gap-6 hidden pb-4 flex-shrink-0 h-28">
       <button onclick="markAnswer(false)" class="active-bounce flex-1 bg-gray-800 border border-rose-500/30 hover:border-rose-500 text-rose-400 rounded-[2rem] font-black text-xl flex items-center justify-center gap-3 shadow-md"><span class="text-3xl">❌</span>몰랐어요</button>
       <button onclick="markAnswer(true)"  class="active-bounce flex-1 bg-gray-800 border border-emerald-500/30 hover:border-emerald-500 text-emerald-400 rounded-[2rem] font-black text-xl flex items-center justify-center gap-3 shadow-md"><span class="text-3xl">⭕</span>알았어요</button>
@@ -254,14 +409,13 @@
   </div>
 </div>
 
-<!-- ===== 3. 사지선다 ===== -->
+<!-- ===== 3. 사지선다 (완전 개편) ===== -->
 <div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-2xl">
       <div class="text-6xl mb-6">🎯</div>
       <h2 class="text-3xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">무한 사지선다</h2>
       <p class="text-gray-400 mb-10 text-base font-bold">의미 유사도 기반으로 헷갈리는 선지가 구성돼요!</p>
-      
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <button onclick="startQuiz('random')" class="active-bounce flex-1 bg-indigo-600 text-white font-black py-4 sm:py-5 text-lg rounded-2xl hover:bg-indigo-500 border border-indigo-500 shadow-md">완전 무작위 🚀</button>
         <button onclick="startQuiz('wrong')" class="active-bounce flex-1 bg-gray-800 text-rose-400 font-black py-4 sm:py-5 text-lg rounded-2xl hover:bg-gray-700 border border-gray-600 hover:border-rose-500/50 shadow-sm">오답 집중 복습 🎯</button>
@@ -269,30 +423,51 @@
     </div>
   </div>
   
-  <div id="quiz-active" class="flex-1 flex flex-col hidden fade-in max-w-4xl mx-auto w-full h-full">
-    <div class="flex justify-between items-center mb-6 flex-shrink-0">
-      <div class="bg-gray-800 px-5 py-2.5 rounded-full text-base font-black text-gray-300 border border-gray-700 shadow-sm"><span id="quiz-progress" class="text-indigo-400">1번째</span></div>
-      <div class="flex gap-3">
+  <div id="quiz-active" class="flex-1 flex flex-col hidden max-w-4xl mx-auto w-full h-full">
+    <!-- 상단 스탯 바 -->
+    <div class="flex justify-between items-center mb-3 flex-shrink-0">
+      <div class="bg-gray-800 px-5 py-2.5 rounded-full text-base font-black text-gray-300 border border-gray-700 shadow-sm">
+        <span id="quiz-progress" class="text-indigo-400">1번째</span>
+      </div>
+      <div class="flex gap-3 items-center">
+        <!-- 콤보 표시 -->
+        <div id="quiz-combo-wrap" class="hidden bg-gray-800 px-4 py-2 rounded-full border border-amber-500/50 shadow-sm">
+          <span class="text-amber-300 font-black text-sm" id="quiz-combo">🔥 0 콤보</span>
+        </div>
         <div class="bg-gray-800 px-5 py-2.5 rounded-full text-base font-black text-gray-300 border border-gray-700 shadow-sm">✅ <span id="quiz-score" class="text-emerald-400">0</span></div>
         <button onclick="showQuizResult()" class="active-bounce bg-gray-800 text-rose-400 px-5 py-2.5 rounded-full border border-gray-700 hover:border-rose-500/50 text-sm font-black transition-colors shadow-sm">종료</button>
       </div>
     </div>
+
+    <!-- 타이머 바 -->
+    <div id="quiz-timer-bar-wrap">
+      <div id="quiz-timer-bar" style="width: 100%"></div>
+    </div>
     
-    <div class="neon-card rounded-[2.5rem] flex flex-col items-center justify-center py-16 px-6 mb-8 flex-1 max-h-[40vh]">
-      <span class="text-sm font-black text-indigo-400 mb-4 tracking-widest uppercase">어떤 뜻일까요?</span>
+    <!-- 단어 카드 -->
+    <div id="quiz-word-card" class="neon-card rounded-[2.5rem] flex flex-col items-center justify-center py-10 px-6 mb-6 flex-1 max-h-[38vh]">
+      <span class="text-sm font-black text-indigo-400 mb-3 tracking-widest uppercase">어떤 뜻일까요?</span>
       <h2 id="quiz-word-en" class="text-5xl sm:text-6xl font-black text-white text-center break-all tracking-tight">Word</h2>
     </div>
     
+    <!-- 보기 버튼들 -->
     <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-shrink-0 pb-4"></div>
   </div>
   
-  <div id="quiz-result" class="flex-1 flex flex-col items-center justify-center hidden fade-in">
-    <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-xl">
-      <div class="text-7xl mb-6" id="quiz-result-emoji">🏅</div>
-      <h2 class="text-4xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">퀴즈 종료!</h2>
-      <div class="bg-gray-900/80 rounded-3xl p-8 my-8 border border-gray-700 shadow-inner">
-        <div class="text-6xl font-black text-indigo-400"><span id="quiz-final-score">0</span><span class="text-3xl text-gray-600"> / <span id="quiz-total-score">0</span></span></div>
-        <p class="font-bold text-gray-400 mt-4 text-lg" id="quiz-feedback"></p>
+  <!-- 결과 화면 -->
+  <div id="quiz-result" class="flex-1 flex flex-col items-center justify-center hidden">
+    <div class="quiz-result-card neon-card p-10 rounded-[2.5rem] text-center w-full max-w-xl relative overflow-hidden">
+      <div class="text-7xl mb-4 result-emoji" id="quiz-result-emoji">🏅</div>
+      <h2 class="text-4xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">퀴즈 종료!</h2>
+      <div class="bg-gray-900/80 rounded-3xl p-8 my-6 border border-gray-700 shadow-inner">
+        <div class="text-6xl font-black text-indigo-400">
+          <span id="quiz-final-score">0</span>
+          <span class="text-3xl text-gray-600"> / <span id="quiz-total-score">0</span></span>
+        </div>
+        <p class="font-bold text-gray-400 mt-2 text-base" id="quiz-accuracy"></p>
+        <p class="font-black text-lg mt-3" id="quiz-feedback"></p>
+        <!-- 최고 콤보 표시 -->
+        <p class="font-bold text-amber-400 mt-2 text-sm" id="quiz-best-combo"></p>
       </div>
       <button onclick="resetQuizView()" class="active-bounce w-full bg-indigo-600 text-white font-black py-5 text-lg rounded-2xl hover:bg-indigo-500 border border-indigo-500 shadow-md">다시 하기 🔄</button>
     </div>
@@ -310,7 +485,6 @@
         <span class="absolute right-5 top-4 text-xl text-gray-400 z-10">🔍</span>
       </div>
       <div id="analysis-dropdown" class="hidden mt-3 neon-card rounded-2xl max-h-60 overflow-y-auto no-scrollbar absolute w-[calc(100%-2rem)] sm:w-[calc(100%-3rem)] max-w-4xl left-1/2 -translate-x-1/2 z-50"></div>
-      
       <div id="analysis-selected-word" class="hidden mt-5 flex items-center gap-4 neon-card rounded-2xl px-5 py-4">
         <div class="flex-1 flex items-baseline gap-3 min-w-0">
           <span id="analysis-word-en-display" class="text-2xl sm:text-3xl font-black text-indigo-300 break-all tracking-tight"></span>
@@ -320,7 +494,6 @@
       </div>
     </div>
   </div>
-
   <div id="analysis-placeholder" class="flex-1 flex flex-col p-6 sm:p-8 overflow-y-auto no-scrollbar">
     <div class="max-w-xl mx-auto my-auto w-full text-center py-4">
       <div class="text-6xl sm:text-8xl mb-6 opacity-50">🔬</div>
@@ -328,7 +501,6 @@
       <p class="text-base text-gray-400 font-bold leading-relaxed break-keep">유의어 · 반의어 · 연관어 · 발음기호 · 영영정의<br class="hidden sm:block">원어민 예문 3개 · 내 단어장 내 유사도 매칭까지 한눈에 파악하세요.</p>
     </div>
   </div>
-
   <div class="flex-1 overflow-y-auto no-scrollbar relative p-4 sm:p-6">
     <div class="max-w-4xl mx-auto w-full">
       <div id="analysis-loading" class="space-y-6 hidden">
@@ -398,7 +570,6 @@
           <span>NLP 엔진 가동</span> 🚀
       </button>
   </div>
-  
   <div id="group-loading" class="hidden flex-col items-center justify-center py-20 flex-1">
       <div class="relative w-24 h-24 mx-auto mb-8">
           <div class="absolute inset-0 border-4 border-gray-700 rounded-full"></div>
@@ -410,7 +581,6 @@
       </div>
       <p id="nlp-progress-text" class="text-sm font-black text-indigo-400">0 / 0</p>
   </div>
-
   <div id="group-container" class="hidden flex-col gap-10 pb-8 flex-1">
       <section>
           <h3 class="text-xl font-black text-emerald-400 mb-4 px-2 border-l-4 border-emerald-500 ml-1 pl-3">1️⃣ 어근 및 파생어 패밀리 (Lemmatization)</h3>
@@ -436,7 +606,6 @@
       <h2 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400 tracking-tight flex items-center gap-2">학습 통계 📊</h2>
       <p class="text-gray-400 font-bold text-sm mt-1">꾸준한 학습으로 잔디를 푸르게 채워보세요!</p>
   </div>
-
   <div class="max-w-5xl mx-auto w-full space-y-6">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div class="neon-card p-6 rounded-[2rem] text-center flex flex-col justify-center relative overflow-hidden">
@@ -455,7 +624,6 @@
               <div class="text-5xl font-black text-white" id="stat-quizzed">0</div>
           </div>
       </div>
-
       <div class="neon-card-emerald p-6 sm:p-8 rounded-[2rem]">
           <div class="flex justify-between items-end mb-6">
               <div>
@@ -480,7 +648,7 @@
 </div>
 </div><!-- /wrapper -->
 
-<!-- 모달 영역 -->
+<!-- 모달들 -->
 <div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
   <div class="neon-card p-8 w-full max-w-sm mx-4 rounded-[2rem] transform scale-95 transition-transform duration-200" id="delete-modal-content">
     <div class="text-center mb-8"><div class="text-6xl mb-5">🗑️</div><h3 class="text-2xl font-black text-white mb-2 tracking-tight">정말 삭제할까요?</h3></div>
@@ -530,6 +698,117 @@
 </div>
 
 <script>
+// ==============================
+// 🎯 퀴즈 이펙트 시스템
+// ==============================
+const QuizFX = {
+  // 웹 오디오로 효과음 생성
+  ctx: null,
+  getCtx() {
+    if (!this.ctx) {
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+    return this.ctx;
+  },
+
+  playCorrect() {
+    const ctx = this.getCtx(); if (!ctx) return;
+    const t = ctx.currentTime;
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freq;
+      o.type = 'sine';
+      g.gain.setValueAtTime(0, t + i * 0.07);
+      g.gain.linearRampToValueAtTime(0.18, t + i * 0.07 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.25);
+      o.start(t + i * 0.07);
+      o.stop(t + i * 0.07 + 0.25);
+    });
+  },
+
+  playWrong() {
+    const ctx = this.getCtx(); if (!ctx) return;
+    const t = ctx.currentTime;
+    [220, 196].forEach((freq, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freq;
+      o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.15, t + i * 0.12);
+      g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.2);
+      o.start(t + i * 0.12);
+      o.stop(t + i * 0.12 + 0.2);
+    });
+  },
+
+  // 화면 플래시
+  flash(type) {
+    const overlay = document.getElementById('quiz-flash-overlay');
+    overlay.className = '';
+    void overlay.offsetWidth; // reflow
+    overlay.className = type === 'correct' ? 'flash-correct' : 'flash-wrong';
+    setTimeout(() => overlay.className = '', 500);
+  },
+
+  // 파티클 폭발
+  burst(x, y, isCorrect) {
+    const container = document.getElementById('quiz-particles');
+    const colors = isCorrect
+      ? ['#10b981','#34d399','#6ee7b7','#a7f3d0','#fbbf24','#fff']
+      : ['#f43f5e','#fb7185','#fda4af','#e11d48'];
+    
+    for (let i = 0; i < (isCorrect ? 22 : 12); i++) {
+      const p = document.createElement('div');
+      const angle = (i / (isCorrect ? 22 : 12)) * 360;
+      const dist = 60 + Math.random() * 120;
+      const size = 4 + Math.random() * 8;
+      const dur = 0.5 + Math.random() * 0.5;
+      const tx = Math.cos(angle * Math.PI / 180) * dist;
+      const ty = Math.sin(angle * Math.PI / 180) * dist - 50;
+
+      p.className = 'particle';
+      p.style.cssText = `
+        left: ${x}px; top: ${y}px;
+        width: ${size}px; height: ${size}px;
+        background: ${colors[i % colors.length]};
+        --tx: ${tx}px; --ty: ${ty}px;
+        --dur: ${dur}s;
+        animation-delay: ${Math.random() * 0.1}s;
+      `;
+      if (Math.random() > 0.6) p.style.borderRadius = '2px'; // 일부는 사각형
+      container.appendChild(p);
+      setTimeout(() => p.remove(), (dur + 0.2) * 1000);
+    }
+  },
+
+  // 점수 팝업
+  scorePopup(x, y, text, color) {
+    const popup = document.createElement('div');
+    popup.className = 'score-popup';
+    popup.style.cssText = `left:${x}px; top:${y}px; color:${color};`;
+    popup.textContent = text;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 1000);
+  },
+
+  // 리플 효과
+  ripple(btn, e) {
+    const rect = btn.getBoundingClientRect();
+    const r = document.createElement('span');
+    const size = Math.max(rect.width, rect.height);
+    const x = (e.clientX || rect.left + rect.width/2) - rect.left - size/2;
+    const y = (e.clientY || rect.top + rect.height/2) - rect.top - size/2;
+    r.className = 'ripple';
+    r.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  }
+};
+
+// ==============================
+// 기존 유틸 코드
+// ==============================
 let transCache = {};
 try { transCache = JSON.parse(localStorage.getItem('myWordbook_transCache') || '{}'); } catch(e) { transCache = {}; }
 function saveTransCache() { localStorage.setItem('myWordbook_transCache', JSON.stringify(transCache)); }
@@ -541,11 +820,7 @@ async function getTranslationSafe(word) {
         const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(word)}`);
         const data = await res.json();
         const meaning = data[0][0][0];
-        if (meaning) {
-            transCache[lw] = meaning;
-            saveTransCache();
-            return meaning;
-        }
+        if (meaning) { transCache[lw] = meaning; saveTransCache(); return meaning; }
     } catch (e) { return '번역 실패'; }
     return '뜻 정보 없음';
 }
@@ -553,14 +828,17 @@ async function getTranslationSafe(word) {
 const ALL_TABS = ['manage', 'test', 'quiz', 'analysis', 'group', 'stats'];
 
 let words=[], currentPage=1;
-const IPP=12; 
+const IPP=12;
 
-// 💡 퀴즈 모드 변수 추가
+// 퀴즈 상태
 let quizQ=0, quizS=0, quizAnswered=0, quizWord=null, quizQueue=[], quizIdx=0, quizTimer=null;
-let quizMode = 'random'; // 'random' or 'wrong'
+let quizMode = 'random';
 let quizPool = [];
+let quizCombo = 0, quizBestCombo = 0; // 콤보 시스템
+let quizTimerInterval = null;          // 타이머 인터벌
+let quizTimeLeft = 100;                // 타이머 퍼센트
 
-let testQueue=[],testPool=[],testIdx=0,testCorrect=0,testMode='all'; 
+let testQueue=[],testPool=[],testIdx=0,testCorrect=0,testMode='all';
 let analysisWord=null,audioUrl=null;
 const SIM_DUP=75,SIM_CONF=50;
 let simMatrix={},confMatrix={};
@@ -571,20 +849,15 @@ function resizeAllTexts() {
     document.querySelectorAll('.word-en-container').forEach(container => {
         const text = container.querySelector('.word-en-text');
         if (!text) return;
-        text.style.transform = 'scale(1)'; 
+        text.style.transform = 'scale(1)';
         const containerWidth = container.clientWidth;
         const textWidth = text.scrollWidth;
         if (textWidth > containerWidth && containerWidth > 0) {
-            const scale = containerWidth / textWidth;
-            text.style.transform = `scale(${scale})`;
+            text.style.transform = `scale(${containerWidth / textWidth})`;
         }
     });
 }
-// 리사이즈 성능 최적화 (Debounce 적용)
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resizeAllTexts, 100);
-});
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resizeAllTexts, 100); });
 
 function showToast(msg,type='info'){
   const t=document.createElement('div');
@@ -610,11 +883,11 @@ function saveData(){
   localStorage.setItem('myWordbook',JSON.stringify(words));
   localStorage.setItem('myActivity', JSON.stringify(activityLog));
   renderWords();
-  if(window.triggerCloudSave) window.triggerCloudSave({words, activityLog}); 
+  if(window.triggerCloudSave) window.triggerCloudSave({words, activityLog});
 }
 
 function logActivity(type) {
-    const today = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,''); 
+    const today = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
     if(!activityLog[today]) { activityLog[today] = { added: 0, tested: 0, quizzed: 0 }; }
     activityLog[today][type] = (activityLog[today][type] || 0) + 1;
     saveData();
@@ -622,21 +895,18 @@ function logActivity(type) {
 
 window.updateFromCloud = function(data) {
   words.length = 0;
-  if (Array.isArray(data)) {
-      words.push(...data);
-  } else if (data && data.words) {
-      words.push(...data.words);
-      if(data.activityLog) activityLog = data.activityLog;
+  if (Array.isArray(data)) { words.push(...data); }
+  else if (data && data.words) {
+    words.push(...data.words);
+    if(data.activityLog) activityLog = data.activityLog;
   }
   localStorage.setItem('myWordbook', JSON.stringify(words));
   localStorage.setItem('myActivity', JSON.stringify(activityLog));
-  buildSimMatrix();
-  renderWords();
+  buildSimMatrix(); renderWords();
 };
 
 function loadConf(){try{confMatrix=JSON.parse(localStorage.getItem('confMatrix')||'{}');}catch{confMatrix={};}}
 function saveConf(){localStorage.setItem('confMatrix',JSON.stringify(confMatrix));}
-
 document.addEventListener('DOMContentLoaded',()=>{loadData();loadConf();buildSimMatrix();});
 
 function switchTab(name){
@@ -650,7 +920,8 @@ function switchTab(name){
       if(view) view.classList.add('hidden');
     }
   });
-  if(name!=='test') resetTestView(); if(name!=='quiz') resetQuizView();
+  if(name!=='test') resetTestView();
+  if(name!=='quiz') resetQuizView();
   if(name!=='analysis') document.getElementById('analysis-dropdown').classList.add('hidden');
   if(name==='manage') setTimeout(resizeAllTexts, 50);
   if(name==='stats') renderStats();
@@ -662,7 +933,7 @@ function addWord(){
   if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
   words.push({id:Date.now(),en,ko,wrongCount:0, quizCount:0, nlp:null});
   buildSimMatrix();currentPage=1;
-  logActivity('added'); 
+  logActivity('added');
   saveData();
   enEl.value='';koEl.value='';enEl.focus();
   showToast('단어 추가 완료! ✨');
@@ -671,16 +942,12 @@ function addWord(){
 let pendingDeleteId = null;
 function confirmDelete(id){pendingDeleteId = id; document.getElementById('delete-modal').classList.remove('hidden','opacity-0');document.getElementById('delete-modal-content').classList.remove('scale-95');}
 function closeDeleteModal(){document.getElementById('delete-modal').classList.add('opacity-0');document.getElementById('delete-modal-content').classList.add('scale-95');setTimeout(()=>{document.getElementById('delete-modal').classList.add('hidden');pendingDeleteId = null;},200);}
-
 function executeDelete(){
     if(pendingDeleteId !== null){
         const idx = words.findIndex(w => w.id === pendingDeleteId);
         if(idx !== -1) {
             if(idx !== words.length - 1) { words[idx] = words[words.length - 1]; }
-            words.pop();
-            buildSimMatrix();
-            saveData();
-            showToast('삭제되었습니다.');
+            words.pop(); buildSimMatrix(); saveData(); showToast('삭제되었습니다.');
         }
         closeDeleteModal();
     }
@@ -697,22 +964,13 @@ function saveEditWord() {
   const en=document.getElementById('edit-en').value.trim(),ko=document.getElementById('edit-ko').value.trim();
   if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
   const idx=words.findIndex(w=>w.id===editingWordId);
-  if(idx!==-1){
-      words[idx].en=en;words[idx].ko=ko;
-      words[idx].nlp=null; 
-      buildSimMatrix();saveData();showToast('수정되었습니다. ✏️');closeEditModal();
-  }
+  if(idx!==-1){words[idx].en=en;words[idx].ko=ko;words[idx].nlp=null;buildSimMatrix();saveData();showToast('수정되었습니다. ✏️');closeEditModal();}
 }
 
 function changePage(d){currentPage+=d;renderWords();document.getElementById('word-list').scrollTop=0;}
-
 function jumpToPage(val) {
   const page = parseInt(val, 10);
-  if (!isNaN(page)) {
-      currentPage = page;
-      renderWords();
-      document.getElementById('word-list').scrollTop = 0;
-  }
+  if (!isNaN(page)) { currentPage = page; renderWords(); document.getElementById('word-list').scrollTop = 0; }
 }
 
 function renderWords(){
@@ -723,21 +981,14 @@ function renderWords(){
   document.getElementById('word-count').textContent=disp.length;
   list.innerHTML='';
   if(!disp.length){list.innerHTML='<div class="col-span-full flex flex-col items-center justify-center text-gray-500 py-16"><span class="text-5xl mb-4 opacity-50">📭</span><p class="font-black">단어가 없습니다.</p></div>';document.getElementById('pagination-controls').classList.add('hidden');return;}
-  
-  if(document.getElementById('sort-select').value==='wrongCount') {
-      disp.sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0)); 
-  } else {
-      disp.sort((a,b)=> b.id - a.id); 
-  }
-  
+  if(document.getElementById('sort-select').value==='wrongCount') { disp.sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0)); } 
+  else { disp.sort((a,b)=> b.id - a.id); }
   const total=Math.max(1,Math.ceil(disp.length/IPP));currentPage=Math.max(1,Math.min(currentPage,total));
-  
   disp.slice((currentPage-1)*IPP,currentPage*IPP).forEach(w=>{
     const simRow=simMatrix[w.id]||{};const dupes=words.filter(x=>x.id!==w.id&&(simRow[x.id]||0)>=SIM_DUP);
     const wBadge=w.wrongCount>0?`<span class="px-2 py-0.5 bg-rose-900/50 text-rose-300 border border-rose-500/50 text-[10px] font-black rounded-full whitespace-nowrap tracking-wide">오답 ${w.wrongCount}회</span>`:'';
     const dBadge=dupes.length?`<span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 border border-amber-500/50 text-[10px] font-black rounded-full whitespace-nowrap tracking-wide">⚠️ 중복</span>`:'';
     const li=document.createElement('li');
-    
     li.className='neon-card p-3.5 sm:p-4 rounded-2xl flex justify-between items-center w-full h-full';
     li.innerHTML=`
       <div class="flex flex-col flex-1 pr-3 min-w-0 word-en-container overflow-hidden justify-center h-full">
@@ -758,7 +1009,6 @@ function renderWords(){
       </div>`;
     list.appendChild(li);
   });
-  
   const pgCtrl=document.getElementById('pagination-controls');
   if(total>1){
     pgCtrl.classList.remove('hidden');
@@ -766,23 +1016,22 @@ function renderWords(){
     pageSelect.innerHTML = '';
     for(let i=1; i<=total; i++) {
         const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = `PAGE ${i} / ${total}`; 
+        opt.value = i; opt.textContent = `PAGE ${i} / ${total}`;
         if(i === currentPage) opt.selected = true;
         pageSelect.appendChild(opt);
     }
     document.getElementById('btn-prev').disabled=currentPage===1;
     document.getElementById('btn-next').disabled=currentPage===total;
-  } else {
-    pgCtrl.classList.add('hidden');
-  }
-
+  } else { pgCtrl.classList.add('hidden'); }
   setTimeout(resizeAllTexts, 10);
 }
 
 function exportData(){if(!words.length)return showToast('저장할 단어가 없습니다.','error');const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'})),download:`영단어장.json`});document.body.appendChild(a);a.click();a.remove();}
 function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0, quizCount:iw.quizCount||0, nlp:null});}});buildSimMatrix();saveData();currentPage=1;showToast(`단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};r.readAsText(file);e.target.value='';}
 
+// ==============================
+// 학습(플래시카드)
+// ==============================
 function resetTestView(){
     testQueue=[];testPool=[];testIdx=0;testCorrect=0;
     document.getElementById('test-intro').classList.remove('hidden');
@@ -791,15 +1040,13 @@ function resetTestView(){
     document.getElementById('test-intro-main').classList.remove('hidden');
     document.getElementById('test-intro-sets').classList.add('hidden');
 }
-
 function showSetSelection() {
     if(words.length === 0) return showToast('단어가 없습니다!', 'error');
     const container = document.getElementById('set-list-container');
     container.innerHTML = '';
     const totalSets = Math.ceil(words.length / 50);
     for(let i=0; i<totalSets; i++) {
-        const start = i * 50 + 1;
-        const end = Math.min((i + 1) * 50, words.length);
+        const start = i * 50 + 1, end = Math.min((i + 1) * 50, words.length);
         const btn = document.createElement('button');
         btn.className = 'active-bounce neon-card flex flex-col items-center justify-center group py-4';
         btn.innerHTML = `<span class="text-lg font-black text-indigo-300 transition-all">세트 ${i+1}</span><span class="text-xs text-gray-400 font-bold mt-1 transition-all">${start} ~ ${end}</span>`;
@@ -809,41 +1056,24 @@ function showSetSelection() {
     document.getElementById('test-intro-main').classList.add('hidden');
     document.getElementById('test-intro-sets').classList.remove('hidden');
 }
-
 function hideSetSelection() {
     document.getElementById('test-intro-main').classList.remove('hidden');
     document.getElementById('test-intro-sets').classList.add('hidden');
 }
-
 function startTest(mode, setIdx = 0){
     if(!words.length) return showToast('단어가 없습니다!','error');
     testMode = mode;
-    let pool=[];
-    let shouldShuffle = true; 
-    if(mode==='all'){
-        pool=[...words];
-    }else if(mode==='wrong'){
-        pool=words.filter(w=>(w.wrongCount||0)>0);
-        if(!pool.length) return showToast('틀린 단어가 없습니다!');
-    }else if(mode==='set'){
-        pool=words.slice(setIdx * 50, (setIdx + 1) * 50);
-        if(!pool.length) return showToast('해당 세트에 단어가 없습니다!');
-        shouldShuffle = false;
-    }
-    testPool = pool;
-    testQueue = shouldShuffle ? shuffle(pool) : [...pool];
-    testIdx = 0;
-    testCorrect = 0;
+    let pool=[],shouldShuffle=true;
+    if(mode==='all'){ pool=[...words]; }
+    else if(mode==='wrong'){ pool=words.filter(w=>(w.wrongCount||0)>0);if(!pool.length) return showToast('틀린 단어가 없습니다!'); }
+    else if(mode==='set'){ pool=words.slice(setIdx*50,(setIdx+1)*50);if(!pool.length) return showToast('해당 세트에 단어가 없습니다!');shouldShuffle=false; }
+    testPool=pool; testQueue=shouldShuffle?shuffle(pool):[...pool]; testIdx=0; testCorrect=0;
     document.getElementById('test-intro').classList.add('hidden');
     document.getElementById('test-active').classList.remove('hidden');
     loadTestCard();
 }
-
 function loadTestCard(){
-    if(testIdx>=testQueue.length){
-        testQueue = testMode === 'set' ? [...testPool] : shuffle(testPool);
-        testIdx=0;
-    }
+    if(testIdx>=testQueue.length){ testQueue=testMode==='set'?[...testPool]:shuffle(testPool); testIdx=0; }
     const w=testQueue[testIdx];
     document.getElementById('test-progress').textContent=`${testIdx+1}/${testQueue.length}`;
     document.getElementById('test-score').textContent=testCorrect;
@@ -856,43 +1086,97 @@ function loadTestCard(){
 function revealAnswer(){document.getElementById('btn-reveal').classList.add('hidden');document.getElementById('test-word-ko').classList.remove('hidden');document.getElementById('test-actions').classList.remove('hidden');}
 function markAnswer(ok){
     if(ok) testCorrect++;
-    
-    // 💡 터치 즉시 버튼 애니메이션이 부드럽게 작동할 수 있도록 데이터 처리를 아주 살짝 지연 (50ms)
     setTimeout(() => {
-        if(!ok){
-            const i=words.findIndex(x=>x.id===testQueue[testIdx].id);
-            if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
-        }
-        logActivity('tested'); 
-        testIdx++;
-        if(testIdx>=testQueue.length){
-            document.getElementById('test-active').classList.add('hidden');
-            document.getElementById('test-result').classList.remove('hidden');
-            renderWords();
-        }else{
-            loadTestCard();
-        }
+        if(!ok){ const i=words.findIndex(x=>x.id===testQueue[testIdx].id);if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();} }
+        logActivity('tested'); testIdx++;
+        if(testIdx>=testQueue.length){ document.getElementById('test-active').classList.add('hidden');document.getElementById('test-result').classList.remove('hidden');renderWords(); }
+        else { loadTestCard(); }
     }, 50);
 }
 
-const KO_SUF=['스럽다','스러운','하다','하는','하여','하게','한','함','히','이다','이란','되다','되는','된','됨','적인','적으로','적','롭다','로운','없다','없는','있다','있는','지다','진','ㄴ','는','을','를','이','가','의','에','로','과','와','도'].sort((a,b)=>b.length-a.length);
-function tokenize(str){const tokens=new Set();str.split(/[,\/\s]+/).map(s=>s.trim()).filter(Boolean).forEach(c=>{let stem=c;for(const suf of KO_SUF){if(stem.length>suf.length&&stem.endsWith(suf)){stem=stem.slice(0,-suf.length);break;}}if(stem.length>=1)tokens.add(stem);});return tokens;}
-function semSim(a,b){const tA=tokenize(a),tB=tokenize(b);if(!tA.size||!tB.size)return 0;let ex=0;tA.forEach(t=>{if(tB.has(t))ex++;});const jac=ex/new Set([...tA,...tB]).size;let part=0;tA.forEach(a=>tB.forEach(b=>{if(a!==b&&(a.includes(b)||b.includes(a)))part+=0.3;}));const cA=new Set([...a.replace(/[,\/\s]/g,'')]),cB=new Set([...b.replace(/[,\/\s]/g,'')]);let co=0;cA.forEach(c=>{if(cB.has(c))co++;});return Math.min(100,jac*70+part*15+(co/Math.max(cA.size,cB.size))*15);}
-function buildSimMatrix(){simMatrix={};for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++){if(i===j)continue;const a=words[i],b=words[j];if(!simMatrix[a.id])simMatrix[a.id]={};simMatrix[a.id][b.id]=semSim(a.ko,b.ko);}}
+// ==============================
+// 🎯 완전히 새로워진 사지선다 시스템
+// ==============================
+const QUIZ_TIME = 15; // 초
 
-// 💡 사지선다 초기화 및 모드 설정 추가
+function stopQuizTimer() {
+    if (quizTimerInterval) { clearInterval(quizTimerInterval); quizTimerInterval = null; }
+}
+
+function startQuizTimer() {
+    stopQuizTimer();
+    quizTimeLeft = 100;
+    const bar = document.getElementById('quiz-timer-bar');
+    bar.style.width = '100%';
+    bar.className = '';
+    
+    const step = 100 / (QUIZ_TIME * 10); // 100ms마다 업데이트
+    quizTimerInterval = setInterval(() => {
+        quizTimeLeft = Math.max(0, quizTimeLeft - step);
+        bar.style.width = quizTimeLeft + '%';
+        
+        if (quizTimeLeft <= 20) {
+            bar.className = 'danger';
+        } else if (quizTimeLeft <= 40) {
+            bar.className = 'warning';
+        }
+        
+        if (quizTimeLeft <= 0) {
+            stopQuizTimer();
+            handleTimeOut();
+        }
+    }, 100);
+}
+
+function handleTimeOut() {
+    // 시간 초과 시 오답 처리
+    document.querySelectorAll('#quiz-options button').forEach(b => {
+        b.disabled = true;
+        if (b.dataset.correct === 'true') { b.classList.add('reveal-correct'); }
+        else { b.classList.add('dimmed'); }
+    });
+    
+    quizCombo = 0;
+    updateComboUI();
+    
+    const i = words.findIndex(w => w.id === quizWord.id);
+    if (i !== -1) { words[i].wrongCount = (words[i].wrongCount||0) + 1; saveData(); }
+    
+    QuizFX.playWrong();
+    QuizFX.flash('wrong');
+    logActivity('quizzed');
+    quizAnswered++;
+    
+    showToast('⏰ 시간 초과!', 'error');
+    quizTimer = setTimeout(() => nextQuiz(), 1500);
+}
+
+function updateComboUI() {
+    const comboWrap = document.getElementById('quiz-combo-wrap');
+    const comboEl = document.getElementById('quiz-combo');
+    if (quizCombo >= 2) {
+        comboWrap.classList.remove('hidden');
+        comboEl.textContent = `🔥 ${quizCombo} 콤보`;
+        comboEl.classList.remove('combo-pop');
+        void comboEl.offsetWidth;
+        comboEl.classList.add('combo-pop');
+    } else {
+        comboWrap.classList.add('hidden');
+    }
+}
+
 function resetQuizView(){
-    if(quizTimer) clearTimeout(quizTimer); 
-    quizQueue=[]; quizIdx=0; quizPool=[]; quizMode='random';
+    if (quizTimer) clearTimeout(quizTimer);
+    stopQuizTimer();
+    quizQueue=[];quizIdx=0;quizPool=[];quizMode='random';
+    quizCombo=0;quizBestCombo=0;
     document.getElementById('quiz-intro').classList.remove('hidden');
     document.getElementById('quiz-active').classList.add('hidden');
     document.getElementById('quiz-result').classList.add('hidden');
 }
 
-// 💡 퀴즈 시작 시 모드 구분 로직 적용
 function startQuiz(mode){
-    if(words.length < 4) return showToast('단어가 전체 4개 이상 필요합니다! (선지 구성용)','error');
-    
+    if(words.length < 4) return showToast('단어가 전체 4개 이상 필요합니다!','error');
     quizMode = mode;
     if (mode === 'wrong') {
         quizPool = words.filter(w => (w.wrongCount || 0) > 0);
@@ -900,46 +1184,31 @@ function startQuiz(mode){
     } else {
         quizPool = [...words];
     }
-
-    quizQ = 0; quizS = 0; quizAnswered = 0; quizIdx = 0;
+    quizQ=0; quizS=0; quizAnswered=0; quizIdx=0; quizCombo=0; quizBestCombo=0;
+    quizQueue = mode === 'random' ? shuffle([...quizPool]) : [...quizPool].sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0));
     
-    if (mode === 'random') {
-        quizQueue = shuffle([...quizPool]);
-    } else {
-        // 오답 모드 초기 정렬: 틀린 횟수가 많은 순서대로 출제
-        quizQueue = [...quizPool].sort((a,b) => (b.wrongCount||0) - (a.wrongCount||0));
-    }
-
     document.getElementById('quiz-intro').classList.add('hidden');
     document.getElementById('quiz-active').classList.remove('hidden');
+    document.getElementById('quiz-combo-wrap').classList.add('hidden');
     nextQuiz();
 }
 
 function getDistractors(target){
     const mat=confMatrix[target.id]||{}, sim=simMatrix[target.id]||{};
-    // 선지(Distractor)는 항상 전체 words에서 가져옴
     const cands=words.filter(w=>w.id!==target.id&&(sim[w.id]||0)<SIM_DUP);
     return cands.map(w=>({word:w,score:(sim[w.id]||0)*5+(mat[w.id]||0)*10+Math.random()*3})).sort((a,b)=>b.score-a.score).slice(0,3).map(s=>s.word);
 }
 
-// 💡 다음 퀴즈 진행 및 모드별 큐(Queue) 충전 로직
 function nextQuiz(){
     if(quizIdx >= quizQueue.length){
-        if (quizMode === 'random') {
-            quizQueue = shuffle([...quizPool]);
-        } else {
-            // 오답 모드: 복습 중에 맞혀서 오답 카운트가 변경되었을 수 있으므로 풀 업데이트
+        if (quizMode === 'random') { quizQueue = shuffle([...quizPool]); }
+        else {
             quizPool = words.filter(w => (w.wrongCount || 0) > 0);
-            if (quizPool.length === 0) {
-                showToast('모든 오답을 복습했습니다! 👏', 'info');
-                showQuizResult();
-                return;
-            }
+            if (quizPool.length === 0) { showToast('모든 오답을 복습했습니다! 👏', 'info'); showQuizResult(); return; }
             quizQueue = shuffle([...quizPool]);
         }
         quizIdx=0;
     }
-    
     quizQ++;
     document.getElementById('quiz-progress').textContent=`${quizQ}번째`;
     document.getElementById('quiz-score').textContent=quizS;
@@ -948,64 +1217,149 @@ function nextQuiz(){
     const wIdx = words.findIndex(w=>w.id===quizWord.id);
     if(wIdx !== -1) { words[wIdx].quizCount = (words[wIdx].quizCount || 0) + 1; saveData(); }
     
+    // 단어 카드 등장 애니메이션
+    const card = document.getElementById('quiz-word-card');
+    card.classList.remove('quiz-card-enter');
+    void card.offsetWidth;
+    card.classList.add('quiz-card-enter');
+    
     document.getElementById('quiz-word-en').textContent=quizWord.en;
+    
     const opts=document.getElementById('quiz-options');
     opts.innerHTML='';
     
-    shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach(opt=>{
+    shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach((opt, idx) => {
         const btn=document.createElement('button');
-        btn.className='game-btn active-bounce w-full neon-card font-black py-6 rounded-2xl text-xl break-words px-4 text-white';
+        btn.className='game-btn w-full neon-card font-black py-6 rounded-2xl text-xl break-words px-4 text-white';
+        btn.style.animationDelay = `${idx * 0.05}s`;
         btn.textContent=opt.word.ko;
-        btn.dataset.correct = opt.ok; 
-        btn.onclick=()=>selectQuiz(btn,opt.ok,opt.word.id);
+        btn.dataset.correct = opt.ok;
+        btn.addEventListener('click', (e) => {
+            QuizFX.ripple(btn, e);
+            selectQuiz(btn, opt.ok, opt.word.id, e);
+        });
         opts.appendChild(btn);
     });
+
+    // 타이머 시작
+    startQuizTimer();
 }
 
-function selectQuiz(btn,ok,selId){
+function selectQuiz(btn, ok, selId, e){
+    stopQuizTimer(); // 타이머 즉시 중단
     document.querySelectorAll('#quiz-options button').forEach(b=>b.disabled=true);
-    quizAnswered++; 
+    quizAnswered++;
+    
+    // 선택된 버튼 즉각 반응
+    const rect = btn.getBoundingClientRect();
+    const cx = e ? e.clientX : rect.left + rect.width/2;
+    const cy = e ? e.clientY : rect.top + rect.height/2;
+
     if(ok){
-        quizS++;
         btn.classList.add('correct-answer');
-    }else{
+        // 나머지 흐리기
+        document.querySelectorAll('#quiz-options button').forEach(b => { if(b !== btn) b.classList.add('dimmed'); });
+        quizS++;
+        quizCombo++;
+        if (quizCombo > quizBestCombo) quizBestCombo = quizCombo;
+        updateComboUI();
+
+        // 이펙트
+        QuizFX.playCorrect();
+        QuizFX.flash('correct');
+        QuizFX.burst(cx, cy, true);
+        
+        // 콤보에 따라 다른 점수 팝업
+        const comboBonus = quizCombo >= 5 ? '🔥 COMBO!' : quizCombo >= 3 ? '✨ NICE!' : '⭕';
+        QuizFX.scorePopup(cx - 30, cy - 40, comboBonus, quizCombo >= 5 ? '#fbbf24' : '#10b981');
+        
+    } else {
         btn.classList.add('wrong-answer');
+        // 정답 표시
         document.querySelectorAll('#quiz-options button').forEach(b => {
-            if(b.dataset.correct === 'true') { b.classList.add('correct-answer'); }
+            if (b.dataset.correct === 'true') { b.classList.add('reveal-correct'); }
+            else if (b !== btn) { b.classList.add('dimmed'); }
         });
+        quizCombo = 0;
+        updateComboUI();
+
+        QuizFX.playWrong();
+        QuizFX.flash('wrong');
+        QuizFX.burst(cx, cy, false);
+        QuizFX.scorePopup(cx - 15, cy - 40, '❌', '#f43f5e');
     }
+    
     document.getElementById('quiz-score').textContent=quizS;
     
-    // 💡 터치 즉시 정답/오답 색상이 렌더링되도록, 멈춤을 유발하는 무거운 데이터 처리를 50ms 미룸
+    // 데이터 처리 지연
     setTimeout(() => {
         if(ok){
-            // 오답 모드에서 맞히면 오답 카운트 차감 로직
             if (quizMode === 'wrong') {
                 const i=words.findIndex(w=>w.id===quizWord.id);
                 if(i!==-1 && words[i].wrongCount > 0) { words[i].wrongCount -= 1; saveData(); }
             }
-        }else{
+        } else {
             const i=words.findIndex(w=>w.id===quizWord.id);
             if(i!==-1){words[i].wrongCount=(words[i].wrongCount||0)+1;saveData();}
-            
             if(!confMatrix[quizWord.id])confMatrix[quizWord.id]={};
             confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;saveConf();
         }
-        logActivity('quizzed'); 
-        
-        // 정답을 확인할 시간을 주기 위해 딜레이 복구 (정답 시 1초, 오답 시 1.5초)
-        quizTimer = setTimeout(()=>nextQuiz(), ok ? 1000 : 1500); 
+        logActivity('quizzed');
+        quizTimer = setTimeout(()=>nextQuiz(), ok ? 900 : 1400);
     }, 50);
 }
 
 function showQuizResult(){
-    if(quizTimer) clearTimeout(quizTimer); 
+    if (quizTimer) clearTimeout(quizTimer);
+    stopQuizTimer();
     document.getElementById('quiz-active').classList.add('hidden');
     document.getElementById('quiz-result').classList.remove('hidden');
     document.getElementById('quiz-final-score').textContent=quizS;
-    document.getElementById('quiz-total-score').textContent=quizAnswered; 
+    document.getElementById('quiz-total-score').textContent=quizAnswered;
+    
+    const acc = quizAnswered > 0 ? Math.round(quizS / quizAnswered * 100) : 0;
+    document.getElementById('quiz-accuracy').textContent = `정확도 ${acc}%`;
+    
+    const emojis = ['😭','😟','🤔','😊','😄','🎉','🏆','🔥'];
+    const emojiEl = document.getElementById('quiz-result-emoji');
+    emojiEl.textContent = acc >= 90 ? '🏆' : acc >= 70 ? '🎉' : acc >= 50 ? '😊' : '🤔';
+    emojiEl.classList.remove('result-emoji');
+    void emojiEl.offsetWidth;
+    emojiEl.classList.add('result-emoji');
+    
+    document.getElementById('quiz-feedback').textContent = 
+        acc >= 90 ? '🔥 완벽해요! 최고입니다!' :
+        acc >= 70 ? '✨ 잘했어요! 조금만 더!' :
+        acc >= 50 ? '💪 괜찮아요, 계속 도전하세요!' : '😤 다시 한번 해봐요!';
+    
+    document.getElementById('quiz-best-combo').textContent = 
+        quizBestCombo >= 3 ? `🔥 최고 콤보: ${quizBestCombo}연속` : '';
+    
+    // 좋은 결과면 축하 파티클
+    if (acc >= 70) {
+        setTimeout(() => {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    QuizFX.burst(
+                        window.innerWidth * (0.2 + Math.random() * 0.6),
+                        window.innerHeight * (0.3 + Math.random() * 0.3),
+                        true
+                    );
+                }, i * 200);
+            }
+        }, 400);
+    }
+    
     renderWords();
 }
+
+// ==============================
+// NLP 그룹핑 (기존 유지)
+// ==============================
+const KO_SUF=['스럽다','스러운','하다','하는','하여','하게','한','함','히','이다','이란','되다','되는','된','됨','적인','적으로','적','롭다','로운','없다','없는','있다','있는','지다','진','ㄴ','는','을','를','이','가','의','에','로','과','와','도'].sort((a,b)=>b.length-a.length);
+function tokenize(str){const tokens=new Set();str.split(/[,\/\s]+/).map(s=>s.trim()).filter(Boolean).forEach(c=>{let stem=c;for(const suf of KO_SUF){if(stem.length>suf.length&&stem.endsWith(suf)){stem=stem.slice(0,-suf.length);break;}}if(stem.length>=1)tokens.add(stem);});return tokens;}
+function semSim(a,b){const tA=tokenize(a),tB=tokenize(b);if(!tA.size||!tB.size)return 0;let ex=0;tA.forEach(t=>{if(tB.has(t))ex++;});const jac=ex/new Set([...tA,...tB]).size;let part=0;tA.forEach(a=>tB.forEach(b=>{if(a!==b&&(a.includes(b)||b.includes(a)))part+=0.3;}));const cA=new Set([...a.replace(/[,\/\s]/g,'')]),cB=new Set([...b.replace(/[,\/\s]/g,'')]);let co=0;cA.forEach(c=>{if(cB.has(c))co++;});return Math.min(100,jac*70+part*15+(co/Math.max(cA.size,cB.size))*15);}
+function buildSimMatrix(){simMatrix={};for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++){if(i===j)continue;const a=words[i],b=words[j];if(!simMatrix[a.id])simMatrix[a.id]={};simMatrix[a.id][b.id]=semSim(a.ko,b.ko);}}
 
 function getStem(w) {
     let s = w.toLowerCase();
@@ -1022,7 +1376,6 @@ function getStem(w) {
     if(s.endsWith('ly') && s.length>4) return s.slice(0,-2);
     return s;
 }
-
 const PREFIX_DICT = [
     {p: 'trans', m: '가로질러/바꾸어'}, {p: 'inter', m: '상호/사이에'}, {p: 'super', m: '초과/위에'},
     {p: 'under', m: '아래에/부족한'}, {p: 'over', m: '넘어서/과도한'}, {p: 'anti', m: '반대/항'},
@@ -1034,151 +1387,84 @@ const PREFIX_DICT = [
     {p: 'il', m: '부정'}, {p: 'ir', m: '부정'}, {p: 'com', m: '함께'}, {p: 'con', m: '함께'},
     {p: 'co', m: '함께'}, {p: 'ex', m: '밖으로'}
 ];
-
 function getPrefix(w) {
     let s = w.toLowerCase();
-    for(let pr of PREFIX_DICT) {
-        if(s.startsWith(pr.p) && s.length > pr.p.length + 2) return pr;
-    }
+    for(let pr of PREFIX_DICT) { if(s.startsWith(pr.p) && s.length > pr.p.length + 2) return pr; }
     return null;
 }
-
 async function enrichWord(w) {
     if(w.nlp && w.nlp.fetched) return false;
     w.nlp = { syn: [], ant: [], fetched: false };
-
     try {
         const [resSyn, resAnt] = await Promise.allSettled([
             fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(w.en)}&max=5`).then(r=>r.json()),
             fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(w.en)}&max=5`).then(r=>r.json()),
         ]);
-
         if(resSyn.status === 'fulfilled' && Array.isArray(resSyn.value)) w.nlp.syn = resSyn.value.map(x=>x.word);
         if(resAnt.status === 'fulfilled' && Array.isArray(resAnt.value)) w.nlp.ant = resAnt.value.map(x=>x.word);
-        
-        w.nlp.stem = getStem(w.en);
-        w.nlp.prefix = getPrefix(w.en);
-        w.nlp.fetched = true;
+        w.nlp.stem = getStem(w.en); w.nlp.prefix = getPrefix(w.en); w.nlp.fetched = true;
         return true;
-    } catch(e) {
-        console.error("Enrichment failed for", w.en);
-        return false;
-    }
+    } catch(e) { return false; }
 }
-
 async function runNLPGrouping() {
     if(words.length < 2) return showToast('비교할 단어가 부족합니다.', 'error');
-    
     document.getElementById('group-container').classList.add('hidden');
     const loadingUI = document.getElementById('group-loading');
-    loadingUI.classList.remove('hidden');
-    loadingUI.classList.add('flex');
-    
-    const progressText = document.getElementById('nlp-progress-text');
-    const progressBar = document.getElementById('nlp-progress-bar');
-    
-    let updated = false;
-    let offlineWarning = false;
-
+    loadingUI.classList.remove('hidden'); loadingUI.classList.add('flex');
+    let updated = false, offlineWarning = false;
     for(let i=0; i<words.length; i++) {
         let w = words[i];
         if(!w.nlp || !w.nlp.fetched) {
-            if(!navigator.onLine) {
-                offlineWarning = true;
-                continue;
-            }
+            if(!navigator.onLine) { offlineWarning = true; continue; }
             const didFetch = await enrichWord(w);
             if(didFetch) updated = true;
         }
-        progressText.textContent = `${i+1} / ${words.length}`;
-        progressBar.style.width = `${Math.round(((i+1)/words.length)*100)}%`;
+        document.getElementById('nlp-progress-text').textContent = `${i+1} / ${words.length}`;
+        document.getElementById('nlp-progress-bar').style.width = `${Math.round(((i+1)/words.length)*100)}%`;
     }
-    
-    if(updated) saveData(); 
-    if(offlineWarning) showToast("오프라인 상태입니다. 이미 캐싱된 지식 데이터만 활용합니다.", "info");
-
+    if(updated) saveData();
+    if(offlineWarning) showToast("오프라인 상태입니다. 캐싱된 데이터만 활용합니다.", "info");
     function buildCard(title, groupArr) {
         const card = document.createElement('div');
         card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
         let chipsHtml = groupArr.map(w => `<span class="chip bg-gray-900 text-indigo-300 border border-gray-700 hover:bg-gray-800" onclick="openAnalysis(${w.id})" title="클릭하여 상세 분석">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span></span>`).join('');
-        card.innerHTML = `
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-700">
-                <h4 class="text-base font-black text-white flex items-center gap-2 truncate pr-2">${title}</h4>
-                <span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span>
-            </div>
-            <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>
-        `;
+        card.innerHTML = `<div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-700"><h4 class="text-base font-black text-white flex items-center gap-2 truncate pr-2">${title}</h4><span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span></div><div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>`;
         return card;
     }
-
     let stemGroups = {};
-    words.forEach(w => {
-        if(w.nlp && w.nlp.stem && w.nlp.stem.length >= 3) {
-            if(!stemGroups[w.nlp.stem]) stemGroups[w.nlp.stem] = [];
-            stemGroups[w.nlp.stem].push(w);
-        }
-    });
+    words.forEach(w => { if(w.nlp && w.nlp.stem && w.nlp.stem.length >= 3) { if(!stemGroups[w.nlp.stem]) stemGroups[w.nlp.stem] = []; stemGroups[w.nlp.stem].push(w); } });
     const stemGrid = document.getElementById('nlp-stem-grid');
     stemGrid.innerHTML = '';
     let stemFound = false;
-    Object.keys(stemGroups).forEach(stem => {
-        if(stemGroups[stem].length > 1) {
-            stemGrid.appendChild(buildCard(`어근 [ ${stem} ]`, stemGroups[stem]));
-            stemFound = true;
-        }
-    });
+    Object.keys(stemGroups).forEach(stem => { if(stemGroups[stem].length > 1) { stemGrid.appendChild(buildCard(`어근 [ ${stem} ]`, stemGroups[stem])); stemFound = true; } });
     if(!stemFound) stemGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">같은 어근을 공유하는 단어가 없습니다.</p>';
-
     let prefixGroups = {};
-    words.forEach(w => {
-        if(w.nlp && w.nlp.prefix) {
-            let pkey = w.nlp.prefix.p;
-            if(!prefixGroups[pkey]) prefixGroups[pkey] = { title: `${pkey}- (${w.nlp.prefix.m})`, arr: [] };
-            prefixGroups[pkey].arr.push(w);
-        }
-    });
+    words.forEach(w => { if(w.nlp && w.nlp.prefix) { let pkey = w.nlp.prefix.p; if(!prefixGroups[pkey]) prefixGroups[pkey] = { title: `${pkey}- (${w.nlp.prefix.m})`, arr: [] }; prefixGroups[pkey].arr.push(w); } });
     const prefixGrid = document.getElementById('nlp-prefix-grid');
     prefixGrid.innerHTML = '';
     let prefixFound = false;
-    Object.keys(prefixGroups).forEach(pk => {
-        if(prefixGroups[pk].arr.length > 1) {
-            prefixGrid.appendChild(buildCard(prefixGroups[pk].title, prefixGroups[pk].arr));
-            prefixFound = true;
-        }
-    });
+    Object.keys(prefixGroups).forEach(pk => { if(prefixGroups[pk].arr.length > 1) { prefixGrid.appendChild(buildCard(prefixGroups[pk].title, prefixGroups[pk].arr)); prefixFound = true; } });
     if(!prefixFound) prefixGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">공통 접두사를 가진 단어가 없습니다.</p>';
-
-    let synAntGroups = [];
-    unassigned = [...words];
+    let synAntGroups = [], unassigned = [...words];
     while(unassigned.length > 0) {
-        let current = unassigned.shift();
-        let group = [current];
-        let i = 0;
+        let current = unassigned.shift(), group = [current], i = 0;
         while(i < unassigned.length) {
             let cand = unassigned[i];
-            let isConnected = group.some(g => {
-                if(!g.nlp || !cand.nlp) return false;
-                const inSyn = (g.nlp.syn || []).includes(cand.en.toLowerCase()) || (cand.nlp.syn || []).includes(g.en.toLowerCase());
-                const inAnt = (g.nlp.ant || []).includes(cand.en.toLowerCase()) || (cand.nlp.ant || []).includes(g.en.toLowerCase());
-                return inSyn || inAnt;
-            });
-            if(isConnected) { group.push(cand); unassigned.splice(i, 1); } 
-            else i++;
+            let isConnected = group.some(g => { if(!g.nlp || !cand.nlp) return false; const inSyn = (g.nlp.syn || []).includes(cand.en.toLowerCase()) || (cand.nlp.syn || []).includes(g.en.toLowerCase()); const inAnt = (g.nlp.ant || []).includes(cand.en.toLowerCase()) || (cand.nlp.ant || []).includes(g.en.toLowerCase()); return inSyn || inAnt; });
+            if(isConnected) { group.push(cand); unassigned.splice(i, 1); } else i++;
         }
         if(group.length > 1) synAntGroups.push(group);
     }
     const synantGrid = document.getElementById('nlp-synant-grid');
     synantGrid.innerHTML = synAntGroups.length ? '' : '<p class="text-gray-500 font-bold text-sm">유의어/반의어로 묶이는 단어가 없습니다.</p>';
-    synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => {
-        synantGrid.appendChild(buildCard(`상호 연결된 그물망 ${idx+1}`, g));
-    });
-
-    loadingUI.classList.add('hidden');
-    loadingUI.classList.remove('flex');
-    document.getElementById('group-container').classList.remove('hidden');
-    document.getElementById('group-container').classList.add('flex');
+    synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => { synantGrid.appendChild(buildCard(`상호 연결된 그물망 ${idx+1}`, g)); });
+    loadingUI.classList.add('hidden'); loadingUI.classList.remove('flex');
+    document.getElementById('group-container').classList.remove('hidden'); document.getElementById('group-container').classList.add('flex');
 }
 
+// ==============================
+// 분석 탭 (기존 유지)
+// ==============================
 function openAnalysis(id){const w=words.find(x=>x.id===id);if(!w)return;switchTab('analysis');setTimeout(()=>selectAnalysisWord(w),60);}
 function filterAnalysisWords(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
 function showAnalysisDropdown(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
@@ -1199,73 +1485,50 @@ async function runAnalysis(w){
   document.getElementById('analysis-loading').classList.add('hidden');
   document.getElementById('analysis-result').classList.remove('hidden');
   document.getElementById('ar-word').textContent=w.en;
-  let dictSyns = [], dictAnts = [];
+  let dictSyns=[], dictAnts=[];
   const examplesEl = document.getElementById('ar-examples');
-  examplesEl.innerHTML = '';
+  examplesEl.innerHTML='';
   if(dictData){
     document.getElementById('ar-definition').textContent=dictData.meanings?.[0]?.definitions?.[0]?.definition||'사전 정보 없음';
     document.getElementById('ar-phonetic').textContent=dictData.phonetics?.find(p=>p.text)?.text||'';
-    
     const aUrl = dictData.phonetics?.find(p=>p.audio)?.audio||null;
     const aBtn = document.getElementById('ar-audio-btn');
-    
-    aBtn.classList.remove('hidden'); 
+    aBtn.classList.remove('hidden');
     aBtn.innerHTML = aUrl ? '🔊 <span class="hidden sm:inline">원어민 발음</span>' : '🤖 <span class="hidden sm:inline">TTS 발음</span>';
-    
     aBtn.onclick = () => {
-        if(aUrl) {
-            new Audio(aUrl).play(); 
-        } else {
-            const utterance = new SpeechSynthesisUtterance(w.en);
-            utterance.lang = 'en-US';
-            window.speechSynthesis.speak(utterance);
-        }
+        if(aUrl) { new Audio(aUrl).play(); }
+        else { const u=new SpeechSynthesisUtterance(w.en);u.lang='en-US';window.speechSynthesis.speak(u); }
     };
-
-    const posSet = new Set();
-    dictData.meanings?.forEach(m => {
-      if(m.partOfSpeech) posSet.add(m.partOfSpeech);
-      if(m.synonyms) dictSyns.push(...m.synonyms.map(s=>({word:s})));
-      if(m.antonyms) dictAnts.push(...m.antonyms.map(a=>({word:a})));
-    });
-    const posStr = Array.from(posSet).join(', ');
-    document.getElementById('ar-partOfSpeech').textContent = posStr;
-    document.getElementById('ar-partOfSpeech').style.display = posStr ? '' : 'none';
+    const posSet=new Set();
+    dictData.meanings?.forEach(m=>{if(m.partOfSpeech)posSet.add(m.partOfSpeech);if(m.synonyms)dictSyns.push(...m.synonyms.map(s=>({word:s})));if(m.antonyms)dictAnts.push(...m.antonyms.map(a=>({word:a})));});
+    const posStr=Array.from(posSet).join(', ');
+    document.getElementById('ar-partOfSpeech').textContent=posStr;
+    document.getElementById('ar-partOfSpeech').style.display=posStr?'':'none';
     const allExamples=[];
     dictData.meanings?.forEach(m=>{m.definitions?.forEach(d=>{if(d.example&&allExamples.length<3)allExamples.push(d.example);});});
-    if(allExamples.length){
-      examplesEl.innerHTML = allExamples.map((ex,i)=>`<div class="flex gap-4 items-start bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-sm"><span class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span><p class="text-base text-gray-200 italic leading-relaxed break-words font-bold">"${ex}"</p></div>`).join('');
-    } else { examplesEl.innerHTML = '<p class="text-sm text-gray-500 italic bg-gray-800 p-5 rounded-2xl font-bold">이 단어가 포함된 예문을 찾을 수 없습니다.</p>'; }
+    if(allExamples.length){examplesEl.innerHTML=allExamples.map((ex,i)=>`<div class="flex gap-4 items-start bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-sm"><span class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white text-xs font-black rounded-full flex items-center justify-center mt-0.5">${i+1}</span><p class="text-base text-gray-200 italic leading-relaxed break-words font-bold">"${ex}"</p></div>`).join('');}
+    else{examplesEl.innerHTML='<p class="text-sm text-gray-500 italic bg-gray-800 p-5 rounded-2xl font-bold">예문을 찾을 수 없습니다.</p>';}
   } else {
     document.getElementById('ar-definition').textContent='사전 정보를 불러올 수 없습니다.';
     document.getElementById('ar-phonetic').textContent='';
     document.getElementById('ar-partOfSpeech').style.display='none';
-    
-    const aBtn = document.getElementById('ar-audio-btn');
-    aBtn.classList.remove('hidden');
-    aBtn.innerHTML = '🤖 <span class="hidden sm:inline">TTS 발음</span>';
-    aBtn.onclick = () => {
-        const utterance = new SpeechSynthesisUtterance(w.en);
-        utterance.lang = 'en-US';
-        window.speechSynthesis.speak(utterance);
-    };
-
-    examplesEl.innerHTML = '<p class="text-sm text-gray-500 font-bold">예문을 불러올 수 없습니다.</p>';
+    const aBtn=document.getElementById('ar-audio-btn');
+    aBtn.classList.remove('hidden');aBtn.innerHTML='🤖 <span class="hidden sm:inline">TTS 발음</span>';
+    aBtn.onclick=()=>{const u=new SpeechSynthesisUtterance(w.en);u.lang='en-US';window.speechSynthesis.speak(u);};
+    examplesEl.innerHTML='<p class="text-sm text-gray-500 font-bold">예문을 불러올 수 없습니다.</p>';
   }
   const simRow=simMatrix[w.id]||{};
   const internals=words.filter(x=>x.id!==w.id).map(x=>({word:x,sim:simRow[x.id]||0})).filter(x=>x.sim>8).sort((a,b)=>b.sim-a.sim).slice(0,7);
   const intEl=document.getElementById('ar-internal-list');
   if(internals.length){
     intEl.innerHTML=internals.map(({word:iw,sim})=>{
-      const pct=Math.round(sim);
-      const bar=pct>=SIM_DUP?'bg-amber-500':pct>=SIM_CONF?'bg-violet-500':'bg-indigo-500';
+      const pct=Math.round(sim),bar=pct>=SIM_DUP?'bg-amber-500':pct>=SIM_CONF?'bg-violet-500':'bg-indigo-500';
       const lbl=pct>=SIM_DUP?'<span class="text-[10px] bg-amber-900/50 text-amber-300 font-black px-2 py-0.5 rounded-full whitespace-nowrap border border-amber-600">⚠️ 중복</span>':pct>=SIM_CONF?'<span class="text-[10px] bg-violet-900/50 text-violet-300 font-black px-2 py-0.5 rounded-full whitespace-nowrap border border-violet-600">혼동 주의</span>':'';
       return `<div class="flex items-center gap-4 bg-gray-800 p-4 rounded-2xl border border-gray-700 shadow-sm"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap mb-1.5"><span class="font-black text-lg text-white break-all">${iw.en}</span><span class="text-sm font-bold text-gray-400 truncate">${iw.ko}</span>${lbl}</div><div class="flex items-center gap-3"><div class="flex-1 bg-gray-900 rounded-full h-2 overflow-hidden border border-gray-700"><div class="${bar} h-full rounded-full transition-all duration-700" style="width:${pct}%"></div></div><span class="text-xs text-gray-400 font-mono w-8 text-right font-black">${pct}%</span></div></div></div>`;
     }).join('');
-  } else { intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-4xl mb-3 opacity-50">🤷‍♂️</span><p class="text-sm text-gray-500 font-black">단어장 내에 비슷한 단어가 아직 없습니다.</p></div>'; }
+  } else {intEl.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center p-6"><span class="text-4xl mb-3 opacity-50">🤷‍♂️</span><p class="text-sm text-gray-500 font-black">비슷한 단어가 아직 없습니다.</p></div>';}
   const existingEn=new Set(words.map(x=>x.en.toLowerCase()));
   const newCands=new Set();
-
   function renderChips(elId, items, cls){
     const el=document.getElementById(elId);
     if(!items.length){el.innerHTML='<span class="text-sm font-bold text-gray-500">검색 결과 없음</span>';return;}
@@ -1274,8 +1537,7 @@ async function runAnalysis(w){
       const inBook=existingEn.has(item.word.toLowerCase());
       if(!inBook)newCands.add(item.word);
       const span=document.createElement('span');
-      span.className='chip ' + cls;
-      
+      span.className='chip '+cls;
       const inBookWord=words.find(x=>x.en.toLowerCase()===item.word.toLowerCase());
       const knownKo=inBookWord?inBookWord.ko:null;
       span.appendChild(document.createTextNode((inBook?'✅ ':'')+item.word));
@@ -1283,114 +1545,67 @@ async function runAnalysis(w){
       tooltip.className='chip-tooltip'+(knownKo?'':' loading');
       tooltip.textContent=knownKo||'뜻 번역 중...';
       span.appendChild(tooltip);
-      
       span.onclick = async () => {
-          const found = words.find(x => x.en.toLowerCase() === item.word.toLowerCase());
-          if (found) {
-              selectAnalysisWord(found);
-          } else {
+          const found=words.find(x=>x.en.toLowerCase()===item.word.toLowerCase());
+          if(found){selectAnalysisWord(found);}
+          else{
               span.classList.add('force-tooltip');
-              if(!knownKo && !span.dataset.fetched){
-                  span.dataset.fetched = "true";
-                  tooltip.classList.remove('loading');
-                  tooltip.textContent = '번역 중...';
-                  tooltip.textContent = await getTranslationSafe(item.word);
-              }
-              setTimeout(()=> span.classList.remove('force-tooltip'), 3000);
+              if(!knownKo && !span.dataset.fetched){span.dataset.fetched="true";tooltip.classList.remove('loading');tooltip.textContent='번역 중...';tooltip.textContent=await getTranslationSafe(item.word);}
+              setTimeout(()=>span.classList.remove('force-tooltip'),3000);
           }
       };
-
-      if(!knownKo){
-        span.addEventListener('mouseenter',async()=>{
-          if(span.dataset.fetched)return; span.dataset.fetched=true;
-          tooltip.textContent = await getTranslationSafe(item.word);
-          tooltip.classList.remove('loading');
-        });
-      }
+      if(!knownKo){span.addEventListener('mouseenter',async()=>{if(span.dataset.fetched)return;span.dataset.fetched=true;tooltip.textContent=await getTranslationSafe(item.word);tooltip.classList.remove('loading');});}
       el.appendChild(span);
     });
   }
-  const mergeWords = (...arrays) => {
-    const map = new Map();
-    arrays.flat().forEach(item => { if(item && item.word && item.word.toLowerCase() !== w.en.toLowerCase()) { map.set(item.word.toLowerCase(), item); } });
-    return Array.from(map.values());
-  };
-  renderChips('ar-synonyms', mergeWords(dictSyns, syn1, syn2).slice(0, 20), 'chip-syn');
-  renderChips('ar-antonyms', mergeWords(dictAnts, ants).slice(0, 15), 'chip-ant');
-  renderChips('ar-related', mergeWords(rel1, rel2).slice(0, 20), 'chip-rel');
-  renderChips('ar-collocations', mergeWords(col1, col2, col3, col4).slice(0, 20), 'chip-freq');
-  
+  const mergeWords=(...arrays)=>{const map=new Map();arrays.flat().forEach(item=>{if(item&&item.word&&item.word.toLowerCase()!==w.en.toLowerCase()){map.set(item.word.toLowerCase(),item);}});return Array.from(map.values());};
+  renderChips('ar-synonyms',mergeWords(dictSyns,syn1,syn2).slice(0,20),'chip-syn');
+  renderChips('ar-antonyms',mergeWords(dictAnts,ants).slice(0,15),'chip-ant');
+  renderChips('ar-related',mergeWords(rel1,rel2).slice(0,20),'chip-rel');
+  renderChips('ar-collocations',mergeWords(col1,col2,col3,col4).slice(0,20),'chip-freq');
   const recs=[...newCands].slice(0,25);
   document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm font-bold text-gray-500">추천할 새 단어가 없습니다.</span>';
-  const scrollContainer = document.getElementById('analysis-result').parentElement;
-  if (scrollContainer) scrollContainer.scrollTop = 0;
+  const scrollContainer=document.getElementById('analysis-result').parentElement;
+  if(scrollContainer)scrollContainer.scrollTop=0;
 }
 function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();}
 
+// ==============================
+// 통계
+// ==============================
 function renderStats() {
     const todayStr = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
     const todayData = activityLog[todayStr] || { added: 0, tested: 0, quizzed: 0 };
-    
     document.getElementById('stat-added').textContent = todayData.added || 0;
     document.getElementById('stat-tested').textContent = todayData.tested || 0;
     document.getElementById('stat-quizzed').textContent = todayData.quizzed || 0;
-
-    let streak = 0;
-    let checkDate = new Date();
+    let streak = 0, checkDate = new Date();
     while(true) {
-        let dStr = checkDate.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
-        let dData = activityLog[dStr];
-        if(dData && (dData.added > 0 || dData.tested > 0 || dData.quizzed > 0)) {
-            streak++;
-            checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-            if(streak === 0) {
-                checkDate.setDate(checkDate.getDate() - 1);
-                dStr = checkDate.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
-                dData = activityLog[dStr];
-                if(dData && (dData.added > 0 || dData.tested > 0 || dData.quizzed > 0)) {
-                    streak++;
-                    checkDate.setDate(checkDate.getDate() - 1);
-                    continue;
-                }
-            }
+        let dStr=checkDate.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).split('.').join('-').replace(/\s/g,'').replace(/-$/,'');
+        let dData=activityLog[dStr];
+        if(dData&&(dData.added>0||dData.tested>0||dData.quizzed>0)){streak++;checkDate.setDate(checkDate.getDate()-1);}
+        else{
+            if(streak===0){checkDate.setDate(checkDate.getDate()-1);dStr=checkDate.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).split('.').join('-').replace(/\s/g,'').replace(/-$/,'');dData=activityLog[dStr];if(dData&&(dData.added>0||dData.tested>0||dData.quizzed>0)){streak++;checkDate.setDate(checkDate.getDate()-1);continue;}}
             break;
         }
     }
-    document.getElementById('stat-streak').innerHTML = `현재 <span class="text-emerald-400 font-black">${streak}일째</span> 연속 학습 중! 🔥`;
-
-    const grid = document.getElementById('grass-grid');
-    grid.innerHTML = '';
-    const totalDays = 35;
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - totalDays + 1);
-
-    for (let col = 0; col < 5; col++) {
-        const colDiv = document.createElement('div');
-        colDiv.className = 'flex flex-col gap-2';
-        for(let row = 0; row < 7; row++) {
-            const currentObj = new Date(startDate);
-            currentObj.setDate(startDate.getDate() + (col * 7 + row));
-            const cStr = currentObj.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').join('-').replace(/\s/g, '').replace(/-$/,'');
-            
-            const aData = activityLog[cStr];
-            const totalAction = aData ? (aData.added||0) + (aData.tested||0) + (aData.quizzed||0) : 0;
-            
-            let colorClass = 'grass-0';
-            if(totalAction >= 30) colorClass = 'grass-4';
-            else if(totalAction >= 15) colorClass = 'grass-3';
-            else if(totalAction >= 5) colorClass = 'grass-2';
-            else if(totalAction >= 1) colorClass = 'grass-1';
-
-            const box = document.createElement('div');
-            box.className = `w-4 h-4 sm:w-5 sm:h-5 rounded-md ${colorClass} transition-all hover:scale-125 cursor-help relative group z-10`;
-            
-            const tooltip = document.createElement('div');
-            tooltip.className = 'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white font-black text-[10px] px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none border border-gray-700 shadow-xl';
-            tooltip.textContent = `${cStr}: ${totalAction} 활동`;
-            box.appendChild(tooltip);
-
-            colDiv.appendChild(box);
+    document.getElementById('stat-streak').innerHTML=`현재 <span class="text-emerald-400 font-black">${streak}일째</span> 연속 학습 중! 🔥`;
+    const grid=document.getElementById('grass-grid'); grid.innerHTML='';
+    const totalDays=35, startDate=new Date(); startDate.setDate(startDate.getDate()-totalDays+1);
+    for(let col=0;col<5;col++){
+        const colDiv=document.createElement('div'); colDiv.className='flex flex-col gap-2';
+        for(let row=0;row<7;row++){
+            const currentObj=new Date(startDate); currentObj.setDate(startDate.getDate()+(col*7+row));
+            const cStr=currentObj.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).split('.').join('-').replace(/\s/g,'').replace(/-$/,'');
+            const aData=activityLog[cStr]; const totalAction=aData?(aData.added||0)+(aData.tested||0)+(aData.quizzed||0):0;
+            let colorClass='grass-0';
+            if(totalAction>=30)colorClass='grass-4';else if(totalAction>=15)colorClass='grass-3';else if(totalAction>=5)colorClass='grass-2';else if(totalAction>=1)colorClass='grass-1';
+            const box=document.createElement('div');
+            box.className=`w-4 h-4 sm:w-5 sm:h-5 rounded-md ${colorClass} transition-all hover:scale-125 cursor-help relative group z-10`;
+            const tooltip=document.createElement('div');
+            tooltip.className='absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white font-black text-[10px] px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none border border-gray-700 shadow-xl';
+            tooltip.textContent=`${cStr}: ${totalAction} 활동`;
+            box.appendChild(tooltip); colDiv.appendChild(box);
         }
         grid.appendChild(colDiv);
     }
@@ -1418,59 +1633,42 @@ function renderStats() {
 
   let isInitialCloudLoad = true;
   let unsubscribeSnapshot = null;
-
   const cloudDot = document.getElementById('cloud-dot');
   const cloudStatusText = document.getElementById('cloud-status-text');
-
   const updateCloudStatus = (color, text) => {
-      cloudDot.className = `w-2 h-2 rounded-full bg-${color}-500 transition-colors duration-300 shadow-[0_0_10px_currentColor]`;
+      cloudDot.className = `w-2 h-2 rounded-full bg-${color}-500 transition-colors duration-300`;
       cloudStatusText.textContent = text;
   };
 
   signInAnonymously(auth).catch((error) => {
       console.error("자동 로그인 실패:", error);
       updateCloudStatus('rose', '오프라인 모드');
-      if (error.code === 'auth/operation-not-allowed') {
-          window.showToast("Firebase 콘솔에서 '익명 로그인'을 켜주세요!", "error");
-      } else {
-          window.showToast("클라우드 연결 실패: " + error.message, "error");
-      }
+      if (error.code === 'auth/operation-not-allowed') { window.showToast("Firebase 익명 로그인을 켜주세요!", "error"); }
+      else { window.showToast("클라우드 연결 실패: " + error.message, "error"); }
   });
 
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          setupRealtimeSync();
-      }
-  });
+  onAuthStateChanged(auth, (user) => { if (user) { setupRealtimeSync(); } });
 
   function setupRealtimeSync() {
       updateCloudStatus('amber', '동기화 연결 중...');
       const docRef = doc(db, 'shared_wordbook', 'my_private_data');
-
       if (unsubscribeSnapshot) unsubscribeSnapshot();
-      
       unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
           updateCloudStatus('emerald', '동기화 완료 ☁️');
           if (docSnap.exists()) {
               const data = docSnap.data();
-              if(data.wordsList) {
-                  try {
-                      const parsedData = JSON.parse(data.wordsList);
+              if(data.wordsList){
+                  try{
+                      const parsedData=JSON.parse(data.wordsList);
                       window.updateFromCloud(parsedData);
-                      if(isInitialCloudLoad) { window.showToast("☁️ 클라우드 동기화 완료!"); }
-                  } catch(e) { console.error("데이터 파싱 에러", e); }
+                      if(isInitialCloudLoad){window.showToast("☁️ 클라우드 동기화 완료!");}
+                  }catch(e){console.error("데이터 파싱 에러",e);}
               }
           } else {
-              if (window.words && window.words.length > 0) {
-                  window.triggerCloudSave({words: window.words, activityLog: window.activityLog});
-                  window.showToast("☁️ 기존 데이터를 클라우드에 백업했습니다.");
-              }
+              if(window.words&&window.words.length>0){window.triggerCloudSave({words:window.words,activityLog:window.activityLog});window.showToast("☁️ 기존 데이터를 클라우드에 백업했습니다.");}
           }
-          isInitialCloudLoad = false;
-      }, (error) => {
-          console.error("동기화 수신 에러:", error);
-          updateCloudStatus('rose', '오프라인 (에러)');
-      });
+          isInitialCloudLoad=false;
+      }, (error) => { console.error("동기화 수신 에러:", error); updateCloudStatus('rose', '오프라인 (에러)'); });
   }
 
   window.triggerCloudSave = (dataObj) => {
@@ -1478,10 +1676,7 @@ function renderStats() {
       const docRef = doc(db, 'shared_wordbook', 'my_private_data');
       setDoc(docRef, { wordsList: JSON.stringify(dataObj) })
         .then(() => { updateCloudStatus('emerald', '동기화 완료 ☁️'); })
-        .catch(error => {
-            console.error("클라우드 저장 실패:", error);
-            updateCloudStatus('rose', '저장 실패');
-        });
+        .catch(error => { console.error("클라우드 저장 실패:", error); updateCloudStatus('rose', '저장 실패'); });
   };
 </script>
 </body>
