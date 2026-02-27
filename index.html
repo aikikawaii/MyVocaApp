@@ -465,11 +465,11 @@
     <div class="max-w-4xl mx-auto w-full">
       <p class="text-xs sm:text-sm font-black text-gray-400 mb-3 uppercase tracking-widest">단어 심층 분석</p>
       <div class="relative group">
-        <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-20 group-focus-within:opacity-50 transition duration-300"></div>
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-20 group-focus-within:opacity-50 transition duration-300 pointer-events-none"></div>
         <input id="analysis-search" type="text" placeholder="단어를 검색해보세요..." class="relative w-full border border-gray-700 rounded-2xl p-4 pr-12 text-base focus:outline-none focus:border-indigo-500 bg-gray-800 text-white transition-all shadow-inner placeholder-gray-500 font-black tracking-wide" oninput="filterAnalysisWords()" onclick="showAnalysisDropdown()">
-        <span class="absolute right-5 top-4 text-xl text-gray-400 z-10">🔍</span>
+        <span class="absolute right-5 top-4 text-xl text-gray-400 z-10 pointer-events-none">🔍</span>
+        <div id="analysis-dropdown" class="hidden rounded-2xl max-h-60 overflow-y-auto no-scrollbar z-50" style="background:#1f2937;border:1px solid rgba(99,102,241,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.4);position:absolute;left:0;right:0;top:calc(100% + 6px);"></div>
       </div>
-      <div id="analysis-dropdown" class="hidden mt-3 neon-card rounded-2xl max-h-60 overflow-y-auto no-scrollbar absolute w-[calc(100%-2rem)] sm:w-[calc(100%-3rem)] max-w-4xl left-1/2 -translate-x-1/2 z-50"></div>
       <div id="analysis-selected-word" class="hidden mt-5 flex items-center gap-4 neon-card rounded-2xl px-5 py-4">
         <div class="flex-1 flex items-baseline gap-3 min-w-0">
           <span id="analysis-word-en-display" class="text-2xl sm:text-3xl font-black text-indigo-300 break-all tracking-tight"></span>
@@ -1769,7 +1769,19 @@ async function runNLPGrouping() {
 function openAnalysis(id){const w=words.find(x=>x.id===id);if(!w)return;switchTab('analysis');setTimeout(()=>selectAnalysisWord(w),60);}
 function filterAnalysisWords(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
 function showAnalysisDropdown(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
-function renderAnalysisDD(q=''){const dd=document.getElementById('analysis-dropdown');const f=words.filter(w=>w.en.toLowerCase().includes(q)||w.ko.includes(q));if(!f.length)return dd.classList.add('hidden');dd.innerHTML=f.map(w=>`<button class="w-full text-left px-5 py-4 hover:bg-gray-800 flex justify-between transition-colors border-b border-gray-700" onclick="selectAnalysisWord(words.find(x=>x.id===${w.id}))"><span class="font-black text-white">${w.en}</span><span class="text-sm font-bold text-indigo-400">${w.ko}</span></button>`).join('');dd.classList.remove('hidden');}
+function renderAnalysisDD(q=''){
+  const dd=document.getElementById('analysis-dropdown');
+  const f=words.filter(w=>w.en.toLowerCase().includes(q)||w.ko.includes(q));
+  if(!f.length){dd.classList.add('hidden');return;}
+  dd.innerHTML=f.slice(0,50).map(w=>`<button
+    class="w-full text-left px-5 py-3.5 flex justify-between items-center border-b border-gray-700/60 last:border-0"
+    style="background:transparent;transition:background 0.1s;"
+    onmouseenter="this.style.background='rgba(55,65,81,0.8)'"
+    onmouseleave="this.style.background='transparent'"
+    onclick="selectAnalysisWord(words.find(x=>x.id===${w.id}))"
+    ><span class="font-black text-white text-sm">${w.en}</span><span class="text-xs font-bold text-indigo-400 ml-3 flex-shrink-0">${w.ko}</span></button>`).join('');
+  dd.classList.remove('hidden');
+}
 function selectAnalysisWord(w){if(!w)return;analysisWord=w;document.getElementById('analysis-search').value='';document.getElementById('analysis-dropdown').classList.add('hidden');document.getElementById('analysis-word-en-display').textContent=w.en;document.getElementById('analysis-word-ko-display').textContent=w.ko;document.getElementById('analysis-selected-word').classList.remove('hidden');runAnalysis(w);}
 function clearAnalysisWord(){analysisWord=null;document.getElementById('analysis-selected-word').classList.add('hidden');document.getElementById('analysis-result').classList.add('hidden');document.getElementById('analysis-loading').classList.add('hidden');document.getElementById('analysis-placeholder').classList.remove('hidden');}
 
