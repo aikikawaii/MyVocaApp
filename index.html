@@ -557,7 +557,7 @@
           <span>NLP 엔진 가동</span> 🚀
       </button>
   </div>
-  <div id="group-loading" class="hidden flex-col items-center justify-center py-20 flex-1">
+  <div id="group-loading" class="flex-col items-center justify-center py-20 flex-1" style="display:none">
       <div class="relative w-24 h-24 mx-auto mb-8">
           <div class="absolute inset-0 border-4 border-gray-700 rounded-full"></div>
           <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
@@ -568,7 +568,7 @@
       </div>
       <p id="nlp-progress-text" class="text-sm font-black text-indigo-400">0 / 0</p>
   </div>
-  <div id="group-container" class="hidden flex-col gap-10 pb-8 flex-1">
+  <div id="group-container" class="flex-col gap-10 pb-8 flex-1" style="display:none">
       <section>
           <h3 class="text-xl font-black text-emerald-400 mb-4 px-2 border-l-4 border-emerald-500 ml-1 pl-3">1️⃣ 어근 및 파생어 패밀리 (Lemmatization)</h3>
           <p class="text-sm text-gray-400 font-bold mb-5 px-2">자체 JS 형태소 분석기로 단어의 접미사를 분리해 같은 뿌리(Root)를 가진 단어를 묶습니다.</p>
@@ -1688,12 +1688,13 @@ async function enrichWordsBatch(wordsToFetch, onProgress) {
 }
 
 async function runNLPGrouping() {
+    try {
     if(words.length < 2) return showToast('비교할 단어가 부족합니다.', 'error');
-    document.getElementById('group-container').classList.add('hidden');
+    document.getElementById('group-container').style.display = 'none';
     const loadingUI = document.getElementById('group-loading');
     const progressBar = document.getElementById('nlp-progress-bar');
     const progressText = document.getElementById('nlp-progress-text');
-    loadingUI.classList.remove('hidden'); loadingUI.classList.add('flex');
+    loadingUI.style.display = 'flex';
     progressBar.style.width = '0%';
 
     const needsFetch = words.filter(w => !w.nlp || !w.nlp.fetched);
@@ -1935,7 +1936,7 @@ async function runNLPGrouping() {
     const synantGrid = document.getElementById('nlp-synant-grid');
     synantGrid.innerHTML = synAntGroups.length ? '' : '<p class="text-gray-500 font-bold text-sm">유의어/반의어로 묶이는 단어가 없습니다.</p>';
     synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => { synantGrid.appendChild(buildSynAntCard(`의미 연결망 ${idx+1}`, g)); });
-    loadingUI.classList.add('hidden'); loadingUI.classList.remove('flex');
+    loadingUI.style.display = 'none';
     // ── 4. 주제별 카테고리 분류 ───────────────────────────────────────
     const categoryGrid = document.getElementById('nlp-category-grid');
     categoryGrid.innerHTML = '';
@@ -1950,7 +1951,13 @@ async function runNLPGrouping() {
         });
     if(!catFound) categoryGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">분류 가능한 카테고리가 없습니다.</p>';
 
-    document.getElementById('group-container').classList.remove('hidden'); document.getElementById('group-container').classList.add('flex');
+    document.getElementById('group-container').style.display = 'flex';
+    } catch(err) {
+        console.error('[NLP ERROR]', err);
+        showToast('NLP 오류: ' + err.message, 'error');
+        const loadingUI = document.getElementById('group-loading');
+        if(loadingUI){ loadingUI.style.display = 'none'; }
+    }
 }
 
 // ==============================
@@ -2223,6 +2230,301 @@ function renderStats() {
         grid.appendChild(colDiv);
     }
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 주제별 카테고리 분류 엔진
+// 전략: ① 한국어 뜻 키워드 매칭 (즉시) + ② 영어 동의어/상위개념 매칭 (enrichWord 데이터)
+// ═══════════════════════════════════════════════════════════════════════════
+const CATEGORY_DB = {
+  // spc: Datamuse rel_spc / rel_gen 이 실제로 반환하는 WordNet 상위개념·관련어
+  // 단어 "dog" → rel_spc → ["animal","canine","domestic_animal","carnivore","mammal","vertebrate","creature"]
+
+  '🐾 동물': {
+    color:'emerald', icon:'🐾',
+    spc: new Set([
+      'animal','creature','organism','vertebrate','invertebrate',
+      'mammal','bird','fish','insect','reptile','amphibian',
+      'canine','feline','equine','bovine','rodent',
+      'carnivore','herbivore','omnivore','predator','prey',
+      'pet','livestock','wildlife','species','beast',
+      'domestic animal','wild animal','marine animal',
+      'primate','marsupial','cetacean','mollusk','arthropod',
+    ])
+  },
+  '🌿 식물·자연': {
+    color:'green', icon:'🌿',
+    spc: new Set([
+      'plant','tree','flower','shrub','herb','grass','vine','moss','fern',
+      'natural object','organism','vegetation','flora',
+      'geographical area','landform','body of water',
+      'forest','mountain','river','ocean','desert','weather','atmosphere',
+      'ecosystem','biome','habitat','landscape','terrain',
+      'fruit','seed','leaf','root','stem','branch','bark','petal',
+    ])
+  },
+  '🧬 신체·의학': {
+    color:'red', icon:'🧬',
+    spc: new Set([
+      'body part','organ','body fluid','tissue','cell','nerve','muscle','bone',
+      'disease','illness','disorder','syndrome','condition','symptom','sign',
+      'medicine','drug','medication','treatment','therapy','surgery','procedure',
+      'medical specialty','health','anatomy','physiology','pathology',
+      'sensation','pain','ache','wound','injury','infection','inflammation',
+    ])
+  },
+  '💭 감정·심리': {
+    color:'pink', icon:'💭',
+    spc: new Set([
+      'emotion','feeling','mental state','psychological state','mood','affect',
+      'attitude','disposition','temperament','personality','character',
+      'cognitive state','mental process','consciousness','perception',
+      'desire','motivation','instinct','urge','compulsion',
+      'happiness','sadness','anger','fear','surprise','disgust','joy',
+    ])
+  },
+  '👥 사람·관계': {
+    color:'purple', icon:'👥',
+    spc: new Set([
+      'person','human','individual','adult','man','woman','child',
+      'family member','relative','ancestor','descendant',
+      'social group','organization','community','society','tribe',
+      'relationship','role','occupation','status','position',
+      'friend','colleague','partner','associate','ally','rival',
+    ])
+  },
+  '💼 직업·경제': {
+    color:'yellow', icon:'💼',
+    spc: new Set([
+      'occupation','job','profession','career','trade','vocation','calling',
+      'economic activity','business activity','commerce','industry',
+      'financial institution','bank','market','exchange','fund',
+      'money','currency','payment','transaction','contract','agreement',
+      'worker','employee','employer','entrepreneur','executive',
+    ])
+  },
+  '⚖️ 정치·법률': {
+    color:'slate', icon:'⚖️',
+    spc: new Set([
+      'political system','government','state','authority','regime','administration',
+      'law','legislation','regulation','rule','statute','code',
+      'crime','offense','violation','felony','misdemeanor',
+      'right','freedom','liberty','duty','obligation','privilege',
+      'military','armed force','army','navy','police','court',
+    ])
+  },
+  '🔬 과학·기술': {
+    color:'cyan', icon:'🔬',
+    spc: new Set([
+      'science','scientific discipline','natural science','social science',
+      'technology','engineering','computing','algorithm','software','hardware',
+      'research','experiment','theory','hypothesis','discovery','innovation',
+      'element','compound','reaction','force','energy','radiation','particle',
+      'measurement','instrument','device','machine','tool','equipment',
+    ])
+  },
+  '📚 교육·학문': {
+    color:'indigo', icon:'📚',
+    spc: new Set([
+      'educational institution','school','university','college','academy',
+      'subject field','discipline','knowledge domain','branch of knowledge',
+      'academic degree','qualification','certificate','award',
+      'cognitive process','learning','memory','reasoning','intelligence',
+      'written communication','document','text','publication','book',
+    ])
+  },
+  '🍽️ 음식·요리': {
+    color:'orange', icon:'🍽️',
+    spc: new Set([
+      'food','foodstuff','nutrient','ingredient','dish','meal','course',
+      'beverage','drink','liquid','alcohol','juice',
+      'cooking','cuisine','recipe','method','preparation',
+      'taste','flavor','aroma','texture','spice','seasoning','condiment',
+      'vegetable','fruit','meat','seafood','grain','dairy','legume','nut',
+    ])
+  },
+  '⚽ 스포츠·운동': {
+    color:'lime', icon:'⚽',
+    spc: new Set([
+      'sport','athletic game','athletic competition','physical exercise','workout',
+      'game','match','tournament','championship','league','contest',
+      'player','athlete','team','coach','referee','official',
+      'equipment','gear','uniform','venue','stadium','court','field',
+      'score','point','goal','record','performance','technique','skill',
+    ])
+  },
+  '🎨 예술·문화': {
+    color:'fuchsia', icon:'🎨',
+    spc: new Set([
+      'art','visual art','fine art','art form','artistic style','art movement',
+      'music','musical composition','musical genre','instrument','melody','rhythm',
+      'literary work','literary genre','novel','poem','drama','narrative',
+      'film','movie','performance','exhibition','show','concert','play',
+      'culture','tradition','custom','ritual','ceremony','festival','religion',
+    ])
+  },
+  '⏰ 시간·공간': {
+    color:'teal', icon:'⏰',
+    spc: new Set([
+      'time period','time unit','era','epoch','age','century','decade','season',
+      'location','place','site','region','area','zone','territory',
+      'spatial relation','position','direction','distance','dimension',
+      'temporal relation','sequence','order','interval','frequency','duration',
+      'change','movement','transition','transformation','process',
+    ])
+  },
+  '🚗 교통·이동': {
+    color:'sky', icon:'🚗',
+    spc: new Set([
+      'vehicle','conveyance','craft','mode of transportation',
+      'car','automobile','truck','bus','motorcycle','bicycle',
+      'aircraft','airplane','helicopter','ship','boat','train','subway',
+      'travel','journey','trip','tour','voyage','expedition','commute',
+      'road','highway','route','path','track','lane','bridge','tunnel',
+    ])
+  },
+  '🏛️ 건물·시설': {
+    color:'stone', icon:'🏛️',
+    spc: new Set([
+      'building','structure','construction','edifice','facility','complex',
+      'house','dwelling','residence','home','apartment','shelter',
+      'institution','establishment','organization','center',
+      'room','space','area','floor','wall','door','window',
+      'landmark','monument','tower','bridge','infrastructure',
+    ])
+  },
+  '📡 통신·미디어': {
+    color:'violet', icon:'📡',
+    spc: new Set([
+      'communication','telecommunication','transmission','signal','broadcast',
+      'medium','media','channel','platform','network','system',
+      'message','information','content','data','news','report',
+      'publication','newspaper','magazine','book','journal','article',
+      'electronic device','computer','phone','radio','television','internet',
+    ])
+  },
+  '💡 추상·개념': {
+    color:'amber', icon:'💡',
+    spc: new Set([
+      'abstraction','concept','idea','notion','theory','principle','rule',
+      'attribute','property','quality','characteristic','feature','aspect',
+      'relation','connection','association','correlation','contrast',
+      'process','method','system','approach','strategy','framework',
+      'value','standard','criterion','measure','degree','level','amount',
+    ])
+  },
+};
+
+
+// ── rel_spc 기반 카테고리 분류 ──────────────────────────────────────────
+// Datamuse rel_spc: "dog" → ["animal","canine","pet","mammal"]
+// 이 상위개념 단어들이 카테고리 키워드 셋에 포함되는지 확인
+// 점수 체계: spc 직접 매칭(10) > 영어 단어 직접 매칭(8) > spc 부분 포함(5) > syn 매칭(3)
+
+function scoreWordForCategory(word, catData) {
+  let score = 0;
+  const enLower = (word.en || '').toLowerCase().replace(/_/g, ' ');
+  const spc = (word.nlp?.spc || []).map(s => s.toLowerCase().replace(/_/g, ' '));
+  const syn = (word.nlp?.syn || []).map(s => s.toLowerCase());
+  const kwSet = catData.spc; // 이미 Set
+
+  // 1) rel_spc 결과 정확 매칭 (+10)
+  for (const s of spc) {
+    if (kwSet.has(s)) { score += 10; break; }
+  }
+  // 2) rel_spc 부분 포함 매칭 (+6) — "body part" ∋ "part" 같은 케이스
+  if (score === 0) {
+    outer: for (const s of spc) {
+      for (const kw of kwSet) {
+        if (kw.length > 3 && (s.includes(kw) || kw.includes(s))) { score += 6; break outer; }
+      }
+    }
+  }
+  // 3) 단어 자체가 카테고리 키워드 (+8)
+  if (kwSet.has(enLower)) score += 8;
+
+  // 4) 유의어 중 카테고리 키워드 매칭 (+4) — spc 없는 단어 보완
+  if (score === 0) {
+    for (const s of syn) {
+      if (kwSet.has(s)) { score += 4; break; }
+    }
+  }
+  return score;
+}
+
+function buildCategoryGroups(wordList) {
+  // enrichWord가 아직 실행 안 된 단어는 spc 없음 → 미분류로 갈 수 있음
+  // 사용자에게 NLP 가동 후 사용하라는 안내는 섹션 설명에서 처리
+  const result = {};
+  for (const [catKey, catData] of Object.entries(CATEGORY_DB)) {
+    result[catKey] = { ...catData, words: [] };
+  }
+  result['❓ 미분류'] = { color: 'gray', icon: '❓', words: [], spc: new Set() };
+
+  for (const w of wordList) {
+    let bestCat = null, bestScore = 0;
+    for (const [catKey, catData] of Object.entries(CATEGORY_DB)) {
+      if (!(catData.spc instanceof Set)) continue; // spc가 Set이 아니면 건너뜀
+      const score = scoreWordForCategory(w, catData);
+      if (score > bestScore) { bestScore = score; bestCat = catKey; }
+    }
+    const THRESHOLD = 4;
+    if (bestCat && bestScore >= THRESHOLD) {
+      result[bestCat].words.push({ word: w, score: bestScore });
+    } else {
+      result['❓ 미분류'].words.push({ word: w, score: 0 });
+    }
+  }
+  for (const g of Object.values(result)) {
+    g.words.sort((a, b) => b.score - a.score);
+  }
+  return result;
+}
+
+function buildCategoryCard(catKey, groupData) {
+  if (!groupData || !groupData.words) return document.createElement('div');
+  const card = document.createElement('div');
+  const colorMap = {
+    emerald:'border-emerald-700/50 bg-emerald-900/10', green:'border-green-700/50 bg-green-900/10',
+    red:'border-red-700/50 bg-red-900/10', pink:'border-pink-700/50 bg-pink-900/10',
+    purple:'border-purple-700/50 bg-purple-900/10', yellow:'border-yellow-700/50 bg-yellow-900/10',
+    slate:'border-slate-600/50 bg-slate-800/20', cyan:'border-cyan-700/50 bg-cyan-900/10',
+    indigo:'border-indigo-700/50 bg-indigo-900/10', orange:'border-orange-700/50 bg-orange-900/10',
+    lime:'border-lime-700/50 bg-lime-900/10', fuchsia:'border-fuchsia-700/50 bg-fuchsia-900/10',
+    teal:'border-teal-700/50 bg-teal-900/10', sky:'border-sky-700/50 bg-sky-900/10',
+    stone:'border-stone-600/50 bg-stone-800/20', violet:'border-violet-700/50 bg-violet-900/10',
+    amber:'border-amber-700/50 bg-amber-900/10', gray:'border-gray-600/50 bg-gray-800/20',
+  };
+  const textColorMap = {
+    emerald:'text-emerald-300', green:'text-green-300', red:'text-red-300', pink:'text-pink-300',
+    purple:'text-purple-300', yellow:'text-yellow-300', slate:'text-slate-300', cyan:'text-cyan-300',
+    indigo:'text-indigo-300', orange:'text-orange-300', lime:'text-lime-300', fuchsia:'text-fuchsia-300',
+    teal:'text-teal-300', sky:'text-sky-300', stone:'text-stone-300', violet:'text-violet-300',
+    amber:'text-amber-300', gray:'text-gray-400',
+  };
+  const borderBg = colorMap[groupData.color] || colorMap.gray;
+  const textCls = textColorMap[groupData.color] || 'text-gray-300';
+  card.className = `neon-card p-5 rounded-3xl flex flex-col h-full fade-in border ${borderBg}`;
+
+  const chips = groupData.words.map(({ word: w }) =>
+    `<span class="chip bg-gray-900/80 border border-gray-700 hover:bg-gray-800 cursor-pointer text-sm" onclick="openAnalysis(${w.id})">
+      <span class="font-black text-white">${w.en}</span>
+      <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span>
+    </span>`
+  ).join('');
+
+  card.innerHTML = `
+    <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700/60">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">${groupData.icon}</span>
+        <h4 class="font-black ${textCls} text-sm leading-tight">${catKey.replace(/^[^\s]+\s/, '')}</h4>
+      </div>
+      <span class="text-[10px] font-black ${textCls} bg-gray-800 px-2 py-1 rounded-full border border-gray-700 whitespace-nowrap">${groupData.words.length}단어</span>
+    </div>
+    <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chips}</div>`;
+  return card;
+}
+
 </script>
 
 <script type="module">
@@ -2519,298 +2821,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (badge && due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
     }, 500);
 });
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 주제별 카테고리 분류 엔진
-// 전략: ① 한국어 뜻 키워드 매칭 (즉시) + ② 영어 동의어/상위개념 매칭 (enrichWord 데이터)
-// ═══════════════════════════════════════════════════════════════════════════
-const CATEGORY_DB = {
-  // spc: Datamuse rel_spc / rel_gen 이 실제로 반환하는 WordNet 상위개념·관련어
-  // 단어 "dog" → rel_spc → ["animal","canine","domestic_animal","carnivore","mammal","vertebrate","creature"]
-
-  '🐾 동물': {
-    color:'emerald', icon:'🐾',
-    spc: new Set([
-      'animal','creature','organism','vertebrate','invertebrate',
-      'mammal','bird','fish','insect','reptile','amphibian',
-      'canine','feline','equine','bovine','rodent',
-      'carnivore','herbivore','omnivore','predator','prey',
-      'pet','livestock','wildlife','species','beast',
-      'domestic animal','wild animal','marine animal',
-      'primate','marsupial','cetacean','mollusk','arthropod',
-    ])
-  },
-  '🌿 식물·자연': {
-    color:'green', icon:'🌿',
-    spc: new Set([
-      'plant','tree','flower','shrub','herb','grass','vine','moss','fern',
-      'natural object','organism','vegetation','flora',
-      'geographical area','landform','body of water',
-      'forest','mountain','river','ocean','desert','weather','atmosphere',
-      'ecosystem','biome','habitat','landscape','terrain',
-      'fruit','seed','leaf','root','stem','branch','bark','petal',
-    ])
-  },
-  '🧬 신체·의학': {
-    color:'red', icon:'🧬',
-    spc: new Set([
-      'body part','organ','body fluid','tissue','cell','nerve','muscle','bone',
-      'disease','illness','disorder','syndrome','condition','symptom','sign',
-      'medicine','drug','medication','treatment','therapy','surgery','procedure',
-      'medical specialty','health','anatomy','physiology','pathology',
-      'sensation','pain','ache','wound','injury','infection','inflammation',
-    ])
-  },
-  '💭 감정·심리': {
-    color:'pink', icon:'💭',
-    spc: new Set([
-      'emotion','feeling','mental state','psychological state','mood','affect',
-      'attitude','disposition','temperament','personality','character',
-      'cognitive state','mental process','consciousness','perception',
-      'desire','motivation','instinct','urge','compulsion',
-      'happiness','sadness','anger','fear','surprise','disgust','joy',
-    ])
-  },
-  '👥 사람·관계': {
-    color:'purple', icon:'👥',
-    spc: new Set([
-      'person','human','individual','adult','man','woman','child',
-      'family member','relative','ancestor','descendant',
-      'social group','organization','community','society','tribe',
-      'relationship','role','occupation','status','position',
-      'friend','colleague','partner','associate','ally','rival',
-    ])
-  },
-  '💼 직업·경제': {
-    color:'yellow', icon:'💼',
-    spc: new Set([
-      'occupation','job','profession','career','trade','vocation','calling',
-      'economic activity','business activity','commerce','industry',
-      'financial institution','bank','market','exchange','fund',
-      'money','currency','payment','transaction','contract','agreement',
-      'worker','employee','employer','entrepreneur','executive',
-    ])
-  },
-  '⚖️ 정치·법률': {
-    color:'slate', icon:'⚖️',
-    spc: new Set([
-      'political system','government','state','authority','regime','administration',
-      'law','legislation','regulation','rule','statute','code',
-      'crime','offense','violation','felony','misdemeanor',
-      'right','freedom','liberty','duty','obligation','privilege',
-      'military','armed force','army','navy','police','court',
-    ])
-  },
-  '🔬 과학·기술': {
-    color:'cyan', icon:'🔬',
-    spc: new Set([
-      'science','scientific discipline','natural science','social science',
-      'technology','engineering','computing','algorithm','software','hardware',
-      'research','experiment','theory','hypothesis','discovery','innovation',
-      'element','compound','reaction','force','energy','radiation','particle',
-      'measurement','instrument','device','machine','tool','equipment',
-    ])
-  },
-  '📚 교육·학문': {
-    color:'indigo', icon:'📚',
-    spc: new Set([
-      'educational institution','school','university','college','academy',
-      'subject field','discipline','knowledge domain','branch of knowledge',
-      'academic degree','qualification','certificate','award',
-      'cognitive process','learning','memory','reasoning','intelligence',
-      'written communication','document','text','publication','book',
-    ])
-  },
-  '🍽️ 음식·요리': {
-    color:'orange', icon:'🍽️',
-    spc: new Set([
-      'food','foodstuff','nutrient','ingredient','dish','meal','course',
-      'beverage','drink','liquid','alcohol','juice',
-      'cooking','cuisine','recipe','method','preparation',
-      'taste','flavor','aroma','texture','spice','seasoning','condiment',
-      'vegetable','fruit','meat','seafood','grain','dairy','legume','nut',
-    ])
-  },
-  '⚽ 스포츠·운동': {
-    color:'lime', icon:'⚽',
-    spc: new Set([
-      'sport','athletic game','athletic competition','physical exercise','workout',
-      'game','match','tournament','championship','league','contest',
-      'player','athlete','team','coach','referee','official',
-      'equipment','gear','uniform','venue','stadium','court','field',
-      'score','point','goal','record','performance','technique','skill',
-    ])
-  },
-  '🎨 예술·문화': {
-    color:'fuchsia', icon:'🎨',
-    spc: new Set([
-      'art','visual art','fine art','art form','artistic style','art movement',
-      'music','musical composition','musical genre','instrument','melody','rhythm',
-      'literary work','literary genre','novel','poem','drama','narrative',
-      'film','movie','performance','exhibition','show','concert','play',
-      'culture','tradition','custom','ritual','ceremony','festival','religion',
-    ])
-  },
-  '⏰ 시간·공간': {
-    color:'teal', icon:'⏰',
-    spc: new Set([
-      'time period','time unit','era','epoch','age','century','decade','season',
-      'location','place','site','region','area','zone','territory',
-      'spatial relation','position','direction','distance','dimension',
-      'temporal relation','sequence','order','interval','frequency','duration',
-      'change','movement','transition','transformation','process',
-    ])
-  },
-  '🚗 교통·이동': {
-    color:'sky', icon:'🚗',
-    spc: new Set([
-      'vehicle','conveyance','craft','mode of transportation',
-      'car','automobile','truck','bus','motorcycle','bicycle',
-      'aircraft','airplane','helicopter','ship','boat','train','subway',
-      'travel','journey','trip','tour','voyage','expedition','commute',
-      'road','highway','route','path','track','lane','bridge','tunnel',
-    ])
-  },
-  '🏛️ 건물·시설': {
-    color:'stone', icon:'🏛️',
-    spc: new Set([
-      'building','structure','construction','edifice','facility','complex',
-      'house','dwelling','residence','home','apartment','shelter',
-      'institution','establishment','organization','center',
-      'room','space','area','floor','wall','door','window',
-      'landmark','monument','tower','bridge','infrastructure',
-    ])
-  },
-  '📡 통신·미디어': {
-    color:'violet', icon:'📡',
-    spc: new Set([
-      'communication','telecommunication','transmission','signal','broadcast',
-      'medium','media','channel','platform','network','system',
-      'message','information','content','data','news','report',
-      'publication','newspaper','magazine','book','journal','article',
-      'electronic device','computer','phone','radio','television','internet',
-    ])
-  },
-  '💡 추상·개념': {
-    color:'amber', icon:'💡',
-    spc: new Set([
-      'abstraction','concept','idea','notion','theory','principle','rule',
-      'attribute','property','quality','characteristic','feature','aspect',
-      'relation','connection','association','correlation','contrast',
-      'process','method','system','approach','strategy','framework',
-      'value','standard','criterion','measure','degree','level','amount',
-    ])
-  },
-};
-
-
-// ── rel_spc 기반 카테고리 분류 ──────────────────────────────────────────
-// Datamuse rel_spc: "dog" → ["animal","canine","pet","mammal"]
-// 이 상위개념 단어들이 카테고리 키워드 셋에 포함되는지 확인
-// 점수 체계: spc 직접 매칭(10) > 영어 단어 직접 매칭(8) > spc 부분 포함(5) > syn 매칭(3)
-
-function scoreWordForCategory(word, catData) {
-  let score = 0;
-  const enLower = (word.en || '').toLowerCase().replace(/_/g, ' ');
-  const spc = (word.nlp?.spc || []).map(s => s.toLowerCase().replace(/_/g, ' '));
-  const syn = (word.nlp?.syn || []).map(s => s.toLowerCase());
-  const kwSet = catData.spc; // 이미 Set
-
-  // 1) rel_spc 결과 정확 매칭 (+10)
-  for (const s of spc) {
-    if (kwSet.has(s)) { score += 10; break; }
-  }
-  // 2) rel_spc 부분 포함 매칭 (+6) — "body part" ∋ "part" 같은 케이스
-  if (score === 0) {
-    outer: for (const s of spc) {
-      for (const kw of kwSet) {
-        if (kw.length > 3 && (s.includes(kw) || kw.includes(s))) { score += 6; break outer; }
-      }
-    }
-  }
-  // 3) 단어 자체가 카테고리 키워드 (+8)
-  if (kwSet.has(enLower)) score += 8;
-
-  // 4) 유의어 중 카테고리 키워드 매칭 (+4) — spc 없는 단어 보완
-  if (score === 0) {
-    for (const s of syn) {
-      if (kwSet.has(s)) { score += 4; break; }
-    }
-  }
-  return score;
-}
-
-function buildCategoryGroups(wordList) {
-  // enrichWord가 아직 실행 안 된 단어는 spc 없음 → 미분류로 갈 수 있음
-  // 사용자에게 NLP 가동 후 사용하라는 안내는 섹션 설명에서 처리
-  const result = {};
-  for (const [catKey, catData] of Object.entries(CATEGORY_DB)) {
-    result[catKey] = { ...catData, words: [] };
-  }
-  result['❓ 미분류'] = { color: 'gray', icon: '❓', words: [], spc: new Set() };
-
-  for (const w of wordList) {
-    let bestCat = null, bestScore = 0;
-    for (const [catKey, catData] of Object.entries(CATEGORY_DB)) {
-      const score = scoreWordForCategory(w, catData);
-      if (score > bestScore) { bestScore = score; bestCat = catKey; }
-    }
-    const THRESHOLD = 4;
-    if (bestCat && bestScore >= THRESHOLD) {
-      result[bestCat].words.push({ word: w, score: bestScore });
-    } else {
-      result['❓ 미분류'].words.push({ word: w, score: 0 });
-    }
-  }
-  for (const g of Object.values(result)) {
-    g.words.sort((a, b) => b.score - a.score);
-  }
-  return result;
-}
-
-function buildCategoryCard(catKey, groupData) {
-  const card = document.createElement('div');
-  const colorMap = {
-    emerald:'border-emerald-700/50 bg-emerald-900/10', green:'border-green-700/50 bg-green-900/10',
-    red:'border-red-700/50 bg-red-900/10', pink:'border-pink-700/50 bg-pink-900/10',
-    purple:'border-purple-700/50 bg-purple-900/10', yellow:'border-yellow-700/50 bg-yellow-900/10',
-    slate:'border-slate-600/50 bg-slate-800/20', cyan:'border-cyan-700/50 bg-cyan-900/10',
-    indigo:'border-indigo-700/50 bg-indigo-900/10', orange:'border-orange-700/50 bg-orange-900/10',
-    lime:'border-lime-700/50 bg-lime-900/10', fuchsia:'border-fuchsia-700/50 bg-fuchsia-900/10',
-    teal:'border-teal-700/50 bg-teal-900/10', sky:'border-sky-700/50 bg-sky-900/10',
-    stone:'border-stone-600/50 bg-stone-800/20', violet:'border-violet-700/50 bg-violet-900/10',
-    amber:'border-amber-700/50 bg-amber-900/10', gray:'border-gray-600/50 bg-gray-800/20',
-  };
-  const textColorMap = {
-    emerald:'text-emerald-300', green:'text-green-300', red:'text-red-300', pink:'text-pink-300',
-    purple:'text-purple-300', yellow:'text-yellow-300', slate:'text-slate-300', cyan:'text-cyan-300',
-    indigo:'text-indigo-300', orange:'text-orange-300', lime:'text-lime-300', fuchsia:'text-fuchsia-300',
-    teal:'text-teal-300', sky:'text-sky-300', stone:'text-stone-300', violet:'text-violet-300',
-    amber:'text-amber-300', gray:'text-gray-400',
-  };
-  const borderBg = colorMap[groupData.color] || colorMap.gray;
-  const textCls = textColorMap[groupData.color] || 'text-gray-300';
-  card.className = `neon-card p-5 rounded-3xl flex flex-col h-full fade-in border ${borderBg}`;
-
-  const chips = groupData.words.map(({ word: w }) =>
-    `<span class="chip bg-gray-900/80 border border-gray-700 hover:bg-gray-800 cursor-pointer text-sm" onclick="openAnalysis(${w.id})">
-      <span class="font-black text-white">${w.en}</span>
-      <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span>
-    </span>`
-  ).join('');
-
-  card.innerHTML = `
-    <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700/60">
-      <div class="flex items-center gap-2">
-        <span class="text-xl">${groupData.icon}</span>
-        <h4 class="font-black ${textCls} text-sm leading-tight">${catKey.replace(/^[^\s]+\s/, '')}</h4>
-      </div>
-      <span class="text-[10px] font-black ${textCls} bg-gray-800 px-2 py-1 rounded-full border border-gray-700 whitespace-nowrap">${groupData.words.length}단어</span>
-    </div>
-    <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chips}</div>`;
-  return card;
-}
-
 </script>
 </body>
 </html>
