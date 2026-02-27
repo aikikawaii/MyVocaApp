@@ -919,21 +919,40 @@ function saveConf() {
     localStorage.setItem('confMatrix', JSON.stringify(confMatrix));
   }, 500);
 }
-document.addEventListener('DOMContentLoaded',()=>{loadData();loadConf();buildSimMatrixAsync().then(()=>scheduleRender());});
+document.addEventListener('DOMContentLoaded',()=>{
+  loadData();
+  loadConf();
+  buildSimMatrixAsync().then(()=>scheduleRender());
+  // SRS 뱃지 초기화
+  setTimeout(() => {
+    if(typeof renderSRSDashboard === 'function') {
+      const due = getSRSDue();
+      const badge = document.getElementById('srs-due-badge');
+      if(badge && due.length > 0){ badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
+    }
+  }, 300);
+});
 
 function switchTab(name){
-  // SRS 탭 진입 시 대시보드 갱신
-  if (name === 'srs') requestAnimationFrame(renderSRSDashboard);
   ALL_TABS.forEach(t=>{
     const btn=document.getElementById(`tab-${t}`),view=document.getElementById(`view-${t}`);
-    if(t===name){
-      btn.className='active-bounce flex-1 min-w-[80px] py-3.5 font-black text-indigo-300 border-b-4 border-indigo-500 bg-gray-800/80 transition-all whitespace-nowrap';
-      if(view) view.classList.remove('hidden');
-    } else {
-      btn.className='active-bounce flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-all hover:bg-gray-800/50 hover:text-indigo-300 whitespace-nowrap';
-      if(view) view.classList.add('hidden');
+    const isActive = t === name;
+    if(btn){
+      // className 완전 덮어쓰기 제거 — active 관련 클래스만 토글
+      btn.classList.toggle('font-black', isActive);
+      btn.classList.toggle('text-indigo-400', isActive);
+      btn.classList.toggle('border-indigo-500', isActive);
+      btn.classList.toggle('bg-gray-800/80', isActive);
+      btn.classList.toggle('font-bold', !isActive);
+      btn.classList.toggle('text-gray-500', !isActive);
+      btn.classList.toggle('border-transparent', !isActive);
+    }
+    if(view){
+      if(isActive) view.classList.remove('hidden');
+      else view.classList.add('hidden');
     }
   });
+  if(name === 'srs') requestAnimationFrame(renderSRSDashboard);
   if(name!=='test') resetTestView();
   if(name!=='quiz') resetQuizView();
   if(name!=='analysis') document.getElementById('analysis-dropdown').classList.add('hidden');
@@ -1057,11 +1076,11 @@ function importData(e){const file=e.target.files[0];if(!file)return;const r=new 
 // ==============================
 function resetTestView(){
     testQueue=[];testPool=[];testIdx=0;testCorrect=0;
-    document.getElementById('test-intro').classList.remove('hidden');
-    document.getElementById('test-active').classList.add('hidden');
-    document.getElementById('test-result').classList.add('hidden');
-    document.getElementById('test-intro-main').classList.remove('hidden');
-    document.getElementById('test-intro-sets').classList.add('hidden');
+    const ti=document.getElementById('test-intro'); if(ti) ti.classList.remove('hidden');
+    const ta=document.getElementById('test-active'); if(ta) ta.classList.add('hidden');
+    const tr=document.getElementById('test-result'); if(tr) tr.classList.add('hidden');
+    const tim=document.getElementById('test-intro-main'); if(tim) tim.classList.remove('hidden');
+    const tis=document.getElementById('test-intro-sets'); if(tis) tis.classList.add('hidden');
 }
 function showSetSelection() {
     if(words.length === 0) return showToast('단어가 없습니다!', 'error');
@@ -1193,9 +1212,9 @@ function resetQuizView(){
     stopQuizTimer();
     quizQueue=[];quizIdx=0;quizPool=[];quizMode='random';
     quizCombo=0;quizBestCombo=0;
-    document.getElementById('quiz-intro').classList.remove('hidden');
-    document.getElementById('quiz-active').classList.add('hidden');
-    document.getElementById('quiz-result').classList.add('hidden');
+    const qi=document.getElementById('quiz-intro'); if(qi) qi.classList.remove('hidden');
+    const qa=document.getElementById('quiz-active'); if(qa) qa.classList.add('hidden');
+    const qr=document.getElementById('quiz-result'); if(qr) qr.classList.add('hidden');
 }
 
 function startQuiz(mode){
@@ -2156,6 +2175,7 @@ function getSRSNew() {
 
 // 대시보드 렌더
 function renderSRSDashboard() {
+    if (!Array.isArray(words)) return;
     const due = getSRSDue();
     const newW = getSRSNew();
     const learning = words.filter(w => w.srs && w.srs.due);
@@ -2201,6 +2221,7 @@ function renderSRSDashboard() {
 let srsQueue = [], srsIdx = 0, srsMode = 'due', srsCorrect = 0, srsWrong = 0, srsCurrentWord = null;
 
 function startSRS(mode) {
+    if (!words || !words.length) return showToast('단어가 없습니다!', 'error');
     srsMode = mode;
     if (mode === 'due') {
         srsQueue = shuffle(getSRSDue());
