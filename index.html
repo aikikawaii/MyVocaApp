@@ -86,6 +86,34 @@
   }
 
   /* ===== 기존 스타일 유지 ===== */
+
+  /* ── 사지선다 타이머 바 ── */
+  #quiz-timer-bar-wrap {
+    height: 6px;
+    background: rgba(55, 65, 81, 0.6);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    flex-shrink: 0;
+  }
+  #quiz-timer-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #6366f1, #a78bfa);
+    transition: width 0.1s linear, background 0.4s ease;
+    transform-origin: left;
+  }
+  #quiz-timer-bar.warning {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  }
+  #quiz-timer-bar.danger {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+    animation: timerPulse 0.5s ease infinite;
+  }
+  @keyframes timerPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.55; }
+  }
   .chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 9999px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid transparent; position: relative; }
   .chip:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
   .chip:active { transform: scale(0.95); }
@@ -142,12 +170,13 @@
 
 <!-- 탭 -->
 <div class="flex border-b border-gray-800 bg-gray-900 z-10 flex-shrink-0 overflow-x-auto no-scrollbar" style="font-size:14px">
-  <button id="tab-manage"   class="active-bounce flex-1 min-w-[80px] py-3.5 font-black text-indigo-400 border-b-4 border-indigo-500 bg-gray-800/80 transition-colors whitespace-nowrap" onclick="switchTab('manage')">단어 📝</button>
-  <button id="tab-test"     class="active-bounce flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap" onclick="switchTab('test')">학습 🎲</button>
-  <button id="tab-quiz"     class="active-bounce flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap" onclick="switchTab('quiz')">사지선다 🎯</button>
-  <button id="tab-analysis" class="active-bounce flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap" onclick="switchTab('analysis')">분석 🔬</button>
-  <button id="tab-group"    class="active-bounce flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap" onclick="switchTab('group')">그룹핑 🧩</button>
-  <button id="tab-stats"    class="active-bounce flex-1 min-w-[80px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap" onclick="switchTab('stats')">통계 📊</button>
+  <button id="tab-manage"   class="active-bounce flex-1 min-w-[70px] py-3.5 font-black text-indigo-400 border-b-4 border-indigo-500 bg-gray-800/80 transition-colors whitespace-nowrap text-sm" onclick="switchTab('manage')">단어 📝</button>
+  <button id="tab-srs"      class="active-bounce flex-1 min-w-[70px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap text-sm relative" onclick="switchTab('srs')">SRS 🔁<span id="srs-due-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-black rounded-full px-1.5 py-0.5 min-w-[18px] text-center"></span></button>
+  <button id="tab-test"     class="active-bounce flex-1 min-w-[70px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap text-sm" onclick="switchTab('test')">플래시 🎲</button>
+  <button id="tab-quiz"     class="active-bounce flex-1 min-w-[70px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap text-sm" onclick="switchTab('quiz')">사지선다 🎯</button>
+  <button id="tab-analysis" class="active-bounce flex-1 min-w-[70px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap text-sm" onclick="switchTab('analysis')">분석 🔬</button>
+  <button id="tab-group"    class="active-bounce flex-1 min-w-[70px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap text-sm" onclick="switchTab('group')">그룹핑 🧩</button>
+  <button id="tab-stats"    class="active-bounce flex-1 min-w-[70px] py-3.5 font-bold text-gray-500 border-b-4 border-transparent transition-colors hover:bg-gray-800/60 hover:text-indigo-300 whitespace-nowrap text-sm" onclick="switchTab('stats')">통계 📊</button>
 </div>
 
 <!-- ===== 1. 관리 ===== -->
@@ -208,6 +237,167 @@
 </div>
 
 <!-- ===== 2. 학습 ===== -->
+<!-- ===== SRS 간격반복 탭 ===== -->
+<div id="view-srs" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
+
+  <!-- 대시보드 -->
+  <div id="srs-dashboard" class="flex flex-col gap-4 w-full max-w-2xl mx-auto fade-in">
+    <div class="neon-card p-6 rounded-3xl">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">간격반복 학습 🔁</h2>
+          <p class="text-gray-400 text-sm font-bold mt-1">망각 곡선 기반 · Anki SM-2 알고리즘</p>
+        </div>
+        <div class="text-4xl">🧠</div>
+      </div>
+      <!-- 오늘 할 일 요약 -->
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="bg-rose-900/30 border border-rose-700/50 rounded-2xl p-4 text-center">
+          <p class="text-3xl font-black text-rose-300" id="srs-count-due">0</p>
+          <p class="text-xs font-black text-rose-400 mt-1 uppercase tracking-wide">오늘 복습</p>
+        </div>
+        <div class="bg-emerald-900/30 border border-emerald-700/50 rounded-2xl p-4 text-center">
+          <p class="text-3xl font-black text-emerald-300" id="srs-count-new">0</p>
+          <p class="text-xs font-black text-emerald-400 mt-1 uppercase tracking-wide">신규 예정</p>
+        </div>
+        <div class="bg-indigo-900/30 border border-indigo-700/50 rounded-2xl p-4 text-center">
+          <p class="text-3xl font-black text-indigo-300" id="srs-count-total">0</p>
+          <p class="text-xs font-black text-indigo-400 mt-1 uppercase tracking-wide">총 학습중</p>
+        </div>
+      </div>
+      <!-- 2주 목표 진행바 -->
+      <div class="mb-5">
+        <div class="flex justify-between mb-1.5">
+          <span class="text-xs font-black text-gray-400 uppercase tracking-wide">2주 목표 진행률</span>
+          <span class="text-xs font-black text-indigo-300" id="srs-goal-pct">0%</span>
+        </div>
+        <div class="h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+          <div id="srs-goal-bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-700" style="width:0%"></div>
+        </div>
+        <p class="text-xs text-gray-500 font-bold mt-1.5" id="srs-goal-label">목표: 2000개 · 오늘 권장 신규: <span id="srs-daily-target" class="text-indigo-400">-</span>개</p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="startSRS('due')" id="srs-btn-due" class="active-bounce flex-1 bg-rose-600 text-white font-black py-4 rounded-2xl hover:bg-rose-500 border border-rose-500 shadow-md disabled:opacity-40 disabled:cursor-not-allowed">복습하기 🔥</button>
+        <button onclick="startSRS('new')" id="srs-btn-new" class="active-bounce flex-1 bg-emerald-700 text-white font-black py-4 rounded-2xl hover:bg-emerald-600 border border-emerald-600 shadow-md">신규 암기 ✨</button>
+      </div>
+    </div>
+    <!-- 다음 예정 미리보기 -->
+    <div class="neon-card p-5 rounded-3xl">
+      <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-3">다가오는 복습 스케줄</h3>
+      <div id="srs-upcoming" class="space-y-2 text-sm font-bold text-gray-300"></div>
+    </div>
+  </div>
+
+  <!-- 학습 카드 -->
+  <div id="srs-session" class="hidden flex-1 flex flex-col max-w-2xl mx-auto w-full">
+    <div class="flex justify-between items-center mb-4 flex-shrink-0">
+      <button onclick="exitSRS()" class="text-gray-400 hover:text-white font-black text-sm px-3 py-2 rounded-xl hover:bg-gray-800 transition-colors">← 나가기</button>
+      <div class="flex gap-2 items-center">
+        <span class="text-xs font-black text-gray-500 uppercase tracking-wide" id="srs-session-type"></span>
+        <div class="bg-gray-800 border border-gray-700 px-4 py-1.5 rounded-full text-sm font-black text-gray-300"><span id="srs-session-idx">1</span>/<span id="srs-session-total">10</span></div>
+      </div>
+    </div>
+    <div class="flex-1 neon-card rounded-[2.5rem] flex flex-col items-center justify-center p-8 mb-4 text-center relative min-h-[280px]">
+      <div class="absolute top-4 right-4 flex gap-1.5" id="srs-card-meta">
+        <span id="srs-interval-badge" class="text-[10px] font-black bg-gray-700 text-gray-300 px-2 py-1 rounded-full border border-gray-600"></span>
+      </div>
+      <p class="text-xs font-black text-gray-500 uppercase tracking-widest mb-3" id="srs-prompt-label">이 단어의 뜻은?</p>
+      <h2 id="srs-card-en" class="text-5xl sm:text-6xl font-black text-white mb-3 break-all tracking-tight">word</h2>
+      <p id="srs-card-phonetic" class="text-gray-500 text-sm font-bold mb-6"></p>
+      <div id="srs-card-answer" class="hidden fade-in text-center w-full">
+        <p id="srs-card-ko" class="text-3xl font-black text-indigo-300 mb-3">뜻</p>
+        <p id="srs-card-hint" class="text-sm text-gray-400 font-bold px-4"></p>
+      </div>
+      <button id="srs-reveal-btn" onclick="srsReveal()" class="active-bounce bg-gray-800 text-indigo-200 font-black text-base px-10 py-3.5 rounded-full hover:bg-gray-700 hover:text-white border border-gray-600 shadow-md">정답 확인 👀</button>
+    </div>
+    <!-- SM-2 등급 버튼 -->
+    <div id="srs-grade-btns" class="hidden grid grid-cols-4 gap-2 pb-4 flex-shrink-0">
+      <button onclick="gradeCard(1)" class="active-bounce flex flex-col items-center neon-card-rose py-3 px-1 rounded-2xl hover:border-rose-500">
+        <span class="text-xl">😵</span><span class="text-[10px] font-black text-rose-400 mt-1">전혀몰라</span><span class="text-[9px] text-gray-500 font-bold">+10분</span>
+      </button>
+      <button onclick="gradeCard(2)" class="active-bounce flex flex-col items-center neon-card py-3 px-1 rounded-2xl hover:border-amber-500">
+        <span class="text-xl">😕</span><span class="text-[10px] font-black text-amber-400 mt-1">어렴풋이</span><span class="text-[9px] text-gray-500 font-bold">+1일</span>
+      </button>
+      <button onclick="gradeCard(3)" class="active-bounce flex flex-col items-center neon-card py-3 px-1 rounded-2xl hover:border-indigo-500">
+        <span class="text-xl">🙂</span><span class="text-[10px] font-black text-indigo-300 mt-1">알았어요</span><span class="text-[9px] text-gray-500 font-bold" id="srs-grade3-days"></span>
+      </button>
+      <button onclick="gradeCard(4)" class="active-bounce flex flex-col items-center neon-card-emerald py-3 px-1 rounded-2xl hover:border-emerald-500">
+        <span class="text-xl">😄</span><span class="text-[10px] font-black text-emerald-400 mt-1">완벽해요</span><span class="text-[9px] text-gray-500 font-bold" id="srs-grade4-days"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 세션 완료 -->
+  <div id="srs-complete" class="hidden flex-1 flex flex-col items-center justify-center fade-in">
+    <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-lg">
+      <div class="text-6xl mb-4" id="srs-done-emoji">🎉</div>
+      <h2 class="text-3xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400" id="srs-done-title">세션 완료!</h2>
+      <p class="text-gray-400 font-bold mb-6" id="srs-done-subtitle"></p>
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700"><p class="text-2xl font-black text-emerald-300" id="srs-done-correct">0</p><p class="text-xs font-black text-gray-400 mt-1 uppercase tracking-wide">정답</p></div>
+        <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700"><p class="text-2xl font-black text-rose-300" id="srs-done-wrong">0</p><p class="text-xs font-black text-gray-400 mt-1 uppercase tracking-wide">복습 필요</p></div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="exitSRS()" class="active-bounce flex-1 bg-gray-800 text-indigo-300 font-black py-4 rounded-2xl hover:bg-gray-700 border border-gray-700">대시보드</button>
+        <button onclick="startSRS('due')" class="active-bounce flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-500 border border-indigo-500">다시하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- 타이핑 세션 -->
+  <div id="type-session" class="hidden flex-1 flex flex-col max-w-2xl mx-auto w-full">
+    <div class="flex justify-between items-center mb-4 flex-shrink-0">
+      <button onclick="exitTyping()" class="text-gray-400 hover:text-white font-black text-sm px-3 py-2 rounded-xl hover:bg-gray-800 transition-colors">← 나가기</button>
+      <div class="flex gap-3 items-center">
+        <span class="text-sm font-black text-emerald-400">✅ <span id="type-correct-count">0</span></span>
+        <span class="text-sm font-black text-rose-400">❌ <span id="type-wrong-count">0</span></span>
+        <div class="bg-gray-800 border border-gray-700 px-4 py-1.5 rounded-full text-sm font-black text-gray-300"><span id="type-idx">1</span>/<span id="type-total">10</span></div>
+      </div>
+    </div>
+    <!-- 카드 -->
+    <div class="flex-1 flex flex-col">
+      <div class="neon-card rounded-[2.5rem] p-8 text-center mb-4 flex-shrink-0">
+        <p class="text-xs font-black text-gray-500 uppercase tracking-widest mb-3">이 뜻에 해당하는 영어 단어는?</p>
+        <h2 id="type-ko-display" class="text-3xl sm:text-4xl font-black text-indigo-300 mb-2 break-words">뜻</h2>
+        <p id="type-hint-display" class="text-sm text-gray-500 font-bold"></p>
+      </div>
+
+      <!-- 입력 영역 -->
+      <div id="type-input-area" class="neon-card rounded-3xl p-6 mb-3 flex-shrink-0">
+        <div class="relative">
+          <input id="type-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            placeholder="영어로 입력하세요..."
+            class="w-full bg-transparent text-white font-black text-2xl text-center border-b-2 border-gray-600 focus:border-indigo-400 outline-none py-3 transition-colors placeholder:text-gray-600 placeholder:font-normal"
+            oninput="typeCheckInput()" onkeydown="typeKeyDown(event)" />
+        </div>
+        <!-- 실시간 피드백 -->
+        <div id="type-feedback" class="mt-3 text-center hidden">
+          <p id="type-feedback-text" class="font-black text-lg"></p>
+          <p id="type-correct-answer" class="text-sm text-gray-400 font-bold mt-1"></p>
+        </div>
+      </div>
+
+      <!-- 컨트롤 버튼 -->
+      <div class="flex gap-3 flex-shrink-0">
+        <button id="type-hint-btn" onclick="typeShowHint()" class="active-bounce flex-1 bg-gray-800 text-amber-400 font-black py-3.5 rounded-2xl hover:bg-gray-700 border border-gray-700 hover:border-amber-500/50">힌트 💡</button>
+        <button id="type-skip-btn" onclick="typeSkip()" class="active-bounce flex-1 bg-gray-800 text-gray-400 font-black py-3.5 rounded-2xl hover:bg-gray-700 border border-gray-700">모르겠어 ⏭</button>
+        <button id="type-next-btn" onclick="typeNext()" class="active-bounce hidden flex-1 bg-indigo-600 text-white font-black py-3.5 rounded-2xl hover:bg-indigo-500 border border-indigo-500">다음 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 타이핑 결과 -->
+  <div id="type-result" class="hidden flex-1 flex flex-col items-center justify-center fade-in">
+    <div class="neon-card p-8 rounded-[2.5rem] text-center w-full max-w-lg">
+      <div class="text-6xl mb-4" id="type-result-emoji">🎯</div>
+      <h2 class="text-2xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">타이핑 완료!</h2>
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="bg-gray-800 rounded-2xl p-3 border border-gray-700"><p class="text-xl font-black text-emerald-300" id="type-res-correct">0</p><p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-wide">정답</p></div>
+        <div class="bg-gray-800 rounded-2xl p-3 border border-gray-700"><p class="text-xl font-black text-rose-300" id="type-res-wrong">0</p><p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-wide">오답</p></div>
+        <div class="bg-gray-800 rounded-2xl p-3 border border-gray-700"><p class="text-xl font-black text-indigo-300" id="type-res-acc">0%</p><p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-wide">정확도</p></div>
+      </div>
+
 <div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div id="test-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="neon-card p-8 sm:p-10 rounded-[2.5rem] w-full max-w-2xl text-center">
@@ -598,7 +788,7 @@ async function getTranslationSafe(word) {
     return '뜻 정보 없음';
 }
 
-const ALL_TABS = ['manage', 'test', 'quiz', 'analysis', 'group', 'stats'];
+const ALL_TABS = ['manage', 'srs', 'test', 'quiz', 'analysis', 'group', 'stats'];
 
 let words=[], currentPage=1;
 const IPP=12;
@@ -651,6 +841,12 @@ function loadData(){
   const actRaw = localStorage.getItem('myActivity');
   if(actRaw){try{activityLog=JSON.parse(actRaw);}catch{activityLog={};}}
   renderWords();
+  // SRS 뱃지 초기화 (짧은 지연 후)
+  setTimeout(() => {
+    const due = getSRSDue();
+    const badge = document.getElementById('srs-due-badge');
+    if (badge && due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
+  }, 200);
 }
 // ═══════════════════════════════════════════════════════════
 // 성능 코어: 퀴즈 중 렉의 실제 원인 = 매 선택마다 JSON.stringify(words)
@@ -726,6 +922,8 @@ function saveConf() {
 document.addEventListener('DOMContentLoaded',()=>{loadData();loadConf();buildSimMatrixAsync().then(()=>scheduleRender());});
 
 function switchTab(name){
+  // SRS 탭 진입 시 대시보드 갱신
+  if (name === 'srs') requestAnimationFrame(renderSRSDashboard);
   ALL_TABS.forEach(t=>{
     const btn=document.getElementById(`tab-${t}`),view=document.getElementById(`view-${t}`);
     if(t===name){
@@ -933,7 +1131,7 @@ function startQuizTimer() {
     quizTimeLeft = 100;
     const bar = document.getElementById('quiz-timer-bar');
     bar.style.width = '100%';
-    bar.className = '';
+    bar.className = ''; // 색상 클래스 초기화 → 기본 보라색
     
     const step = 100 / (QUIZ_TIME * 10); // 100ms마다 업데이트
     quizTimerInterval = setInterval(() => {
@@ -1887,6 +2085,233 @@ function renderStats() {
         .then(() => { updateCloudStatus('emerald', '동기화 완료 ☁️'); })
         .catch(error => { console.error("클라우드 저장 실패:", error); updateCloudStatus('rose', '저장 실패'); });
   };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SRS 엔진 — Anki SM-2 알고리즘 구현
+// 각 단어에 srs: { interval, ease, due, reps, lapses } 저장
+// ═══════════════════════════════════════════════════════════════════════════
+const SRS_GOAL = 2000;  // 2주 목표 단어 수
+const SRS_DAYS = 14;    // 2주
+const SRS_NEW_PER_DAY = Math.ceil(SRS_GOAL / SRS_DAYS); // 약 143개 (현실적 조정은 사용자 몫)
+const EASE_DEFAULT = 2.5;
+const EASE_MIN = 1.3;
+
+function srsToday() {
+    // 오늘 날짜를 YYYY-MM-DD 형식으로 (타임존 보정)
+    return new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })
+        .split('.').filter(Boolean).map(s => s.trim().padStart(2, '0')).join('-');
+}
+
+function srsDaysFromNow(n) {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })
+        .split('.').filter(Boolean).map(s => s.trim().padStart(2, '0')).join('-');
+}
+
+// SM-2 알고리즘: grade 1~4 입력 → 다음 interval 계산
+// grade 1: 전혀 모름 (reset), 2: 어렴풋이, 3: 알았음, 4: 완벽
+function sm2Next(srs, grade) {
+    let { interval = 0, ease = EASE_DEFAULT, reps = 0, lapses = 0 } = srs || {};
+    ease = Math.max(EASE_MIN, ease);
+
+    if (grade === 1) {
+        // 완전 실패 — 처음부터 다시
+        lapses++;
+        interval = 0;
+        ease = Math.max(EASE_MIN, ease - 0.2);
+        return { interval: 0, ease, reps: 0, lapses, due: srsDaysFromNow(0), minutesDelay: 10 };
+    }
+
+    if (grade === 2) {
+        // 어렴풋이 — 1일 후
+        interval = 1;
+        ease = Math.max(EASE_MIN, ease - 0.15);
+        reps++;
+        return { interval, ease, reps, lapses, due: srsDaysFromNow(1) };
+    }
+
+    // grade 3 or 4
+    if (reps === 0) interval = 1;
+    else if (reps === 1) interval = 6;
+    else interval = Math.round(interval * ease);
+
+    if (grade === 4) ease = Math.min(3.0, ease + 0.15);
+    else ease = Math.max(EASE_MIN, ease - 0.05); // grade 3: slight penalty
+
+    reps++;
+    return { interval, ease, reps, lapses: lapses || 0, due: srsDaysFromNow(interval) };
+}
+
+// 오늘 복습해야 할 단어들
+function getSRSDue() {
+    const today = srsToday();
+    return words.filter(w => w.srs && w.srs.due && w.srs.due <= today);
+}
+
+// SRS에 아직 등록 안 된 신규 단어들
+function getSRSNew() {
+    return words.filter(w => !w.srs || !w.srs.due);
+}
+
+// 대시보드 렌더
+function renderSRSDashboard() {
+    const due = getSRSDue();
+    const newW = getSRSNew();
+    const learning = words.filter(w => w.srs && w.srs.due);
+    const today = srsToday();
+
+    document.getElementById('srs-count-due').textContent = due.length;
+    document.getElementById('srs-count-new').textContent = Math.min(newW.length, SRS_NEW_PER_DAY);
+    document.getElementById('srs-count-total').textContent = learning.length;
+
+    // 목표 진행률
+    const pct = Math.min(100, Math.round(learning.length / SRS_GOAL * 100));
+    document.getElementById('srs-goal-pct').textContent = pct + '%';
+    document.getElementById('srs-goal-bar').style.width = pct + '%';
+    document.getElementById('srs-daily-target').textContent = SRS_NEW_PER_DAY;
+    document.getElementById('srs-goal-label').innerHTML =
+        `목표: <span class="text-white">${SRS_GOAL}개</span> · 학습중: <span class="text-indigo-300">${learning.length}개</span> · 오늘 권장 신규: <span class="text-indigo-400">${SRS_NEW_PER_DAY}</span>개`;
+
+    // 뱃지
+    const badge = document.getElementById('srs-due-badge');
+    if (due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
+    else badge.classList.add('hidden');
+
+    // 버튼 상태
+    document.getElementById('srs-btn-due').disabled = due.length === 0;
+
+    // 다가오는 스케줄 (3일치)
+    const upcoming = document.getElementById('srs-upcoming');
+    const schedule = [];
+    for (let i = 0; i <= 3; i++) {
+        const d = srsDaysFromNow(i);
+        const cnt = i === 0 ? due.length : words.filter(w => w.srs && w.srs.due === d).length;
+        schedule.push({ label: i === 0 ? '오늘' : i === 1 ? '내일' : `${i}일 후`, count: cnt, date: d });
+    }
+    upcoming.innerHTML = schedule.map(s =>
+        `<div class="flex justify-between items-center py-2 border-b border-gray-800 last:border-0">
+            <span class="text-gray-400 font-bold">${s.label} <span class="text-gray-600 text-xs">${s.date}</span></span>
+            <span class="font-black ${s.count > 0 ? 'text-indigo-300' : 'text-gray-600'}">${s.count}개</span>
+        </div>`
+    ).join('');
+}
+
+// SRS 세션 상태
+let srsQueue = [], srsIdx = 0, srsMode = 'due', srsCorrect = 0, srsWrong = 0, srsCurrentWord = null;
+
+function startSRS(mode) {
+    srsMode = mode;
+    if (mode === 'due') {
+        srsQueue = shuffle(getSRSDue());
+    } else {
+        // 신규: 하루치만
+        srsQueue = getSRSNew().slice(0, SRS_NEW_PER_DAY);
+    }
+    if (!srsQueue.length) {
+        return showToast(mode === 'due' ? '오늘 복습할 단어가 없어요! 신규 암기를 시작하세요.' : '신규 단어가 없어요!', 'info');
+    }
+    srsIdx = 0; srsCorrect = 0; srsWrong = 0;
+    document.getElementById('srs-dashboard').classList.add('hidden');
+    document.getElementById('srs-complete').classList.add('hidden');
+    document.getElementById('srs-session').classList.remove('hidden');
+    document.getElementById('srs-session-type').textContent = mode === 'due' ? '🔥 복습' : '✨ 신규';
+    document.getElementById('srs-session-total').textContent = srsQueue.length;
+    loadSRSCard();
+}
+
+function loadSRSCard() {
+    if (srsIdx >= srsQueue.length) { showSRSComplete(); return; }
+    srsCurrentWord = srsQueue[srsIdx];
+    const w = srsCurrentWord;
+    const srs = w.srs || {};
+
+    document.getElementById('srs-session-idx').textContent = srsIdx + 1;
+    document.getElementById('srs-card-en').textContent = w.en;
+    document.getElementById('srs-card-phonetic').textContent = '';
+    document.getElementById('srs-card-ko').textContent = w.ko;
+    document.getElementById('srs-card-hint').textContent =
+        w.nlp?.syn?.slice(0,3).join(', ') ? `유의어: ${w.nlp.syn.slice(0,3).join(', ')}` : '';
+
+    // 인터벌 뱃지
+    const badge = document.getElementById('srs-interval-badge');
+    if (srs.reps > 0) {
+        badge.textContent = `${srs.interval || 0}일 간격 · ${srs.reps}회`;
+        badge.classList.remove('hidden');
+    } else {
+        badge.textContent = '신규';
+        badge.classList.remove('hidden');
+    }
+
+    // 다음 grade별 예상 인터벌 미리보기
+    const g3next = sm2Next(srs, 3);
+    const g4next = sm2Next(srs, 4);
+    document.getElementById('srs-grade3-days').textContent = g3next.interval > 0 ? `+${g3next.interval}일` : '+1일';
+    document.getElementById('srs-grade4-days').textContent = g4next.interval > 0 ? `+${g4next.interval}일` : '+6일';
+
+    // 카드 초기화
+    document.getElementById('srs-card-answer').classList.add('hidden');
+    document.getElementById('srs-reveal-btn').classList.remove('hidden');
+    document.getElementById('srs-grade-btns').classList.add('hidden');
+}
+
+function srsReveal() {
+    document.getElementById('srs-card-answer').classList.remove('hidden');
+    document.getElementById('srs-reveal-btn').classList.add('hidden');
+    document.getElementById('srs-grade-btns').classList.remove('hidden');
+}
+
+function gradeCard(grade) {
+    const w = srsCurrentWord;
+    const idx = words.findIndex(x => x.id === w.id);
+    if (idx !== -1) {
+        const newSrs = sm2Next(words[idx].srs || {}, grade);
+        words[idx].srs = newSrs;
+        saveData({ skipRender: true });
+    }
+
+    if (grade >= 3) srsCorrect++; else srsWrong++;
+    srsIdx++;
+
+    // 잠깐 피드백 후 다음 카드
+    setTimeout(loadSRSCard, grade <= 2 ? 300 : 200);
+}
+
+function showSRSComplete() {
+    document.getElementById('srs-session').classList.add('hidden');
+    document.getElementById('srs-complete').classList.remove('hidden');
+    const total = srsCorrect + srsWrong;
+    const acc = total > 0 ? Math.round(srsCorrect / total * 100) : 0;
+    document.getElementById('srs-done-title').textContent = acc >= 80 ? '훌륭해요! 🎉' : acc >= 60 ? '잘 했어요! 👏' : '계속 연습해요! 💪';
+    document.getElementById('srs-done-subtitle').textContent = `${total}개 중 ${srsCorrect}개 정답 · 정확도 ${acc}%`;
+    document.getElementById('srs-done-emoji').textContent = acc >= 80 ? '🏆' : acc >= 60 ? '🎉' : '💪';
+    document.getElementById('srs-done-correct').textContent = srsCorrect;
+    document.getElementById('srs-done-wrong').textContent = srsWrong;
+    scheduleRender();
+}
+
+function exitSRS() {
+    document.getElementById('srs-session').classList.add('hidden');
+    document.getElementById('srs-complete').classList.add('hidden');
+    document.getElementById('srs-dashboard').classList.remove('hidden');
+    renderSRSDashboard();
+}
+
+// SRS 탭 진입 시 대시보드 갱신
+const _origSwitchTab = switchTab;
+// (switchTab은 아래에서 후킹)
+
+
+
+// 초기 SRS 뱃지 갱신 (페이지 로드 후)
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const due = getSRSDue();
+        const badge = document.getElementById('srs-due-badge');
+        if (badge && due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
+    }, 500);
+});
+
 </script>
 </body>
 </html>
