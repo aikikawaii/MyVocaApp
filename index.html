@@ -470,12 +470,14 @@
         <span class="absolute right-5 top-4 text-xl text-gray-400 z-10 pointer-events-none">🔍</span>
         <div id="analysis-dropdown" class="hidden rounded-2xl max-h-60 overflow-y-auto no-scrollbar z-50" style="background:#1f2937;border:1px solid rgba(99,102,241,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.4);position:absolute;left:0;right:0;top:calc(100% + 6px);"></div>
       </div>
-      <div id="analysis-selected-word" class="hidden mt-5 flex items-center gap-4 neon-card rounded-2xl px-5 py-4">
+      <div id="analysis-selected-word" class="hidden mt-5 flex items-center gap-3 neon-card rounded-2xl px-4 py-3">
+        <button id="analysis-back-btn" onclick="analysisGoBack()" class="active-bounce hidden flex-shrink-0 text-gray-400 hover:text-indigo-300 bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-xl px-3 py-2 text-sm font-black transition-all" title="이전 단어">← 뒤로</button>
         <div class="flex-1 flex items-baseline gap-3 min-w-0">
           <span id="analysis-word-en-display" class="text-2xl sm:text-3xl font-black text-indigo-300 break-all tracking-tight"></span>
-          <span id="analysis-word-ko-display" class="text-base sm:text-lg font-black text-indigo-400 truncate"></span>
+          <span id="analysis-word-ko-display" class="text-base sm:text-lg font-black text-gray-400 truncate"></span>
         </div>
-        <button onclick="clearAnalysisWord()" class="active-bounce text-gray-500 hover:text-rose-400 text-2xl px-2 flex-shrink-0 font-black">✕</button>
+        <span id="analysis-history-pos" class="text-xs font-black text-gray-600 flex-shrink-0"></span>
+        <button onclick="clearAnalysisWord()" class="active-bounce text-gray-500 hover:text-rose-400 text-xl px-2 flex-shrink-0 font-black">✕</button>
       </div>
     </div>
   </div>
@@ -581,6 +583,11 @@
           <h3 class="text-xl font-black text-rose-400 mb-4 px-2 border-l-4 border-rose-500 ml-1 pl-3">3️⃣ 유의어 / 반의어 연결망 (Semantic Graph)</h3>
           <p class="text-sm text-gray-400 font-bold mb-5 px-2">API가 제공하는 명확한 유의어/반의어 관계망에 내 단어장이 속해있는지 교차 검증합니다.</p>
           <div id="nlp-synant-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+      <section>
+          <h3 class="text-xl font-black text-sky-400 mb-4 px-2 border-l-4 border-sky-500 ml-1 pl-3">4️⃣ 주제별 카테고리 (Topic Clustering)</h3>
+          <p class="text-sm text-gray-400 font-bold mb-5 px-2">Datamuse <code class="text-indigo-400 bg-gray-800 px-1 rounded text-xs">rel_spc</code> (WordNet 상위 개념) API로 각 단어의 의미 계층을 추출해 17개 카테고리로 자동 분류합니다. NLP 엔진 가동 후 사용하세요.</p>
+          <div id="nlp-category-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </section>
   </div>
 </div>
@@ -751,6 +758,7 @@ let quizTimeLeft = 100;                // 타이머 퍼센트
 
 let testQueue=[],testPool=[],testIdx=0,testCorrect=0,testMode='all';
 let analysisWord=null,audioUrl=null;
+let _analysisHistory=[]; // 분석 히스토리 스택 (최대 20개)
 const SIM_DUP=75,SIM_CONF=50;
 let simMatrix={},confMatrix={};
 let activityLog={};
@@ -1437,21 +1445,151 @@ function getStem(w) {
     if(s.endsWith('ly') && s.length>4) return s.slice(0,-2);
     return s;
 }
+// ── 접두사 DB: 긴 것부터 정렬 (shorter prefix가 longer를 가리는 문제 방지)
+// 예: "inter"가 "in"보다 먼저 매칭돼야 "interact"가 in- 아닌 inter-로 분류됨
 const PREFIX_DICT = [
-    {p: 'trans', m: '가로질러/바꾸어'}, {p: 'inter', m: '상호/사이에'}, {p: 'super', m: '초과/위에'},
-    {p: 'under', m: '아래에/부족한'}, {p: 'over', m: '넘어서/과도한'}, {p: 'anti', m: '반대/항'},
-    {p: 'auto', m: '스스로/자동'}, {p: 'multi', m: '많은/다중'}, {p: 'poly', m: '많은/다중'},
-    {p: 'semi', m: '반/절반'}, {p: 'tele', m: '멀리'}, {p: 'micro', m: '작은'}, {p: 'macro', m: '큰'},
-    {p: 'pre', m: '미리/이전'}, {p: 'post', m: '이후'}, {p: 'dis', m: '부정/분리'},
-    {p: 'mis', m: '잘못된'}, {p: 'non', m: '아닌'}, {p: 'sub', m: '아래'}, {p: 're', m: '다시/뒤로'},
-    {p: 'un', m: '부정/반대'}, {p: 'in', m: '안으로/부정'}, {p: 'im', m: '안으로/부정'},
-    {p: 'il', m: '부정'}, {p: 'ir', m: '부정'}, {p: 'com', m: '함께'}, {p: 'con', m: '함께'},
-    {p: 'co', m: '함께'}, {p: 'ex', m: '밖으로'}
+  // ── 5자 이상 (가장 구체적) ──────────────────────────────────────────
+  {p:'trans',  m:'가로질러·변환',    ex:'transport, transform, transcend'},
+  {p:'inter',  m:'사이·상호',        ex:'interact, international, interrupt'},
+  {p:'intra',  m:'내부·안에',        ex:'intracellular, intranet, intramural'},
+  {p:'intro',  m:'안으로',           ex:'introduce, introspect, introvert'},
+  {p:'super',  m:'위·초월',          ex:'superior, superficial, supernatural'},
+  {p:'hyper',  m:'과도·초',          ex:'hyperactive, hyperbole, hypersensitive'},
+  {p:'ultra',  m:'극도·초',          ex:'ultraviolet, ultrasound, ultramarathon'},
+  {p:'under',  m:'아래·부족',        ex:'undermine, undergo, underestimate'},
+  {p:'extra',  m:'밖·초과',          ex:'extraordinary, extravagant, extract'},
+  {p:'macro',  m:'큰·거시',          ex:'macroeconomics, macroscopic'},
+  {p:'micro',  m:'작은·미세',        ex:'microphone, microscope, microwave'},
+  {p:'multi',  m:'많은·다중',        ex:'multiply, multitude, multilingual'},
+  {p:'omni',   m:'모든·전체',        ex:'omnivore, omnipotent, omniscient'},
+  {p:'semi',   m:'반·절반',          ex:'semicolon, semifinal, semicircle'},
+  {p:'tele',   m:'멀리',             ex:'telephone, telescope, television'},
+  {p:'poly',   m:'많은',             ex:'polygon, polyglot, polynomial'},
+  {p:'mono',   m:'하나·단일',        ex:'monopoly, monotone, monarchy'},
+  {p:'auto',   m:'스스로·자동',      ex:'automatic, automobile, autonomous'},
+  {p:'anti',   m:'반대·대항',        ex:'antibody, antidote, antisocial'},
+  {p:'ante',   m:'앞·이전',          ex:'anterior, antechamber, antecedent'},
+  {p:'post',   m:'이후·뒤',          ex:'postpone, postmodern, postscript'},
+  {p:'para',   m:'옆·비슷·넘어서',  ex:'parallel, paradox, paraphrase'},
+  {p:'peri',   m:'주위·둘레',        ex:'perimeter, peripheral, perihelion'},
+  {p:'bene',   m:'좋은·혜택',        ex:'benefit, benevolent, beneficial'},
+  {p:'male',   m:'나쁜·악',          ex:'malevolent, malfunction, malicious'},
+  {p:'mal',    m:'나쁜·비정상',      ex:'malnutrition, malice, malpractice'},
+  {p:'fore',   m:'앞·미리',          ex:'foresee, forewarn, forecast'},
+  {p:'over',   m:'위·과도',          ex:'overcome, overlook, overwhelm'},
+  {p:'down',   m:'아래·감소',        ex:'downfall, downgrade, download'},
+  {p:'out',    m:'밖·능가',          ex:'outcome, outperform, outnumber'},
+  {p:'back',   m:'뒤·역',            ex:'backfire, backlash, backtrack'},
+  {p:'self',   m:'자기·스스로',      ex:'selfless, self-control, self-reliant'},
+  {p:'step',   m:'의붓·계',          ex:'stepfather, stepchild, stepmother'},
+  {p:'non',    m:'아닌·비',          ex:'nonfiction, nonprofit, nonviolent'},
+  {p:'mis',    m:'잘못·나쁘게',      ex:'misuse, misunderstand, mislead'},
+  {p:'dis',    m:'부정·분리·반대',   ex:'disagree, disorder, disconnect'},
+  {p:'pre',    m:'미리·이전',        ex:'predict, prepare, prevent'},
+  {p:'pro',    m:'앞·지지·대신',     ex:'progress, promote, prohibit'},
+  {p:'con',    m:'함께·완전히',      ex:'connect, confirm, contribute'},
+  {p:'com',    m:'함께·완전히',      ex:'complete, combine, commit'},
+  {p:'col',    m:'함께',             ex:'collect, collaborate, collision'},
+  {p:'cor',    m:'함께',             ex:'correspond, correlate, corrupt'},
+  {p:'sub',    m:'아래·부',          ex:'submit, subtract, subconscious'},
+  {p:'sup',    m:'아래·위로',        ex:'support, suppose, suppress'},
+  {p:'suf',    m:'아래·뒤',          ex:'suffer, sufficient, suffix'},
+  {p:'suc',    m:'아래·뒤따라',      ex:'succeed, success, succumb'},
+  {p:'sus',    m:'아래·올려받침',    ex:'sustain, suspend, suspect'},
+  {p:'abs',    m:'떨어져·완전히',    ex:'absorb, abstract, abstain'},
+  {p:'ob',     m:'맞서·향해',        ex:'object, observe, obstruct'},
+  {p:'op',     m:'맞서',             ex:'oppose, oppress, optimum'},
+  {p:'per',    m:'통하여·완전히',    ex:'perfect, perform, persist'},
+  {p:'por',    m:'앞으로',           ex:'portray, portal, portfolio'},
+  {p:'sym',    m:'함께·같은',        ex:'sympathy, symphony, symbol'},
+  {p:'syn',    m:'함께·동시에',      ex:'synchronize, synthesis, synonym'},
+  {p:'sys',    m:'함께',             ex:'system, systematic'},
+  {p:'dia',    m:'통하여·가로질러',  ex:'diagonal, dialogue, diameter'},
+  {p:'bio',    m:'생명·생물',        ex:'biology, biography, biosphere'},
+  {p:'geo',    m:'지구·땅',          ex:'geography, geology, geometry'},
+  {p:'log',    m:'말·이치',          ex:'logic, logarithm, loquacious'},
+  {p:'neo',    m:'새로운',           ex:'neonatal, neoclassical, neologism'},
+  {p:'neo',    m:'새로운',           ex:'neonatal, neoclassical, neologism'},
+  {p:'retro',  m:'뒤로·과거',        ex:'retrospect, retroactive, retrofit'},
+  {p:'circum', m:'둘레·주위',        ex:'circumvent, circumstance, circumference'},
+  {p:'contra', m:'반대',             ex:'contradict, contrast, contrary'},
+  {p:'counter',m:'반대·맞서',        ex:'counteract, counterpart, counterfeit'},
+  {p:'demi',   m:'반·절반',          ex:'demigod, demitasse'},
+  {p:'arch',   m:'최고·주요',        ex:'architect, archbishop, archetype'},
+  {p:'proto',  m:'최초·원형',        ex:'prototype, protocol, protagonist'},
+  {p:'pseudo', m:'가짜·거짓',        ex:'pseudonym, pseudoscience'},
+  {p:'crypto', m:'숨겨진·비밀',      ex:'cryptography, cryptocurrency'},
+  {p:'hetero', m:'다른·이질',        ex:'heterogeneous, heterosexual'},
+  {p:'homo',   m:'같은·동질',        ex:'homogeneous, homophone, homologous'},
+  {p:'iso',    m:'같은·동등',        ex:'isotope, isometric, isolation'},
+  {p:'hemi',   m:'반·절반',          ex:'hemisphere, hemicycle'},
+  {p:'eu',     m:'좋은·진실',        ex:'euphoria, eulogy, euthanasia'},
+  {p:'dys',    m:'나쁜·어려운',      ex:'dysfunction, dyslexia, dystopia'},
+  {p:'a',      m:'부정·없음',        ex:'atheist, amoral, asymmetry'},
+  // ── 부정 접두사 (형태 변이) ────────────────────────────────────────
+  {p:'im',     m:'부정·안으로',      ex:'impossible, immoral, import'},
+  {p:'il',     m:'부정',             ex:'illegal, illiterate, illogical'},
+  {p:'ir',     m:'부정',             ex:'irregular, irrational, irrelevant'},
+  // ── 수 접두사 ──────────────────────────────────────────────────────
+  {p:'uni',    m:'하나',             ex:'uniform, unique, unify'},
+  {p:'bi',     m:'둘·양쪽',          ex:'bilateral, bilingual, bicycle'},
+  {p:'du',     m:'둘',               ex:'duplicate, duo, duality'},
+  {p:'tri',    m:'셋',               ex:'triangle, triple, trilogy'},
+  {p:'quad',   m:'넷',               ex:'quadrant, quadruple, quadrilateral'},
+  {p:'quart',  m:'넷·사분의',        ex:'quarter, quartet, quarterly'},
+  {p:'pent',   m:'다섯',             ex:'pentagon, pentathlon'},
+  {p:'hex',    m:'여섯',             ex:'hexagon, hexadecimal'},
+  {p:'hept',   m:'일곱',             ex:'heptagon, heptathlon'},
+  {p:'oct',    m:'여덟',             ex:'octopus, octave, October'},
+  {p:'dec',    m:'열',               ex:'decade, decimal, decagon'},
+  {p:'cent',   m:'백',               ex:'century, centimeter, percent'},
+  {p:'kilo',   m:'천',               ex:'kilometer, kilogram, kilowatt'},
+  {p:'milli',  m:'천분의일',         ex:'millimeter, millisecond'},
+  {p:'mega',   m:'백만·거대',        ex:'megabyte, megaphone, megalopolis'},
+  {p:'giga',   m:'십억',             ex:'gigabyte, gigawatt'},
+  // ── 방향·공간 접두사 ───────────────────────────────────────────────
+  {p:'ab',     m:'떨어져·멀리',      ex:'absent, abnormal, abduct'},
+  {p:'ad',     m:'향해·붙어',        ex:'adapt, admit, advance'},
+  {p:'af',     m:'향해',             ex:'affect, affirm, afford'},
+  {p:'ag',     m:'향해',             ex:'aggravate, aggregate, aggressive'},
+  {p:'al',     m:'향해',             ex:'allocate, allure, ally'},
+  {p:'ap',     m:'향해',             ex:'appear, apply, approve'},
+  {p:'ar',     m:'향해',             ex:'arrange, arrive, arrest'},
+  {p:'at',     m:'향해',             ex:'attach, attract, attend'},
+  {p:'ac',     m:'향해',             ex:'accomplish, account, accuse'},
+  {p:'de',     m:'아래·분리·강조',   ex:'decrease, destroy, define'},
+  {p:'se',     m:'떨어져·분리',      ex:'separate, secure, select'},
+  {p:'e',      m:'밖으로',           ex:'emit, eject, evade'},
+  {p:'ef',     m:'밖으로·완전히',    ex:'effect, efficient, effort'},
+  // ── 시간 접두사 ────────────────────────────────────────────────────
+  {p:'neo',    m:'새로운',           ex:'neoclassical, neologism'},
+  {p:'paleo',  m:'오래된·고대',      ex:'paleontology, paleolithic'},
+  // ── 공통 접두사 (짧은 것 — 마지막에) ─────────────────────────────
+  {p:'un',     m:'부정·반대',        ex:'undo, unhappy, unexpected'},
+  {p:'re',     m:'다시·뒤로',        ex:'return, repeat, rebuild'},
+  {p:'in',     m:'안으로·부정',      ex:'include, inside, invisible'},
+  {p:'en',     m:'안에·만들다',      ex:'enable, enclose, encourage'},
+  {p:'em',     m:'안에·만들다',      ex:'embrace, empower, employ'},
+  {p:'ex',     m:'밖으로·이전',      ex:'export, exit, extract'},
+  {p:'co',     m:'함께',             ex:'cooperate, coexist, coauthor'},
+  {p:'up',     m:'위로·향상',        ex:'upgrade, uplift, upcoming'},
 ];
+// 중복 제거 + 길이 내림차순 정렬 (긴 접두사 우선 매칭)
+const _seen = new Set();
+const PREFIX_DICT_SORTED = PREFIX_DICT
+  .filter(pr => { if(_seen.has(pr.p)) return false; _seen.add(pr.p); return true; })
+  .sort((a,b) => b.p.length - a.p.length);
+
 function getPrefix(w) {
-    let s = w.toLowerCase();
-    for(let pr of PREFIX_DICT) { if(s.startsWith(pr.p) && s.length > pr.p.length + 2) return pr; }
-    return null;
+  const s = w.toLowerCase();
+  for(const pr of PREFIX_DICT_SORTED) {
+    if(s.startsWith(pr.p) && s.length > pr.p.length + 2) {
+      // 어간에 모음이 포함돼야 실제 단어 (false positive 방지)
+      const stem = s.slice(pr.p.length);
+      if(/[aeiou]/.test(stem)) return pr;
+    }
+  }
+  return null;
 }
 // ─────────────────────────────────────────────────────────────────────
 // enrichWord — 2-source 전략으로 유의어/반의어 품질 대폭 향상
@@ -1474,21 +1612,22 @@ async function enrichWord(w) {
     const toWords = arr => Array.isArray(arr) ? arr.map(x => typeof x === 'string' ? x.toLowerCase() : (x.word||'').toLowerCase()).filter(Boolean) : [];
 
     try {
-        // 3개 요청 동시 발사
-        const [freeDictRes, dmSynRes, dmAntRes] = await Promise.allSettled([
+        // 4개 요청 동시 발사 (rel_spc 추가 — 카테고리 분류용)
+        const [freeDictRes, dmSynRes, dmAntRes, dmSpcRes] = await Promise.allSettled([
             fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.en)}`)
                 .then(r => r.ok ? r.json() : null).catch(() => null),
             fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(w.en)}&max=50`)
                 .then(r => r.json()).catch(() => []),
             fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(w.en)}&max=50`)
                 .then(r => r.json()).catch(() => []),
+            fetch(`https://api.datamuse.com/words?rel_spc=${encodeURIComponent(w.en)}&max=10`)
+                .then(r => r.json()).catch(() => []),
         ]);
 
-        // Datamuse 결과
-        const dmSyn = freeDictRes.status === 'fulfilled' ? toWords(dmSynRes.value ?? []) : [];
-        const dmAnt = freeDictRes.status === 'fulfilled' ? toWords(dmAntRes.value ?? []) : [];
         const dmSynSet = toWords(dmSynRes.status === 'fulfilled' ? dmSynRes.value : []);
         const dmAntSet = toWords(dmAntRes.status === 'fulfilled' ? dmAntRes.value : []);
+        // rel_spc: 상위 개념 (e.g. "dog" → ["animal","canine","pet"])
+        const dmSpcSet = toWords(dmSpcRes.status === 'fulfilled' ? dmSpcRes.value : []);
 
         // Free Dictionary API에서 sense별 syn/ant 추출
         let fdSyn = [], fdAnt = [];
@@ -1525,6 +1664,7 @@ async function enrichWord(w) {
         // Free Dictionary를 앞에 (더 신뢰도 높음), Datamuse를 뒤에 (커버리지 보완)
         w.nlp.syn = mergeDedupe(fdSyn, dmSynSet);
         w.nlp.ant = mergeDedupe(fdAnt, dmAntSet);
+        w.nlp.spc = dmSpcSet; // 상위 개념 — 카테고리 분류에 사용
         w.nlp.fetched = true;
         return true;
     } catch(e) {
@@ -1673,10 +1813,46 @@ async function runNLPGrouping() {
     prefixGrid.innerHTML = '';
     let prefixFound = false;
     // 2개 이상 + 어군 크기 순 정렬
+    function buildPrefixCard(prefixInfo, groupArr) {
+        const card = document.createElement('div');
+        card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
+        const chipsHtml = groupArr.map(w =>
+            `<span class="chip bg-gray-900 text-amber-300 border border-gray-700 hover:bg-gray-800 cursor-pointer font-black" onclick="openAnalysis(${w.id})" title="${w.ko}">
+                <span class="text-amber-500 font-black">${w.en.slice(0, prefixInfo.p.length)}</span><span class="text-white">${w.en.slice(prefixInfo.p.length)}</span>
+                <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span>
+            </span>`
+        ).join('');
+        // 접두사 ex 필드에서 단어장에 없는 예시 단어들
+        const exWords = (prefixInfo.ex || '').split(',').map(s=>s.trim()).filter(Boolean);
+        const exHtml = exWords.length
+            ? `<div class="mt-3 pt-3 border-t border-gray-700/50">
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-wide mb-1.5">대표 예시</p>
+                <p class="text-xs text-gray-500 font-bold leading-relaxed">${exWords.join(' · ')}</p>
+               </div>`
+            : '';
+        card.innerHTML = `
+            <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-700">
+                <div class="min-w-0">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-lg font-black text-amber-400 font-mono">${prefixInfo.p}-</span>
+                        <span class="text-xs font-black text-gray-400 uppercase tracking-wide">${prefixInfo.m}</span>
+                    </div>
+                </div>
+                <span class="text-[10px] font-black text-amber-400 bg-amber-900/30 border border-amber-700/50 px-2 py-1 rounded-full whitespace-nowrap ml-2 flex-shrink-0">${groupArr.length}단어</span>
+            </div>
+            <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>
+            ${exHtml}`;
+        return card;
+    }
+
     Object.entries(prefixGroups)
         .filter(([, v]) => v.arr.length > 1)
         .sort(([, a], [, b]) => b.arr.length - a.arr.length)
-        .forEach(([, v]) => { prefixGrid.appendChild(buildCard(v.title, v.arr)); prefixFound = true; });
+        .forEach(([pkey, v]) => {
+            const prefixInfo = PREFIX_DICT_SORTED.find(pr => pr.p === pkey) || {p: pkey, m: '', ex: ''};
+            prefixGrid.appendChild(buildPrefixCard(prefixInfo, v.arr));
+            prefixFound = true;
+        });
     if(!prefixFound) prefixGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">공통 접두사를 가진 단어가 없습니다.</p>';
     // ── 유의어/반의어 그래프 — Union-Find로 정확한 연결 컴포넌트 추출 ──
     // 기존: shift() 기반 그리디 → 노드 순서에 따라 그룹이 달라지는 버그
@@ -1760,6 +1936,20 @@ async function runNLPGrouping() {
     synantGrid.innerHTML = synAntGroups.length ? '' : '<p class="text-gray-500 font-bold text-sm">유의어/반의어로 묶이는 단어가 없습니다.</p>';
     synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => { synantGrid.appendChild(buildSynAntCard(`의미 연결망 ${idx+1}`, g)); });
     loadingUI.classList.add('hidden'); loadingUI.classList.remove('flex');
+    // ── 4. 주제별 카테고리 분류 ───────────────────────────────────────
+    const categoryGrid = document.getElementById('nlp-category-grid');
+    categoryGrid.innerHTML = '';
+    const catGroups = buildCategoryGroups(words);
+    let catFound = false;
+    Object.entries(catGroups)
+        .filter(([,g]) => g.words.length > 0)
+        .sort(([,a],[,b]) => b.words.length - a.words.length)
+        .forEach(([catKey, g]) => {
+            categoryGrid.appendChild(buildCategoryCard(catKey, g));
+            catFound = true;
+        });
+    if(!catFound) categoryGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">분류 가능한 카테고리가 없습니다.</p>';
+
     document.getElementById('group-container').classList.remove('hidden'); document.getElementById('group-container').classList.add('flex');
 }
 
@@ -1782,8 +1972,45 @@ function renderAnalysisDD(q=''){
     ><span class="font-black text-white text-sm">${w.en}</span><span class="text-xs font-bold text-indigo-400 ml-3 flex-shrink-0">${w.ko}</span></button>`).join('');
   dd.classList.remove('hidden');
 }
-function selectAnalysisWord(w){if(!w)return;analysisWord=w;document.getElementById('analysis-search').value='';document.getElementById('analysis-dropdown').classList.add('hidden');document.getElementById('analysis-word-en-display').textContent=w.en;document.getElementById('analysis-word-ko-display').textContent=w.ko;document.getElementById('analysis-selected-word').classList.remove('hidden');runAnalysis(w);}
-function clearAnalysisWord(){analysisWord=null;document.getElementById('analysis-selected-word').classList.add('hidden');document.getElementById('analysis-result').classList.add('hidden');document.getElementById('analysis-loading').classList.add('hidden');document.getElementById('analysis-placeholder').classList.remove('hidden');}
+function selectAnalysisWord(w, pushHistory=true){
+  if(!w) return;
+  // 히스토리 쌓기 (현재 단어가 있고, 다른 단어로 이동할 때만)
+  if(pushHistory && analysisWord && analysisWord.id !== w.id){
+    _analysisHistory.push(analysisWord);
+    if(_analysisHistory.length > 20) _analysisHistory.shift();
+  }
+  analysisWord=w;
+  document.getElementById('analysis-search').value='';
+  document.getElementById('analysis-dropdown').classList.add('hidden');
+  document.getElementById('analysis-word-en-display').textContent=w.en;
+  document.getElementById('analysis-word-ko-display').textContent=w.ko;
+  document.getElementById('analysis-selected-word').classList.remove('hidden');
+  // 뒤로가기 버튼 표시/숨김
+  const backBtn = document.getElementById('analysis-back-btn');
+  const posEl = document.getElementById('analysis-history-pos');
+  if(_analysisHistory.length > 0){
+    backBtn.classList.remove('hidden');
+    posEl.textContent = _analysisHistory.length + '단계 전';
+  } else {
+    backBtn.classList.add('hidden');
+    posEl.textContent = '';
+  }
+  runAnalysis(w);
+}
+
+function analysisGoBack(){
+  if(!_analysisHistory.length) return;
+  const prev = _analysisHistory.pop();
+  selectAnalysisWord(prev, false); // 뒤로가기는 히스토리에 안 쌓음
+}
+function clearAnalysisWord(){
+  analysisWord=null;
+  _analysisHistory=[];
+  document.getElementById('analysis-selected-word').classList.add('hidden');
+  document.getElementById('analysis-result').classList.add('hidden');
+  document.getElementById('analysis-loading').classList.add('hidden');
+  document.getElementById('analysis-placeholder').classList.remove('hidden');
+}
 
 // 분석 결과 메모리 캐시 (같은 세션 내 재방문 시 즉시 표시)
 const _analysisCache = new Map();
@@ -2292,6 +2519,297 @@ document.addEventListener('DOMContentLoaded', () => {
         if (badge && due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
     }, 500);
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 주제별 카테고리 분류 엔진
+// 전략: ① 한국어 뜻 키워드 매칭 (즉시) + ② 영어 동의어/상위개념 매칭 (enrichWord 데이터)
+// ═══════════════════════════════════════════════════════════════════════════
+const CATEGORY_DB = {
+  // spc: Datamuse rel_spc / rel_gen 이 실제로 반환하는 WordNet 상위개념·관련어
+  // 단어 "dog" → rel_spc → ["animal","canine","domestic_animal","carnivore","mammal","vertebrate","creature"]
+
+  '🐾 동물': {
+    color:'emerald', icon:'🐾',
+    spc: new Set([
+      'animal','creature','organism','vertebrate','invertebrate',
+      'mammal','bird','fish','insect','reptile','amphibian',
+      'canine','feline','equine','bovine','rodent',
+      'carnivore','herbivore','omnivore','predator','prey',
+      'pet','livestock','wildlife','species','beast',
+      'domestic animal','wild animal','marine animal',
+      'primate','marsupial','cetacean','mollusk','arthropod',
+    ])
+  },
+  '🌿 식물·자연': {
+    color:'green', icon:'🌿',
+    spc: new Set([
+      'plant','tree','flower','shrub','herb','grass','vine','moss','fern',
+      'natural object','organism','vegetation','flora',
+      'geographical area','landform','body of water',
+      'forest','mountain','river','ocean','desert','weather','atmosphere',
+      'ecosystem','biome','habitat','landscape','terrain',
+      'fruit','seed','leaf','root','stem','branch','bark','petal',
+    ])
+  },
+  '🧬 신체·의학': {
+    color:'red', icon:'🧬',
+    spc: new Set([
+      'body part','organ','body fluid','tissue','cell','nerve','muscle','bone',
+      'disease','illness','disorder','syndrome','condition','symptom','sign',
+      'medicine','drug','medication','treatment','therapy','surgery','procedure',
+      'medical specialty','health','anatomy','physiology','pathology',
+      'sensation','pain','ache','wound','injury','infection','inflammation',
+    ])
+  },
+  '💭 감정·심리': {
+    color:'pink', icon:'💭',
+    spc: new Set([
+      'emotion','feeling','mental state','psychological state','mood','affect',
+      'attitude','disposition','temperament','personality','character',
+      'cognitive state','mental process','consciousness','perception',
+      'desire','motivation','instinct','urge','compulsion',
+      'happiness','sadness','anger','fear','surprise','disgust','joy',
+    ])
+  },
+  '👥 사람·관계': {
+    color:'purple', icon:'👥',
+    spc: new Set([
+      'person','human','individual','adult','man','woman','child',
+      'family member','relative','ancestor','descendant',
+      'social group','organization','community','society','tribe',
+      'relationship','role','occupation','status','position',
+      'friend','colleague','partner','associate','ally','rival',
+    ])
+  },
+  '💼 직업·경제': {
+    color:'yellow', icon:'💼',
+    spc: new Set([
+      'occupation','job','profession','career','trade','vocation','calling',
+      'economic activity','business activity','commerce','industry',
+      'financial institution','bank','market','exchange','fund',
+      'money','currency','payment','transaction','contract','agreement',
+      'worker','employee','employer','entrepreneur','executive',
+    ])
+  },
+  '⚖️ 정치·법률': {
+    color:'slate', icon:'⚖️',
+    spc: new Set([
+      'political system','government','state','authority','regime','administration',
+      'law','legislation','regulation','rule','statute','code',
+      'crime','offense','violation','felony','misdemeanor',
+      'right','freedom','liberty','duty','obligation','privilege',
+      'military','armed force','army','navy','police','court',
+    ])
+  },
+  '🔬 과학·기술': {
+    color:'cyan', icon:'🔬',
+    spc: new Set([
+      'science','scientific discipline','natural science','social science',
+      'technology','engineering','computing','algorithm','software','hardware',
+      'research','experiment','theory','hypothesis','discovery','innovation',
+      'element','compound','reaction','force','energy','radiation','particle',
+      'measurement','instrument','device','machine','tool','equipment',
+    ])
+  },
+  '📚 교육·학문': {
+    color:'indigo', icon:'📚',
+    spc: new Set([
+      'educational institution','school','university','college','academy',
+      'subject field','discipline','knowledge domain','branch of knowledge',
+      'academic degree','qualification','certificate','award',
+      'cognitive process','learning','memory','reasoning','intelligence',
+      'written communication','document','text','publication','book',
+    ])
+  },
+  '🍽️ 음식·요리': {
+    color:'orange', icon:'🍽️',
+    spc: new Set([
+      'food','foodstuff','nutrient','ingredient','dish','meal','course',
+      'beverage','drink','liquid','alcohol','juice',
+      'cooking','cuisine','recipe','method','preparation',
+      'taste','flavor','aroma','texture','spice','seasoning','condiment',
+      'vegetable','fruit','meat','seafood','grain','dairy','legume','nut',
+    ])
+  },
+  '⚽ 스포츠·운동': {
+    color:'lime', icon:'⚽',
+    spc: new Set([
+      'sport','athletic game','athletic competition','physical exercise','workout',
+      'game','match','tournament','championship','league','contest',
+      'player','athlete','team','coach','referee','official',
+      'equipment','gear','uniform','venue','stadium','court','field',
+      'score','point','goal','record','performance','technique','skill',
+    ])
+  },
+  '🎨 예술·문화': {
+    color:'fuchsia', icon:'🎨',
+    spc: new Set([
+      'art','visual art','fine art','art form','artistic style','art movement',
+      'music','musical composition','musical genre','instrument','melody','rhythm',
+      'literary work','literary genre','novel','poem','drama','narrative',
+      'film','movie','performance','exhibition','show','concert','play',
+      'culture','tradition','custom','ritual','ceremony','festival','religion',
+    ])
+  },
+  '⏰ 시간·공간': {
+    color:'teal', icon:'⏰',
+    spc: new Set([
+      'time period','time unit','era','epoch','age','century','decade','season',
+      'location','place','site','region','area','zone','territory',
+      'spatial relation','position','direction','distance','dimension',
+      'temporal relation','sequence','order','interval','frequency','duration',
+      'change','movement','transition','transformation','process',
+    ])
+  },
+  '🚗 교통·이동': {
+    color:'sky', icon:'🚗',
+    spc: new Set([
+      'vehicle','conveyance','craft','mode of transportation',
+      'car','automobile','truck','bus','motorcycle','bicycle',
+      'aircraft','airplane','helicopter','ship','boat','train','subway',
+      'travel','journey','trip','tour','voyage','expedition','commute',
+      'road','highway','route','path','track','lane','bridge','tunnel',
+    ])
+  },
+  '🏛️ 건물·시설': {
+    color:'stone', icon:'🏛️',
+    spc: new Set([
+      'building','structure','construction','edifice','facility','complex',
+      'house','dwelling','residence','home','apartment','shelter',
+      'institution','establishment','organization','center',
+      'room','space','area','floor','wall','door','window',
+      'landmark','monument','tower','bridge','infrastructure',
+    ])
+  },
+  '📡 통신·미디어': {
+    color:'violet', icon:'📡',
+    spc: new Set([
+      'communication','telecommunication','transmission','signal','broadcast',
+      'medium','media','channel','platform','network','system',
+      'message','information','content','data','news','report',
+      'publication','newspaper','magazine','book','journal','article',
+      'electronic device','computer','phone','radio','television','internet',
+    ])
+  },
+  '💡 추상·개념': {
+    color:'amber', icon:'💡',
+    spc: new Set([
+      'abstraction','concept','idea','notion','theory','principle','rule',
+      'attribute','property','quality','characteristic','feature','aspect',
+      'relation','connection','association','correlation','contrast',
+      'process','method','system','approach','strategy','framework',
+      'value','standard','criterion','measure','degree','level','amount',
+    ])
+  },
+};
+
+
+// ── rel_spc 기반 카테고리 분류 ──────────────────────────────────────────
+// Datamuse rel_spc: "dog" → ["animal","canine","pet","mammal"]
+// 이 상위개념 단어들이 카테고리 키워드 셋에 포함되는지 확인
+// 점수 체계: spc 직접 매칭(10) > 영어 단어 직접 매칭(8) > spc 부분 포함(5) > syn 매칭(3)
+
+function scoreWordForCategory(word, catData) {
+  let score = 0;
+  const enLower = (word.en || '').toLowerCase().replace(/_/g, ' ');
+  const spc = (word.nlp?.spc || []).map(s => s.toLowerCase().replace(/_/g, ' '));
+  const syn = (word.nlp?.syn || []).map(s => s.toLowerCase());
+  const kwSet = catData.spc; // 이미 Set
+
+  // 1) rel_spc 결과 정확 매칭 (+10)
+  for (const s of spc) {
+    if (kwSet.has(s)) { score += 10; break; }
+  }
+  // 2) rel_spc 부분 포함 매칭 (+6) — "body part" ∋ "part" 같은 케이스
+  if (score === 0) {
+    outer: for (const s of spc) {
+      for (const kw of kwSet) {
+        if (kw.length > 3 && (s.includes(kw) || kw.includes(s))) { score += 6; break outer; }
+      }
+    }
+  }
+  // 3) 단어 자체가 카테고리 키워드 (+8)
+  if (kwSet.has(enLower)) score += 8;
+
+  // 4) 유의어 중 카테고리 키워드 매칭 (+4) — spc 없는 단어 보완
+  if (score === 0) {
+    for (const s of syn) {
+      if (kwSet.has(s)) { score += 4; break; }
+    }
+  }
+  return score;
+}
+
+function buildCategoryGroups(wordList) {
+  // enrichWord가 아직 실행 안 된 단어는 spc 없음 → 미분류로 갈 수 있음
+  // 사용자에게 NLP 가동 후 사용하라는 안내는 섹션 설명에서 처리
+  const result = {};
+  for (const [catKey, catData] of Object.entries(CATEGORY_DB)) {
+    result[catKey] = { ...catData, words: [] };
+  }
+  result['❓ 미분류'] = { color: 'gray', icon: '❓', words: [], spc: new Set() };
+
+  for (const w of wordList) {
+    let bestCat = null, bestScore = 0;
+    for (const [catKey, catData] of Object.entries(CATEGORY_DB)) {
+      const score = scoreWordForCategory(w, catData);
+      if (score > bestScore) { bestScore = score; bestCat = catKey; }
+    }
+    const THRESHOLD = 4;
+    if (bestCat && bestScore >= THRESHOLD) {
+      result[bestCat].words.push({ word: w, score: bestScore });
+    } else {
+      result['❓ 미분류'].words.push({ word: w, score: 0 });
+    }
+  }
+  for (const g of Object.values(result)) {
+    g.words.sort((a, b) => b.score - a.score);
+  }
+  return result;
+}
+
+function buildCategoryCard(catKey, groupData) {
+  const card = document.createElement('div');
+  const colorMap = {
+    emerald:'border-emerald-700/50 bg-emerald-900/10', green:'border-green-700/50 bg-green-900/10',
+    red:'border-red-700/50 bg-red-900/10', pink:'border-pink-700/50 bg-pink-900/10',
+    purple:'border-purple-700/50 bg-purple-900/10', yellow:'border-yellow-700/50 bg-yellow-900/10',
+    slate:'border-slate-600/50 bg-slate-800/20', cyan:'border-cyan-700/50 bg-cyan-900/10',
+    indigo:'border-indigo-700/50 bg-indigo-900/10', orange:'border-orange-700/50 bg-orange-900/10',
+    lime:'border-lime-700/50 bg-lime-900/10', fuchsia:'border-fuchsia-700/50 bg-fuchsia-900/10',
+    teal:'border-teal-700/50 bg-teal-900/10', sky:'border-sky-700/50 bg-sky-900/10',
+    stone:'border-stone-600/50 bg-stone-800/20', violet:'border-violet-700/50 bg-violet-900/10',
+    amber:'border-amber-700/50 bg-amber-900/10', gray:'border-gray-600/50 bg-gray-800/20',
+  };
+  const textColorMap = {
+    emerald:'text-emerald-300', green:'text-green-300', red:'text-red-300', pink:'text-pink-300',
+    purple:'text-purple-300', yellow:'text-yellow-300', slate:'text-slate-300', cyan:'text-cyan-300',
+    indigo:'text-indigo-300', orange:'text-orange-300', lime:'text-lime-300', fuchsia:'text-fuchsia-300',
+    teal:'text-teal-300', sky:'text-sky-300', stone:'text-stone-300', violet:'text-violet-300',
+    amber:'text-amber-300', gray:'text-gray-400',
+  };
+  const borderBg = colorMap[groupData.color] || colorMap.gray;
+  const textCls = textColorMap[groupData.color] || 'text-gray-300';
+  card.className = `neon-card p-5 rounded-3xl flex flex-col h-full fade-in border ${borderBg}`;
+
+  const chips = groupData.words.map(({ word: w }) =>
+    `<span class="chip bg-gray-900/80 border border-gray-700 hover:bg-gray-800 cursor-pointer text-sm" onclick="openAnalysis(${w.id})">
+      <span class="font-black text-white">${w.en}</span>
+      <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span>
+    </span>`
+  ).join('');
+
+  card.innerHTML = `
+    <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700/60">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">${groupData.icon}</span>
+        <h4 class="font-black ${textCls} text-sm leading-tight">${catKey.replace(/^[^\s]+\s/, '')}</h4>
+      </div>
+      <span class="text-[10px] font-black ${textCls} bg-gray-800 px-2 py-1 rounded-full border border-gray-700 whitespace-nowrap">${groupData.words.length}단어</span>
+    </div>
+    <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chips}</div>`;
+  return card;
+}
 
 </script>
 </body>
