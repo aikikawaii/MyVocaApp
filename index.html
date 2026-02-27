@@ -345,58 +345,6 @@
   </div>
 </div>
 
-  <!-- 타이핑 세션 -->
-  <div id="type-session" class="hidden flex-1 flex flex-col max-w-2xl mx-auto w-full">
-    <div class="flex justify-between items-center mb-4 flex-shrink-0">
-      <button onclick="exitTyping()" class="text-gray-400 hover:text-white font-black text-sm px-3 py-2 rounded-xl hover:bg-gray-800 transition-colors">← 나가기</button>
-      <div class="flex gap-3 items-center">
-        <span class="text-sm font-black text-emerald-400">✅ <span id="type-correct-count">0</span></span>
-        <span class="text-sm font-black text-rose-400">❌ <span id="type-wrong-count">0</span></span>
-        <div class="bg-gray-800 border border-gray-700 px-4 py-1.5 rounded-full text-sm font-black text-gray-300"><span id="type-idx">1</span>/<span id="type-total">10</span></div>
-      </div>
-    </div>
-    <!-- 카드 -->
-    <div class="flex-1 flex flex-col">
-      <div class="neon-card rounded-[2.5rem] p-8 text-center mb-4 flex-shrink-0">
-        <p class="text-xs font-black text-gray-500 uppercase tracking-widest mb-3">이 뜻에 해당하는 영어 단어는?</p>
-        <h2 id="type-ko-display" class="text-3xl sm:text-4xl font-black text-indigo-300 mb-2 break-words">뜻</h2>
-        <p id="type-hint-display" class="text-sm text-gray-500 font-bold"></p>
-      </div>
-
-      <!-- 입력 영역 -->
-      <div id="type-input-area" class="neon-card rounded-3xl p-6 mb-3 flex-shrink-0">
-        <div class="relative">
-          <input id="type-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            placeholder="영어로 입력하세요..."
-            class="w-full bg-transparent text-white font-black text-2xl text-center border-b-2 border-gray-600 focus:border-indigo-400 outline-none py-3 transition-colors placeholder:text-gray-600 placeholder:font-normal"
-            oninput="typeCheckInput()" onkeydown="typeKeyDown(event)" />
-        </div>
-        <!-- 실시간 피드백 -->
-        <div id="type-feedback" class="mt-3 text-center hidden">
-          <p id="type-feedback-text" class="font-black text-lg"></p>
-          <p id="type-correct-answer" class="text-sm text-gray-400 font-bold mt-1"></p>
-        </div>
-      </div>
-
-      <!-- 컨트롤 버튼 -->
-      <div class="flex gap-3 flex-shrink-0">
-        <button id="type-hint-btn" onclick="typeShowHint()" class="active-bounce flex-1 bg-gray-800 text-amber-400 font-black py-3.5 rounded-2xl hover:bg-gray-700 border border-gray-700 hover:border-amber-500/50">힌트 💡</button>
-        <button id="type-skip-btn" onclick="typeSkip()" class="active-bounce flex-1 bg-gray-800 text-gray-400 font-black py-3.5 rounded-2xl hover:bg-gray-700 border border-gray-700">모르겠어 ⏭</button>
-        <button id="type-next-btn" onclick="typeNext()" class="active-bounce hidden flex-1 bg-indigo-600 text-white font-black py-3.5 rounded-2xl hover:bg-indigo-500 border border-indigo-500">다음 →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 타이핑 결과 -->
-  <div id="type-result" class="hidden flex-1 flex flex-col items-center justify-center fade-in">
-    <div class="neon-card p-8 rounded-[2.5rem] text-center w-full max-w-lg">
-      <div class="text-6xl mb-4" id="type-result-emoji">🎯</div>
-      <h2 class="text-2xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400">타이핑 완료!</h2>
-      <div class="grid grid-cols-3 gap-3 mb-6">
-        <div class="bg-gray-800 rounded-2xl p-3 border border-gray-700"><p class="text-xl font-black text-emerald-300" id="type-res-correct">0</p><p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-wide">정답</p></div>
-        <div class="bg-gray-800 rounded-2xl p-3 border border-gray-700"><p class="text-xl font-black text-rose-300" id="type-res-wrong">0</p><p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-wide">오답</p></div>
-        <div class="bg-gray-800 rounded-2xl p-3 border border-gray-700"><p class="text-xl font-black text-indigo-300" id="type-res-acc">0%</p><p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-wide">정확도</p></div>
-      </div>
 
 <div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div id="test-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
