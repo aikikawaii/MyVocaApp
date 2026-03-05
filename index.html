@@ -14,24 +14,19 @@
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* ── 성능: GPU 합성 레이어 힌트 ── */
   .game-btn { will-change: transform; }
   .neon-card, .neon-card-emerald, .neon-card-rose, .neon-card-amber {
-    /* backdrop-filter 제거 완료 — box-shadow만 사용 */
-    transform: translateZ(0); /* GPU 레이어 승격 */
+    transform: translateZ(0);
   }
 
-  /* ── 성능: 숨겨진 탭 뷰는 렌더링 스킵 ── */
   [id^="view-"]:not(.hidden) { content-visibility: auto; }
 
-  /* neon-card hover — transition 단축 (배경색만) */
   .neon-card { transition: border-color 0.2s, box-shadow 0.2s; }
-  .neon-card:hover { transform: none; } /* translateZ(0) 유지, scale 제거 */
+  .neon-card:hover { transform: none; }
   
   .active-bounce { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.15s ease, background-color 0.15s ease; }
   .active-bounce:active { transform: scale(0.94) !important; filter: brightness(1.2); }
 
-  /* ===== 🎯 사지선다 버튼 시스템 (깔끔 미니멀) ===== */
   .game-btn {
     position: relative;
     overflow: hidden;
@@ -44,23 +39,15 @@
     transform: translateY(-2px);
     border-color: rgba(99, 102, 241, 0.5) !important;
   }
-  .game-btn:not(:disabled):active {
-    transform: scale(0.97) !important;
-  }
+  .game-btn:not(:disabled):active { transform: scale(0.97) !important; }
 
-  /* 정답 */
   .game-btn.correct-answer {
-    background: #059669 !important;
-    color: #fff !important;
-    border-color: #10b981 !important;
-    transform: scale(1.02) !important;
+    background: #059669 !important; color: #fff !important;
+    border-color: #10b981 !important; transform: scale(1.02) !important;
     transition: all 0.1s ease !important;
   }
-
-  /* 오답 */
   .game-btn.wrong-answer {
-    background: #be123c !important;
-    color: #fff !important;
+    background: #be123c !important; color: #fff !important;
     border-color: #f43f5e !important;
     animation: wrongShake 0.3s ease !important;
     transition: background-color 0.1s ease, border-color 0.1s ease !important;
@@ -70,50 +57,28 @@
     25%      { transform: translateX(-6px); }
     75%      { transform: translateX(6px); }
   }
-
-  /* 정답 밝히기 (오답 선택 시) */
   .game-btn.reveal-correct {
-    background: #059669 !important;
-    color: #fff !important;
-    border-color: #10b981 !important;
-    transition: all 0.15s ease 0.1s !important;
+    background: #059669 !important; color: #fff !important;
+    border-color: #10b981 !important; transition: all 0.15s ease 0.1s !important;
   }
+  .game-btn.dimmed { opacity: 0.4; transition: opacity 0.15s ease !important; }
 
-  /* 선택 안된 보기 */
-  .game-btn.dimmed {
-    opacity: 0.4;
-    transition: opacity 0.15s ease !important;
-  }
-
-  /* ===== 기존 스타일 유지 ===== */
-
-  /* ── 사지선다 타이머 바 ── */
   #quiz-timer-bar-wrap {
-    height: 6px;
-    background: rgba(55, 65, 81, 0.6);
-    border-radius: 999px;
-    overflow: hidden;
-    margin-bottom: 1.25rem;
-    flex-shrink: 0;
+    height: 6px; background: rgba(55, 65, 81, 0.6);
+    border-radius: 999px; overflow: hidden; margin-bottom: 1.25rem; flex-shrink: 0;
   }
   #quiz-timer-bar {
-    height: 100%;
-    border-radius: 999px;
+    height: 100%; border-radius: 999px;
     background: linear-gradient(90deg, #6366f1, #a78bfa);
-    transition: width 0.1s linear, background 0.4s ease;
-    transform-origin: left;
+    transition: width 0.1s linear, background 0.4s ease; transform-origin: left;
   }
-  #quiz-timer-bar.warning {
-    background: linear-gradient(90deg, #f59e0b, #fbbf24);
-  }
+  #quiz-timer-bar.warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
   #quiz-timer-bar.danger {
     background: linear-gradient(90deg, #ef4444, #f87171);
     animation: timerPulse 0.5s ease infinite;
   }
-  @keyframes timerPulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.55; }
-  }
+  @keyframes timerPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
   .chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 9999px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid transparent; position: relative; }
   .chip:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
   .chip:active { transform: scale(0.95); }
@@ -149,13 +114,31 @@
   .neon-card-amber { background-color: rgba(31, 41, 55, 0.95); border: 1px solid rgba(245, 158, 11, 0.15) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s; }
   .neon-card-amber:hover { border-color: rgba(245, 158, 11, 0.5) !important; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); }
 
+  /* AI 의미 그룹 카드 색상 팔레트 */
+  .ai-group-card {
+    background-color: rgba(31, 41, 55, 0.95);
+    border: 1px solid rgba(99, 102, 241, 0.2) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .ai-group-card:hover {
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15);
+  }
 
+  /* AI 그룹 칩 색상 사이클 */
+  .ai-chip-0 { background: #1e1b4b; color: #c4b5fd; border-color: #4c1d95; }
+  .ai-chip-1 { background: #052e16; color: #86efac; border-color: #14532d; }
+  .ai-chip-2 { background: #450a0a; color: #fca5a5; border-color: #7f1d1d; }
+  .ai-chip-3 { background: #0c2340; color: #7dd3fc; border-color: #0c4a6e; }
+  .ai-chip-4 { background: #2d1b00; color: #fcd34d; border-color: #78350f; }
+  .ai-chip-5 { background: #1a0030; color: #e879f9; border-color: #701a75; }
+  .ai-chip-6 { background: #002020; color: #5eead4; border-color: #134e4a; }
+  .ai-chip-7 { background: #1f1000; color: #fb923c; border-color: #7c2d12; }
 </style>
 </head>
 <body class="bg-gray-950 text-gray-200 font-sans h-screen w-screen flex items-center justify-center p-2 sm:p-6 overflow-hidden relative">
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-gray-950 to-gray-950 pointer-events-none"></div>
-
-
 
 <div class="w-full max-w-7xl h-full max-h-[96vh] min-h-[700px] bg-gray-900 shadow-2xl rounded-3xl flex flex-col overflow-hidden border border-gray-800 relative z-10">
 
@@ -236,11 +219,8 @@
   </div>
 </div>
 
-<!-- ===== 2. 학습 ===== -->
-<!-- ===== SRS 간격반복 탭 ===== -->
+<!-- ===== 2. SRS ===== -->
 <div id="view-srs" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
-
-  <!-- 대시보드 -->
   <div id="srs-dashboard" class="flex flex-col gap-4 w-full max-w-2xl mx-auto fade-in">
     <div class="neon-card p-6 rounded-3xl">
       <div class="flex items-center justify-between mb-4">
@@ -250,7 +230,6 @@
         </div>
         <div class="text-4xl">🧠</div>
       </div>
-      <!-- 오늘 할 일 요약 -->
       <div class="grid grid-cols-3 gap-3 mb-5">
         <div class="bg-rose-900/30 border border-rose-700/50 rounded-2xl p-4 text-center">
           <p class="text-3xl font-black text-rose-300" id="srs-count-due">0</p>
@@ -265,7 +244,6 @@
           <p class="text-xs font-black text-indigo-400 mt-1 uppercase tracking-wide">총 학습중</p>
         </div>
       </div>
-      <!-- 2주 목표 진행바 -->
       <div class="mb-5">
         <div class="flex justify-between mb-1.5">
           <span class="text-xs font-black text-gray-400 uppercase tracking-wide">2주 목표 진행률</span>
@@ -281,14 +259,11 @@
         <button onclick="startSRS('new')" id="srs-btn-new" class="active-bounce flex-1 bg-emerald-700 text-white font-black py-4 rounded-2xl hover:bg-emerald-600 border border-emerald-600 shadow-md">신규 암기 ✨</button>
       </div>
     </div>
-    <!-- 다음 예정 미리보기 -->
     <div class="neon-card p-5 rounded-3xl">
       <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-3">다가오는 복습 스케줄</h3>
       <div id="srs-upcoming" class="space-y-2 text-sm font-bold text-gray-300"></div>
     </div>
   </div>
-
-  <!-- 학습 카드 -->
   <div id="srs-session" class="hidden flex-1 flex flex-col max-w-2xl mx-auto w-full">
     <div class="flex justify-between items-center mb-4 flex-shrink-0">
       <button onclick="exitSRS()" class="text-gray-400 hover:text-white font-black text-sm px-3 py-2 rounded-xl hover:bg-gray-800 transition-colors">← 나가기</button>
@@ -310,7 +285,6 @@
       </div>
       <button id="srs-reveal-btn" onclick="srsReveal()" class="active-bounce bg-gray-800 text-indigo-200 font-black text-base px-10 py-3.5 rounded-full hover:bg-gray-700 hover:text-white border border-gray-600 shadow-md">정답 확인 👀</button>
     </div>
-    <!-- SM-2 등급 버튼 -->
     <div id="srs-grade-btns" class="hidden grid grid-cols-4 gap-2 pb-4 flex-shrink-0">
       <button onclick="gradeCard(1)" class="active-bounce flex flex-col items-center neon-card-rose py-3 px-1 rounded-2xl hover:border-rose-500">
         <span class="text-xl">😵</span><span class="text-[10px] font-black text-rose-400 mt-1">전혀몰라</span><span class="text-[9px] text-gray-500 font-bold">+10분</span>
@@ -326,8 +300,6 @@
       </button>
     </div>
   </div>
-
-  <!-- 세션 완료 -->
   <div id="srs-complete" class="hidden flex-1 flex flex-col items-center justify-center fade-in">
     <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-lg">
       <div class="text-6xl mb-4" id="srs-done-emoji">🎉</div>
@@ -345,7 +317,7 @@
   </div>
 </div>
 
-
+<!-- ===== 3. 플래시카드 ===== -->
 <div id="view-test" class="flex-1 flex flex-col p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div id="test-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="neon-card p-8 sm:p-10 rounded-[2.5rem] w-full max-w-2xl text-center">
@@ -366,7 +338,6 @@
       </div>
     </div>
   </div>
-  
   <div id="test-active" class="flex-1 flex flex-col hidden fade-in max-w-4xl mx-auto w-full h-full">
     <div class="flex justify-between mb-6 flex-shrink-0">
       <div class="bg-gray-800 border border-gray-700 px-5 py-2.5 rounded-full text-base font-black text-gray-300 shadow-sm">진행 <span id="test-progress" class="text-indigo-400">1/10</span></div>
@@ -384,7 +355,6 @@
       <button onclick="markAnswer(true)"  class="active-bounce flex-1 bg-gray-800 border border-emerald-500/30 hover:border-emerald-500 text-emerald-400 rounded-[2rem] font-black text-xl flex items-center justify-center gap-3 shadow-md"><span class="text-3xl">⭕</span>알았어요</button>
     </div>
   </div>
-  
   <div id="test-result" class="flex-1 flex flex-col items-center justify-center hidden fade-in">
     <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-xl">
       <div class="text-7xl mb-6">🎉</div>
@@ -394,7 +364,7 @@
   </div>
 </div>
 
-<!-- ===== 3. 사지선다 (완전 개편) ===== -->
+<!-- ===== 4. 사지선다 ===== -->
 <div id="view-quiz" class="flex-1 flex flex-col p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center fade-in">
     <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-2xl">
@@ -407,15 +377,12 @@
       </div>
     </div>
   </div>
-  
   <div id="quiz-active" class="flex-1 flex flex-col hidden max-w-4xl mx-auto w-full h-full">
-    <!-- 상단 스탯 바 -->
     <div class="flex justify-between items-center mb-3 flex-shrink-0">
       <div class="bg-gray-800 px-5 py-2.5 rounded-full text-base font-black text-gray-300 border border-gray-700 shadow-sm">
         <span id="quiz-progress" class="text-indigo-400">1번째</span>
       </div>
       <div class="flex gap-3 items-center">
-        <!-- 콤보 표시 -->
         <div id="quiz-combo-wrap" class="hidden bg-gray-800 px-4 py-2 rounded-full border border-amber-500/50 shadow-sm">
           <span class="text-amber-300 font-black text-sm" id="quiz-combo">🔥 0 콤보</span>
         </div>
@@ -423,23 +390,13 @@
         <button onclick="showQuizResult()" class="active-bounce bg-gray-800 text-rose-400 px-5 py-2.5 rounded-full border border-gray-700 hover:border-rose-500/50 text-sm font-black transition-colors shadow-sm">종료</button>
       </div>
     </div>
-
-    <!-- 타이머 바 -->
-    <div id="quiz-timer-bar-wrap">
-      <div id="quiz-timer-bar" style="width: 100%"></div>
-    </div>
-    
-    <!-- 단어 카드 -->
+    <div id="quiz-timer-bar-wrap"><div id="quiz-timer-bar" style="width: 100%"></div></div>
     <div id="quiz-word-card" class="neon-card rounded-[2.5rem] flex flex-col items-center justify-center py-10 px-6 mb-6 flex-1 max-h-[38vh]">
       <span class="text-sm font-black text-indigo-400 mb-3 tracking-widest uppercase">어떤 뜻일까요?</span>
       <h2 id="quiz-word-en" class="text-5xl sm:text-6xl font-black text-white text-center break-all tracking-tight">Word</h2>
     </div>
-    
-    <!-- 보기 버튼들 -->
     <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-shrink-0 pb-4"></div>
   </div>
-  
-  <!-- 결과 화면 -->
   <div id="quiz-result" class="flex-1 flex flex-col items-center justify-center hidden">
     <div class="neon-card p-10 rounded-[2.5rem] text-center w-full max-w-xl fade-in">
       <div class="text-7xl mb-4" id="quiz-result-emoji">🏅</div>
@@ -451,7 +408,6 @@
         </div>
         <p class="font-bold text-gray-400 mt-2 text-base" id="quiz-accuracy"></p>
         <p class="font-black text-lg mt-3" id="quiz-feedback"></p>
-        <!-- 최고 콤보 표시 -->
         <p class="font-bold text-amber-400 mt-2 text-sm" id="quiz-best-combo"></p>
       </div>
       <button onclick="resetQuizView()" class="active-bounce w-full bg-indigo-600 text-white font-black py-5 text-lg rounded-2xl hover:bg-indigo-500 border border-indigo-500 shadow-md">다시 하기 🔄</button>
@@ -459,7 +415,7 @@
   </div>
 </div>
 
-<!-- ===== 4. 분석 ===== -->
+<!-- ===== 5. 분석 ===== -->
 <div id="view-analysis" class="flex-1 flex flex-col hidden bg-transparent overflow-hidden relative z-10">
   <div class="p-4 sm:p-6 bg-gray-900 border-b border-gray-800 flex-shrink-0 shadow-sm z-20">
     <div class="max-w-4xl mx-auto w-full">
@@ -546,12 +502,12 @@
   </div>
 </div>
 
-<!-- ===== 5. 그룹핑 ===== -->
+<!-- ===== 6. 그룹핑 ===== -->
 <div id="view-group" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 px-2 flex-shrink-0">
       <div>
           <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400 tracking-tight flex items-center gap-2">AI 다중 분석 그룹핑 🧩</h2>
-          <p class="text-gray-400 font-bold text-sm mt-1">자연어 처리(NLP) 기법을 활용하여 단어들을 4가지 관점으로 심층 분석하여 묶어냅니다.</p>
+          <p class="text-gray-400 font-bold text-sm mt-1">자연어 처리(NLP) + AI 의미 분석으로 단어들을 5가지 관점에서 심층 분석합니다.</p>
       </div>
       <button onclick="runNLPGrouping()" class="active-bounce w-full sm:w-auto bg-indigo-600 text-white font-black py-3 px-6 rounded-xl hover:bg-indigo-500 border border-indigo-500 shadow-md flex-shrink-0 flex justify-center items-center gap-2">
           <span>NLP 엔진 가동</span> 🚀
@@ -562,13 +518,21 @@
           <div class="absolute inset-0 border-4 border-gray-700 rounded-full"></div>
           <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
       </div>
-      <p class="text-xl font-black text-white text-center mb-3">단어들의 영영사전 데이터 수집 및 분석 중...</p>
+      <p class="text-xl font-black text-white text-center mb-3" id="nlp-loading-msg">단어 분석 중...</p>
       <div class="w-64 h-2 bg-gray-800 rounded-full overflow-hidden mb-3 border border-gray-700">
           <div id="nlp-progress-bar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
       </div>
       <p id="nlp-progress-text" class="text-sm font-black text-indigo-400">0 / 0</p>
   </div>
   <div id="group-container" class="flex-col gap-10 pb-8 flex-1" style="display:none">
+
+      <!-- ★ 0. 한국어 의미 클러스터 그룹핑 -->
+      <section>
+          <h3 class="text-xl font-black text-indigo-400 mb-2 px-2 border-l-4 border-indigo-500 ml-1 pl-3">0️⃣ 한국어 의미 클러스터 그룹핑 🧠</h3>
+          <p class="text-sm text-gray-400 font-bold mb-5 px-2">입력한 한국어 뜻을 Claude AI가 직접 읽고 의미가 유사한 단어들을 묶어냅니다. 문자가 달라도 뜻이 비슷하면 같은 그룹이 됩니다.</p>
+          <div id="nlp-ai-meaning-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
       <section>
           <h3 class="text-xl font-black text-emerald-400 mb-4 px-2 border-l-4 border-emerald-500 ml-1 pl-3">1️⃣ 어근 및 파생어 패밀리 (Lemmatization)</h3>
           <p class="text-sm text-gray-400 font-bold mb-5 px-2">자체 JS 형태소 분석기로 단어의 접미사를 분리해 같은 뿌리(Root)를 가진 단어를 묶습니다.</p>
@@ -586,13 +550,13 @@
       </section>
       <section>
           <h3 class="text-xl font-black text-sky-400 mb-4 px-2 border-l-4 border-sky-500 ml-1 pl-3">4️⃣ 주제별 카테고리 (Topic Clustering)</h3>
-          <p class="text-sm text-gray-400 font-bold mb-5 px-2">Datamuse <code class="text-indigo-400 bg-gray-800 px-1 rounded text-xs">rel_spc</code> (WordNet 상위 개념) API로 각 단어의 의미 계층을 추출해 17개 카테고리로 자동 분류합니다. NLP 엔진 가동 후 사용하세요.</p>
+          <p class="text-sm text-gray-400 font-bold mb-5 px-2">WordNet 상위 개념 API로 각 단어의 의미 계층을 추출해 17개 카테고리로 자동 분류합니다.</p>
           <div id="nlp-category-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </section>
   </div>
 </div>
 
-<!-- ===== 6. 통계 ===== -->
+<!-- ===== 7. 통계 ===== -->
 <div id="view-stats" class="flex-1 flex flex-col p-4 sm:p-6 hidden bg-transparent overflow-y-auto no-scrollbar relative z-10">
   <div class="mb-8 px-2 flex-shrink-0">
       <h2 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-400 tracking-tight flex items-center gap-2">학습 통계 📊</h2>
@@ -638,7 +602,7 @@
       </div>
   </div>
 </div>
-</div><!-- /wrapper -->
+</div>
 
 <!-- 모달들 -->
 <div id="delete-modal" class="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 backdrop-blur-sm">
@@ -684,48 +648,39 @@
     <div class="p-8 overflow-y-auto text-gray-300 font-bold text-base leading-relaxed space-y-4">
       <p>클라우드 자동 동기화가 적용된 <strong>야간 모드(Dark Mode) 전용</strong> 스마트 영단어장입니다.</p>
       <p>별도의 로그인 과정 없이, 앱을 실행하면 백그라운드에서 자동으로 모든 기기 간의 데이터를 실시간 동기화합니다.</p>
-      <p class="text-indigo-400 font-black mt-4">✓ 팁: 영어 단어가 길면 크기가 자동으로 축소되어 한 줄에 깔끔하게 표시됩니다.</p>
+      <p class="text-indigo-400 font-black mt-4">🧠 그룹핑 탭의 "한국어 의미 클러스터 그룹핑"은 내장 유의어 DB를 사용해 한국어 뜻이 의미적으로 유사한 단어끼리 오프라인으로 묶어줍니다. (API 불필요)</p>
+      <p class="text-indigo-400 font-black">✓ 팁: 영어 단어가 길면 크기가 자동으로 축소되어 한 줄에 깔끔하게 표시됩니다.</p>
     </div>
   </div>
 </div>
 
 <script>
 // ==============================
-// 🎯 퀴즈 이펙트 (미니멀)
+// 🎯 퀴즈 이펙트
 // ==============================
 const QuizFX = {
   ctx: null,
-  getCtx() {
-    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
-    return this.ctx;
-  },
+  getCtx() { if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } return this.ctx; },
   playCorrect() {
     const ctx = this.getCtx(); if (!ctx) return;
-    const t = ctx.currentTime;
-    const o = ctx.createOscillator(), g = ctx.createGain();
+    const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
-    o.frequency.setValueAtTime(520, t);
-    o.frequency.linearRampToValueAtTime(780, t + 0.12);
-    o.type = 'sine';
-    g.gain.setValueAtTime(0.12, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    o.frequency.setValueAtTime(520, t); o.frequency.linearRampToValueAtTime(780, t + 0.12);
+    o.type = 'sine'; g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
     o.start(t); o.stop(t + 0.18);
   },
   playWrong() {
     const ctx = this.getCtx(); if (!ctx) return;
-    const t = ctx.currentTime;
-    const o = ctx.createOscillator(), g = ctx.createGain();
+    const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = 200;
-    o.type = 'square';
-    g.gain.setValueAtTime(0.08, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    o.frequency.value = 200; o.type = 'square';
+    g.gain.setValueAtTime(0.08, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
     o.start(t); o.stop(t + 0.15);
   }
 };
 
 // ==============================
-// 기존 유틸 코드
+// 기존 유틸
 // ==============================
 let transCache = {};
 try { transCache = JSON.parse(localStorage.getItem('myWordbook_transCache') || '{}'); } catch(e) { transCache = {}; }
@@ -733,7 +688,7 @@ function saveTransCache() { localStorage.setItem('myWordbook_transCache', JSON.s
 
 async function getTranslationSafe(word) {
     const lw = word.toLowerCase();
-    if (transCache[lw]) return transCache[lw]; 
+    if (transCache[lw]) return transCache[lw];
     try {
         const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(word)}`);
         const data = await res.json();
@@ -748,17 +703,14 @@ const ALL_TABS = ['manage', 'srs', 'test', 'quiz', 'analysis', 'group', 'stats']
 let words=[], currentPage=1;
 const IPP=12;
 
-// 퀴즈 상태
 let quizQ=0, quizS=0, quizAnswered=0, quizWord=null, quizQueue=[], quizIdx=0, quizTimer=null;
-let quizMode = 'random';
-let quizPool = [];
-let quizCombo = 0, quizBestCombo = 0; // 콤보 시스템
-let quizTimerInterval = null;          // 타이머 인터벌
-let quizTimeLeft = 100;                // 타이머 퍼센트
+let quizMode = 'random', quizPool = [];
+let quizCombo = 0, quizBestCombo = 0;
+let quizTimerInterval = null, quizTimeLeft = 100;
 
 let testQueue=[],testPool=[],testIdx=0,testCorrect=0,testMode='all';
 let analysisWord=null,audioUrl=null;
-let _analysisHistory=[]; // 분석 히스토리 스택 (최대 20개)
+let _analysisHistory=[];
 const SIM_DUP=75,SIM_CONF=50;
 let simMatrix={},confMatrix={};
 let activityLog={};
@@ -797,52 +749,33 @@ function loadData(){
   const actRaw = localStorage.getItem('myActivity');
   if(actRaw){try{activityLog=JSON.parse(actRaw);}catch{activityLog={};}}
   renderWords();
-  // SRS 뱃지 초기화 (짧은 지연 후)
   setTimeout(() => {
     const due = getSRSDue();
     const badge = document.getElementById('srs-due-badge');
     if (badge && due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
   }, 200);
 }
-// ═══════════════════════════════════════════════════════════
-// 성능 코어: 퀴즈 중 렉의 실제 원인 = 매 선택마다 JSON.stringify(words)
-// → words 직렬화 디바운스 300ms / confMatrix 디바운스 500ms
-// ═══════════════════════════════════════════════════════════
+
 let _renderDebounce = null;
-function scheduleRender() {
-  clearTimeout(_renderDebounce);
-  _renderDebounce = setTimeout(renderWords, 80);
-}
+function scheduleRender() { clearTimeout(_renderDebounce); _renderDebounce = setTimeout(renderWords, 80); }
 
 let _cloudDebounce = null;
 function scheduleCloudSave(dataObj) {
   clearTimeout(_cloudDebounce);
-  _cloudDebounce = setTimeout(() => {
-    if (window.triggerCloudSave) window.triggerCloudSave(dataObj);
-  }, 2000);
+  _cloudDebounce = setTimeout(() => { if (window.triggerCloudSave) window.triggerCloudSave(dataObj); }, 2000);
 }
 
-// words 배열 직렬화 디바운스 — 300ms 내 연속 변경은 한번에 처리
 let _lsPending = false, _lsTimer = null;
 function scheduleLsSave() {
   clearTimeout(_lsTimer);
-  _lsTimer = setTimeout(() => {
-    localStorage.setItem('myWordbook', JSON.stringify(words));
-    _lsPending = false;
-  }, 300);
+  _lsTimer = setTimeout(() => { localStorage.setItem('myWordbook', JSON.stringify(words)); _lsPending = false; }, 300);
   _lsPending = true;
 }
-// 즉시 저장이 필요할 때 (탭 전환, 내보내기 전 등)
-function flushLsSave() {
-  clearTimeout(_lsTimer);
-  localStorage.setItem('myWordbook', JSON.stringify(words));
-  _lsPending = false;
-}
+function flushLsSave() { clearTimeout(_lsTimer); localStorage.setItem('myWordbook', JSON.stringify(words)); _lsPending = false; }
 
 function saveData({ skipRender = false, skipCloud = false, urgent = false } = {}) {
-  if (urgent) flushLsSave();
-  else scheduleLsSave();                    // words: 디바운스 직렬화
-  localStorage.setItem('myActivity', JSON.stringify(activityLog)); // activity는 작음
+  if (urgent) flushLsSave(); else scheduleLsSave();
+  localStorage.setItem('myActivity', JSON.stringify(activityLog));
   if (!skipRender) scheduleRender();
   if (!skipCloud) scheduleCloudSave({ words, activityLog });
 }
@@ -857,29 +790,19 @@ function logActivity(type) {
 window.updateFromCloud = function(data) {
   words.length = 0;
   if (Array.isArray(data)) { words.push(...data); }
-  else if (data && data.words) {
-    words.push(...data.words);
-    if(data.activityLog) activityLog = data.activityLog;
-  }
+  else if (data && data.words) { words.push(...data.words); if(data.activityLog) activityLog = data.activityLog; }
   flushLsSave();
   localStorage.setItem('myActivity', JSON.stringify(activityLog));
   buildSimMatrixAsync().then(() => scheduleRender());
 };
 
 function loadConf(){try{confMatrix=JSON.parse(localStorage.getItem('confMatrix')||'{}');}catch{confMatrix={};}}
-// confMatrix 디바운스 저장 (퀴즈 오답 선택마다 동기 write 방지)
 let _confTimer = null;
-function saveConf() {
-  clearTimeout(_confTimer);
-  _confTimer = setTimeout(() => {
-    localStorage.setItem('confMatrix', JSON.stringify(confMatrix));
-  }, 500);
-}
+function saveConf() { clearTimeout(_confTimer); _confTimer = setTimeout(() => { localStorage.setItem('confMatrix', JSON.stringify(confMatrix)); }, 500); }
+
 document.addEventListener('DOMContentLoaded',()=>{
-  loadData();
-  loadConf();
+  loadData(); loadConf();
   buildSimMatrixAsync().then(()=>scheduleRender());
-  // SRS 뱃지 초기화
   setTimeout(() => {
     if(typeof renderSRSDashboard === 'function') {
       const due = getSRSDue();
@@ -894,19 +817,12 @@ function switchTab(name){
     const btn=document.getElementById(`tab-${t}`),view=document.getElementById(`view-${t}`);
     const isActive = t === name;
     if(btn){
-      // className 완전 덮어쓰기 제거 — active 관련 클래스만 토글
-      btn.classList.toggle('font-black', isActive);
-      btn.classList.toggle('text-indigo-400', isActive);
-      btn.classList.toggle('border-indigo-500', isActive);
-      btn.classList.toggle('bg-gray-800/80', isActive);
-      btn.classList.toggle('font-bold', !isActive);
-      btn.classList.toggle('text-gray-500', !isActive);
+      btn.classList.toggle('font-black', isActive); btn.classList.toggle('text-indigo-400', isActive);
+      btn.classList.toggle('border-indigo-500', isActive); btn.classList.toggle('bg-gray-800/80', isActive);
+      btn.classList.toggle('font-bold', !isActive); btn.classList.toggle('text-gray-500', !isActive);
       btn.classList.toggle('border-transparent', !isActive);
     }
-    if(view){
-      if(isActive) view.classList.remove('hidden');
-      else view.classList.add('hidden');
-    }
+    if(view){ if(isActive) view.classList.remove('hidden'); else view.classList.add('hidden'); }
   });
   if(name === 'srs') requestAnimationFrame(renderSRSDashboard);
   if(name!=='test') resetTestView();
@@ -922,10 +838,9 @@ function addWord(){
   if(!en||!ko)return showToast('영어 단어와 뜻을 모두 입력해주세요.','error');
   const newWord = {id:Date.now(),en,ko,wrongCount:0, quizCount:0, nlp:null};
   words.push(newWord);
-  buildSimMatrixForWord(newWord); // 증분 업데이트 O(n) 
-  currentPage=1;
-  logActivity('added');
-  saveData({ urgent: true }); // 단어 추가는 즉시 저장
+  buildSimMatrixForWord(newWord);
+  currentPage=1; logActivity('added');
+  saveData({ urgent: true });
   enEl.value='';koEl.value='';enEl.focus();
   showToast('단어 추가 완료! ✨');
 }
@@ -963,10 +878,7 @@ function saveEditWord() {
 }
 
 function changePage(d){currentPage+=d;renderWords();document.getElementById('word-list').scrollTop=0;}
-function jumpToPage(val) {
-  const page = parseInt(val, 10);
-  if (!isNaN(page)) { currentPage = page; renderWords(); document.getElementById('word-list').scrollTop = 0; }
-}
+function jumpToPage(val) { const page = parseInt(val, 10); if (!isNaN(page)) { currentPage = page; renderWords(); document.getElementById('word-list').scrollTop = 0; } }
 
 function renderWords(){
   const list=document.getElementById('word-list');
@@ -979,7 +891,6 @@ function renderWords(){
   if(document.getElementById('sort-select').value==='wrongCount') { disp.sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0)); } 
   else { disp.sort((a,b)=> b.id - a.id); }
   const total=Math.max(1,Math.ceil(disp.length/IPP));currentPage=Math.max(1,Math.min(currentPage,total));
-  // DocumentFragment으로 배치 DOM 삽입 (리플로우 최소화)
   const frag = document.createDocumentFragment();
   disp.slice((currentPage-1)*IPP,currentPage*IPP).forEach(w=>{
     const simRow=simMatrix[w.id]||{};const dupes=words.filter(x=>x.id!==w.id&&(simRow[x.id]||0)>=SIM_DUP);
@@ -1006,7 +917,7 @@ function renderWords(){
       </div>`;
     frag.appendChild(li);
   });
-  list.appendChild(frag); // 한 번에 DOM 삽입
+  list.appendChild(frag);
   const pgCtrl=document.getElementById('pagination-controls');
   if(total>1){
     pgCtrl.classList.remove('hidden');
@@ -1021,14 +932,14 @@ function renderWords(){
     document.getElementById('btn-prev').disabled=currentPage===1;
     document.getElementById('btn-next').disabled=currentPage===total;
   } else { pgCtrl.classList.add('hidden'); }
-  requestAnimationFrame(resizeAllTexts); // rAF: resize after paint, not blocking
+  requestAnimationFrame(resizeAllTexts);
 }
 
 function exportData(){if(!words.length)return showToast('저장할 단어가 없습니다.','error');const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'})),download:`영단어장.json`});document.body.appendChild(a);a.click();a.remove();}
 function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw 0;imp.forEach(iw=>{if(iw.en&&iw.ko){words.push({id:Date.now()+Math.random(),en:iw.en,ko:iw.ko,wrongCount:iw.wrongCount||0, quizCount:iw.quizCount||0, nlp:null});}});saveData();buildSimMatrixAsync().then(()=>scheduleRender());currentPage=1;showToast(`단어를 불러왔습니다 📥`);}catch{showToast('파일 형식이 잘못되었습니다.','error');}};r.readAsText(file);e.target.value='';}
 
 // ==============================
-// 학습(플래시카드)
+// 플래시카드
 // ==============================
 function resetTestView(){
     testQueue=[];testPool=[];testIdx=0;testCorrect=0;
@@ -1040,8 +951,7 @@ function resetTestView(){
 }
 function showSetSelection() {
     if(words.length === 0) return showToast('단어가 없습니다!', 'error');
-    const container = document.getElementById('set-list-container');
-    container.innerHTML = '';
+    const container = document.getElementById('set-list-container'); container.innerHTML = '';
     const totalSets = Math.ceil(words.length / 50);
     for(let i=0; i<totalSets; i++) {
         const start = i * 50 + 1, end = Math.min((i + 1) * 50, words.length);
@@ -1054,10 +964,7 @@ function showSetSelection() {
     document.getElementById('test-intro-main').classList.add('hidden');
     document.getElementById('test-intro-sets').classList.remove('hidden');
 }
-function hideSetSelection() {
-    document.getElementById('test-intro-main').classList.remove('hidden');
-    document.getElementById('test-intro-sets').classList.add('hidden');
-}
+function hideSetSelection() { document.getElementById('test-intro-main').classList.remove('hidden'); document.getElementById('test-intro-sets').classList.add('hidden'); }
 function startTest(mode, setIdx = 0){
     if(!words.length) return showToast('단어가 없습니다!','error');
     testMode = mode;
@@ -1066,8 +973,7 @@ function startTest(mode, setIdx = 0){
     else if(mode==='wrong'){ pool=words.filter(w=>(w.wrongCount||0)>0);if(!pool.length) return showToast('틀린 단어가 없습니다!'); }
     else if(mode==='set'){ pool=words.slice(setIdx*50,(setIdx+1)*50);if(!pool.length) return showToast('해당 세트에 단어가 없습니다!');shouldShuffle=false; }
     testPool=pool; testQueue=shouldShuffle?shuffle(pool):[...pool]; testIdx=0; testCorrect=0;
-    document.getElementById('test-intro').classList.add('hidden');
-    document.getElementById('test-active').classList.remove('hidden');
+    document.getElementById('test-intro').classList.add('hidden'); document.getElementById('test-active').classList.remove('hidden');
     loadTestCard();
 }
 function loadTestCard(){
@@ -1093,335 +999,903 @@ function markAnswer(ok){
 }
 
 // ==============================
-// 🎯 완전히 새로워진 사지선다 시스템
+// 사지선다
 // ==============================
-const QUIZ_TIME = 15; // 초
-
-function stopQuizTimer() {
-    if (quizTimerInterval) { clearInterval(quizTimerInterval); quizTimerInterval = null; }
-}
-
+const QUIZ_TIME = 15;
+function stopQuizTimer() { if (quizTimerInterval) { clearInterval(quizTimerInterval); quizTimerInterval = null; } }
 function startQuizTimer() {
-    stopQuizTimer();
-    quizTimeLeft = 100;
+    stopQuizTimer(); quizTimeLeft = 100;
     const bar = document.getElementById('quiz-timer-bar');
-    bar.style.width = '100%';
-    bar.className = ''; // 색상 클래스 초기화 → 기본 보라색
-    
-    const step = 100 / (QUIZ_TIME * 10); // 100ms마다 업데이트
+    bar.style.width = '100%'; bar.className = '';
+    const step = 100 / (QUIZ_TIME * 10);
     quizTimerInterval = setInterval(() => {
         quizTimeLeft = Math.max(0, quizTimeLeft - step);
         bar.style.width = quizTimeLeft + '%';
-        
-        if (quizTimeLeft <= 20) {
-            bar.className = 'danger';
-        } else if (quizTimeLeft <= 40) {
-            bar.className = 'warning';
-        }
-        
-        if (quizTimeLeft <= 0) {
-            stopQuizTimer();
-            handleTimeOut();
-        }
+        if (quizTimeLeft <= 20) bar.className = 'danger';
+        else if (quizTimeLeft <= 40) bar.className = 'warning';
+        if (quizTimeLeft <= 0) { stopQuizTimer(); handleTimeOut(); }
     }, 100);
 }
-
 function handleTimeOut() {
-    // 시간 초과 시 오답 처리
     document.querySelectorAll('#quiz-options button').forEach(b => {
         b.disabled = true;
-        if (b.dataset.correct === 'true') { b.classList.add('reveal-correct'); }
-        else { b.classList.add('dimmed'); }
+        if (b.dataset.correct === 'true') b.classList.add('reveal-correct');
+        else b.classList.add('dimmed');
     });
-    
-    quizCombo = 0;
-    updateComboUI();
-    
+    quizCombo = 0; updateComboUI();
     const i = words.findIndex(w => w.id === quizWord.id);
     if (i !== -1) { words[i].wrongCount = (words[i].wrongCount||0) + 1; saveData({skipRender:true}); }
-    
-    QuizFX.playWrong();
-    QuizFX.flash('wrong');
-    logActivity('quizzed');
-    quizAnswered++;
-    
+    QuizFX.playWrong(); logActivity('quizzed'); quizAnswered++;
     showToast('⏰ 시간 초과!', 'error');
     quizTimer = setTimeout(() => nextQuiz(), 800);
 }
-
 function updateComboUI() {
-    const comboWrap = document.getElementById('quiz-combo-wrap');
-    const comboEl = document.getElementById('quiz-combo');
-    if (quizCombo >= 2) {
-        comboWrap.classList.remove('hidden');
-        comboEl.textContent = `🔥 ${quizCombo} 콤보`;
-        comboEl.classList.remove('combo-pop');
-        void comboEl.offsetWidth;
-        comboEl.classList.add('combo-pop');
-    } else {
-        comboWrap.classList.add('hidden');
-    }
+    const comboWrap = document.getElementById('quiz-combo-wrap'), comboEl = document.getElementById('quiz-combo');
+    if (quizCombo >= 2) { comboWrap.classList.remove('hidden'); comboEl.textContent = `🔥 ${quizCombo} 콤보`; }
+    else { comboWrap.classList.add('hidden'); }
 }
-
 function resetQuizView(){
-    if (quizTimer) clearTimeout(quizTimer);
-    stopQuizTimer();
-    quizQueue=[];quizIdx=0;quizPool=[];quizMode='random';
-    quizCombo=0;quizBestCombo=0;
+    if (quizTimer) clearTimeout(quizTimer); stopQuizTimer();
+    quizQueue=[];quizIdx=0;quizPool=[];quizMode='random'; quizCombo=0;quizBestCombo=0;
     const qi=document.getElementById('quiz-intro'); if(qi) qi.classList.remove('hidden');
     const qa=document.getElementById('quiz-active'); if(qa) qa.classList.add('hidden');
     const qr=document.getElementById('quiz-result'); if(qr) qr.classList.add('hidden');
 }
-
 function startQuiz(mode){
     if(words.length < 4) return showToast('단어가 전체 4개 이상 필요합니다!','error');
     quizMode = mode;
-    if (mode === 'wrong') {
-        quizPool = words.filter(w => (w.wrongCount || 0) > 0);
-        if (quizPool.length === 0) return showToast('틀린 단어가 없습니다! 🎉', 'info');
-    } else {
-        quizPool = [...words];
-    }
+    if (mode === 'wrong') { quizPool = words.filter(w => (w.wrongCount || 0) > 0); if (quizPool.length === 0) return showToast('틀린 단어가 없습니다! 🎉', 'info'); }
+    else { quizPool = [...words]; }
     quizQ=0; quizS=0; quizAnswered=0; quizIdx=0; quizCombo=0; quizBestCombo=0;
     quizQueue = mode === 'random' ? shuffle([...quizPool]) : [...quizPool].sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0));
-    
     document.getElementById('quiz-intro').classList.add('hidden');
     document.getElementById('quiz-active').classList.remove('hidden');
     document.getElementById('quiz-combo-wrap').classList.add('hidden');
     nextQuiz();
 }
-
 function getDistractors(target){
     const mat=confMatrix[target.id]||{}, sim=simMatrix[target.id]||{};
     const cands=words.filter(w=>w.id!==target.id&&(sim[w.id]||0)<SIM_DUP);
     return cands.map(w=>({word:w,score:(sim[w.id]||0)*5+(mat[w.id]||0)*10+Math.random()*3})).sort((a,b)=>b.score-a.score).slice(0,3).map(s=>s.word);
 }
-
 function nextQuiz(){
     if(quizIdx >= quizQueue.length){
         if (quizMode === 'random') { quizQueue = shuffle([...quizPool]); }
-        else {
-            quizPool = words.filter(w => (w.wrongCount || 0) > 0);
-            if (quizPool.length === 0) { showToast('모든 오답을 복습했습니다! 👏', 'info'); showQuizResult(); return; }
-            quizQueue = shuffle([...quizPool]);
-        }
+        else { quizPool = words.filter(w => (w.wrongCount || 0) > 0); if (quizPool.length === 0) { showToast('모든 오답을 복습했습니다! 👏', 'info'); showQuizResult(); return; } quizQueue = shuffle([...quizPool]); }
         quizIdx=0;
     }
-    quizQ++;
-    document.getElementById('quiz-progress').textContent=`${quizQ}번째`;
-    document.getElementById('quiz-score').textContent=quizS;
+    quizQ++; document.getElementById('quiz-progress').textContent=`${quizQ}번째`; document.getElementById('quiz-score').textContent=quizS;
     quizWord=quizQueue[quizIdx++];
-    
-    // quizCount는 메모리만 업데이트 (localStorage 저장 불필요 — 통계에 미사용)
     const wIdx = words.findIndex(w=>w.id===quizWord.id);
     if(wIdx !== -1) { words[wIdx].quizCount = (words[wIdx].quizCount || 0) + 1; }
-    
     document.getElementById('quiz-word-en').textContent=quizWord.en;
-    
     const opts=document.getElementById('quiz-options');
-    // Fragment로 버튼 4개 한번에 삽입 (4번 리플로우 → 1번)
     const optFrag = document.createDocumentFragment();
     shuffle([{word:quizWord,ok:true},...getDistractors(quizWord).map(w=>({word:w,ok:false}))]).forEach((opt) => {
         const btn=document.createElement('button');
         btn.className='game-btn w-full neon-card font-black py-6 rounded-2xl text-xl break-words px-4 text-white';
-        btn.textContent=opt.word.ko;
-        btn.dataset.correct = opt.ok;
-        btn.addEventListener('click', (e) => {
-            selectQuiz(btn, opt.ok, opt.word.id, e);
-        });
+        btn.textContent=opt.word.ko; btn.dataset.correct = opt.ok;
+        btn.addEventListener('click', (e) => { selectQuiz(btn, opt.ok, opt.word.id, e); });
         optFrag.appendChild(btn);
     });
-    opts.innerHTML='';
-    opts.appendChild(optFrag);
-
-    // 타이머 시작
+    opts.innerHTML=''; opts.appendChild(optFrag);
     startQuizTimer();
 }
-
 function selectQuiz(btn, ok, selId, e){
     stopQuizTimer();
     document.querySelectorAll('#quiz-options button').forEach(b=>b.disabled=true);
     quizAnswered++;
-
     if(ok){
         btn.classList.add('correct-answer');
         document.querySelectorAll('#quiz-options button').forEach(b => { if(b !== btn) b.classList.add('dimmed'); });
-        quizS++;
-        quizCombo++;
-        if (quizCombo > quizBestCombo) quizBestCombo = quizCombo;
-        updateComboUI();
-        QuizFX.playCorrect();
+        quizS++; quizCombo++; if (quizCombo > quizBestCombo) quizBestCombo = quizCombo;
+        updateComboUI(); QuizFX.playCorrect();
     } else {
         btn.classList.add('wrong-answer');
-        document.querySelectorAll('#quiz-options button').forEach(b => {
-            if (b.dataset.correct === 'true') b.classList.add('reveal-correct');
-            else if (b !== btn) b.classList.add('dimmed');
-        });
-        quizCombo = 0;
-        updateComboUI();
-        QuizFX.playWrong();
+        document.querySelectorAll('#quiz-options button').forEach(b => { if (b.dataset.correct === 'true') b.classList.add('reveal-correct'); else if (b !== btn) b.classList.add('dimmed'); });
+        quizCombo = 0; updateComboUI(); QuizFX.playWrong();
     }
-
     document.getElementById('quiz-score').textContent = quizS;
-
-    // UI 반응 즉시 → 다음 프레임 이후 데이터 처리 (requestIdleCallback 우선)
     const _settle = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
     _settle(() => {
-        if(ok){
-            if (quizMode === 'wrong') {
-                const i=words.findIndex(w=>w.id===quizWord.id);
-                if(i!==-1 && words[i].wrongCount > 0) { words[i].wrongCount--; saveData({skipRender:true}); }
-            }
-        } else {
+        if(ok){ if (quizMode === 'wrong') { const i=words.findIndex(w=>w.id===quizWord.id); if(i!==-1 && words[i].wrongCount > 0) { words[i].wrongCount--; saveData({skipRender:true}); } } }
+        else {
             const i=words.findIndex(w=>w.id===quizWord.id);
             if(i!==-1){ words[i].wrongCount=(words[i].wrongCount||0)+1; saveData({skipRender:true}); }
             if(!confMatrix[quizWord.id]) confMatrix[quizWord.id]={};
-            confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1;
-            saveConf(); // debounced
+            confMatrix[quizWord.id][selId]=(confMatrix[quizWord.id][selId]||0)+1; saveConf();
         }
         logActivity('quizzed');
     });
-    // 정답: 500ms, 오답: 800ms
     quizTimer = setTimeout(()=>nextQuiz(), ok ? 500 : 800);
 }
-
 function showQuizResult(){
-    if (quizTimer) clearTimeout(quizTimer);
-    stopQuizTimer();
-    document.getElementById('quiz-active').classList.add('hidden');
-    document.getElementById('quiz-result').classList.remove('hidden');
-    document.getElementById('quiz-final-score').textContent=quizS;
-    document.getElementById('quiz-total-score').textContent=quizAnswered;
-    
+    if (quizTimer) clearTimeout(quizTimer); stopQuizTimer();
+    document.getElementById('quiz-active').classList.add('hidden'); document.getElementById('quiz-result').classList.remove('hidden');
+    document.getElementById('quiz-final-score').textContent=quizS; document.getElementById('quiz-total-score').textContent=quizAnswered;
     const acc = quizAnswered > 0 ? Math.round(quizS / quizAnswered * 100) : 0;
     document.getElementById('quiz-accuracy').textContent = `정확도 ${acc}%`;
-    
-    document.getElementById('quiz-result-emoji').textContent = 
-        acc >= 90 ? '🏆' : acc >= 70 ? '🎉' : acc >= 50 ? '😊' : '🤔';
-    
-    document.getElementById('quiz-feedback').textContent = 
-        acc >= 90 ? '🔥 완벽해요! 최고입니다!' :
-        acc >= 70 ? '✨ 잘했어요! 조금만 더!' :
-        acc >= 50 ? '💪 괜찮아요, 계속 도전하세요!' : '😤 다시 한번 해봐요!';
-    
-    document.getElementById('quiz-best-combo').textContent = 
-        quizBestCombo >= 3 ? `🔥 최고 콤보: ${quizBestCombo}연속` : '';
-    
+    document.getElementById('quiz-result-emoji').textContent = acc >= 90 ? '🏆' : acc >= 70 ? '🎉' : acc >= 50 ? '😊' : '🤔';
+    document.getElementById('quiz-feedback').textContent = acc >= 90 ? '🔥 완벽해요! 최고입니다!' : acc >= 70 ? '✨ 잘했어요! 조금만 더!' : acc >= 50 ? '💪 괜찮아요, 계속 도전하세요!' : '😤 다시 한번 해봐요!';
+    document.getElementById('quiz-best-combo').textContent = quizBestCombo >= 3 ? `🔥 최고 콤보: ${quizBestCombo}연속` : '';
     renderWords();
 }
 
 // ==============================
-// NLP 그룹핑 (기존 유지)
+// 유사도 행렬
 // ==============================
+// ══════════════════════════════════════════════════════════════════════════
+// 한국어 의미 클러스터 DB — 오프라인 유의어 그룹핑 엔진
+// 설계 원칙:
+//   각 클러스터는 "의미적으로 교환 가능한 표현"의 묶음
+//   단어의 한국어 뜻을 토크나이즈 → 어떤 클러스터 토큰과 겹치는지 점수화
+//   같은 클러스터 소속이면 semSim에 강력한 보너스(+50~+70) 부여
+// ══════════════════════════════════════════════════════════════════════════
+const KO_SYN_CLUSTERS = [
+  // ════════════════════════════════════════════════════════════
+  // [0~19] 감정 · 심리 — 수능/토익 빈출 감정 어휘
+  // ════════════════════════════════════════════════════════════
+  // 0: 기쁨·행복
+  ['기쁨','기쁘','행복','즐거움','즐겁','환희','희열','유쾌','흐뭇','흡족','만족','설레','설렘','기분좋은','상쾌','상쾌한','황홀','황홀한','들뜬','유joy'],
+  // 1: 슬픔·우울
+  ['슬픔','슬프','우울','비통','서럽','서러움','애통','애석','비애','비탄','침울','침통','애수','수심','수심에잠긴','침울한','슬퍼하는','비참','비참한','처절'],
+  // 2: 분노·격분
+  ['분노','화','화나','분개','격분','격노','노여움','성남','짜증','분통','격렬한분노','울분','울화','노발대발','격앙','노기','적개심','증오','격하','분격'],
+  // 3: 두려움·공포·불안
+  ['두려움','공포','무서움','무섭','겁','두렵','불안','초조','조마조마','공황','전율','공포스러운','두려운','겁많은','겁쟁이','전전긍긍','공포감','위협감','떨림'],
+  // 4: 놀람·경이
+  ['놀람','놀라','경악','경이','충격','황당','의아','깜짝','어안이벙벙','경이롭','기이한','신기한','믿기지않는','뜻밖의','예상밖의','놀라운','황홀한경이','의외의'],
+  // 5: 수치·부끄러움
+  ['수치','부끄러움','부끄럽','창피','민망','수줍','수줍음','쑥스럽','쑥스러움','모욕','모욕감','치욕','수모','수치심','창피스러운','당혹','당혹스러운','낮부끄러운'],
+  // 6: 외로움·고독
+  ['외로움','고독','쓸쓸','쓸쓸하','적막','외롭','고립','소외','고독감','적적','적적한','허전','허전한','쓸쓸함','단절','고립감','공허','공허한','텅빈','적막감'],
+  // 7: 열정·의욕·헌신
+  ['열정','열정적','열의','열렬','의욕','의욕적','활기','활기차','뜨거운','불타는','헌신','헌신적','열망','열망하는','집념','집착','에너지넘치는','투지','의지','정열'],
+  // 8: 평온·고요·침착
+  ['평온','고요','차분','침착','안정','평화','평화롭','고요하','차분하','침착한','안정적','조용한','잔잔한','잔잔','담담','담담한','태연','태연한','냉철','냉철한'],
+  // 9: 호기심·탐구심
+  ['호기심','궁금','흥미','흥미롭','관심','탐구','탐색','궁금증','알고싶은','열망','갈구','지적욕구','탐구욕','호기심어린','궁구','지식욕','궁금해하는','흥미진진'],
+  // 10: 혐오·반감
+  ['혐오','혐오스럽','역겨움','역겹','메스꺼움','불쾌','싫음','반감','역겨운','혐오감','경멸','경멸하는','저버리다','혐의','귀찮음','질색','질색하는','지긋지긋','기피'],
+  // 11: 동경·갈망·그리움
+  ['동경','그리움','그립','갈망','소망','흠모','선망','열망','바람','희망','갈구','소원','원하는','욕망','바라는','꿈꾸는','열렬히원하는','간절히바라는','염원'],
+  // 12: 질투·시기
+  ['질투','시기','부러움','부럽','시샘','시기심','경쟁심','질투심','샘','샘내다','샘나는','샘많은','시기하는','투기','투기심','질투스러운','부러워하는','선망어린'],
+  // 13: 자부심·자신감
+  ['자부심','자긍심','자존감','자신감','당당','뿌듯','긍지','자랑','자랑스럽','자부','자존','당당한','떳떳','떳떳한','위엄','위엄있는','용기있는','자기확신','자기긍정'],
+  // 14: 절망·포기
+  ['절망','낙담','의기소침','패배감','포기','좌절','실망','체념','희망없는','희망잃은','자포자기','낙담한','비관','비관적','막막한','막막','암담','암담한','절박'],
+  // 15: 감사·고마움
+  ['감사','고마움','고마운','감사한','감사히','감사드리는','은혜','은혜로운','은혜를아는','감격','감격하는','감동','감동적','고맙','고마워하는','은혜갚는','보은'],
+  // 16: 후회·반성
+  ['후회','반성','뉘우침','뉘우치다','자책','자책하는','회한','회한하는','미안함','미안한','죄책감','죄책','유감','유감스러운','통탄','통탄하는','뉘우치는','반성하는'],
+  // 17: 안도·위안
+  ['안도','안도감','위안','위로','위로받는','안심','다행','다행스러운','홀가분','홀가분한','마음놓이는','해소','해방감','숨통트이는','긴장풀리는','후련','후련한'],
+  // 18: 당혹·혼란스러운감정
+  ['당혹','당혹스러운','혼란','혼란스러운','어리둥절','어리둥절한','갈피못잡는','갈등','갈등하는','양면감정','복잡한심경','당혹감','난처','난처한','진퇴양난'],
+  // 19: 지루함·권태
+  ['지루함','지루한','권태','권태로운','따분','따분한','심심','심심한','무료','무료한','무기력','무기력한','무덤덤','무덤덤한','시들','시들한','식상','식상한'],
+
+  // ════════════════════════════════════════════════════════════
+  // [20~39] 성격 · 태도 — 수능 빈출 인물 묘사 어휘
+  // ════════════════════════════════════════════════════════════
+  // 20: 용감·대담
+  ['용감','용기','대담','씩씩','용맹','담대','무모','배짱','배짱있는','용감한','대담한','용기있는','용기를내는','과감','과감한','결연','결연한','의연','의연한'],
+  // 21: 소심·겁
+  ['소심','소심한','겁많은','주저','망설임','망설이는','우유부단','우유부단한','머뭇거리는','소극적','소극','피동적','수줍은','내성적','내성','귀찮아하는','회피','회피적'],
+  // 22: 성실·근면
+  ['성실','부지런','근면','열심','착실','꾸준','성실한','근면한','부지런한','착실한','꾸준한','열심히하는','열정적','성실히','성심성의껏','정성껏','한결같이','묵묵히'],
+  // 23: 게으름·나태
+  ['게으른','게으름','나태','느긋','굼뜬','태만','나태한','태만한','느긋한','게을러빠진','무기력','무기력한','움직이기싫은','빈둥거리는','빈둥','늑장','늑장부리는'],
+  // 24: 친절·온화·자상
+  ['친절','다정','온화','상냥','따뜻','자상','친절한','다정한','온화한','상냥한','따뜻한','자상한','부드러운','부드럽','정겨운','정겨움','인자','인자한','자비','자비로운'],
+  // 25: 냉정·냉담·무감각
+  ['냉정','냉담','차갑','싸늘','무뚝뚝','무감각','객관적','냉정한','냉담한','차가운','냉철','냉혹','냉혹한','냉酷','냉랭','냉랭한','무심','무심한','감정없는'],
+  // 26: 정직·솔직·진실
+  ['정직','솔직','진실','진지','투명','정직한','솔직한','진실한','진지한','투명한','거짓없는','진솔','진솔한','성실한','성실하게','진심','진심어린','올바른','공명정대'],
+  // 27: 거짓·기만·위선
+  ['거짓','불성실','위선','사기','기만','허위','거짓된','위선적','기만적','허위의','위장','거짓말','허위주장','위선자','표리부동','표리','가식','가식적','허구','속임수'],
+  // 28: 겸손·겸허
+  ['겸손','겸허','소박','겸손한','겸허한','소박한','낮추는','자기를낮추는','겸양','겸양하는','모자라도인정하는','허심탄회','고개숙이는','배려','배려깊은'],
+  // 29: 오만·거만·교만
+  ['오만','거만','자만','교만','뻔뻔','오만한','거만한','자만한','교만한','뻔뻔한','잘난척','잘난체','자기중심적','자기과신','독선','독선적','거드름','거드름피우는'],
+  // 30: 신중·사려깊음
+  ['신중','조심','주의깊은','사려깊은','세심','신중한','조심스러운','세심한','신중하게','조심스럽게','주도면밀','주도면밀한','꼼꼼','꼼꼼한','면밀','면밀한','조심성있는'],
+  // 31: 충동적·경솔
+  ['충동적','충동','즉흥적','즉흥','무분별','경솔','섣부른','성급','성급한','경솔한','무분별한','즉흥적으로','생각없이','경거망동','경거','망동','천박','천박한'],
+  // 32: 인내·끈기
+  ['인내','참을성','끈기','지구력','지속적','인내하는','끈질긴','끈질기게','참아내는','견디는','버티는','지속하는','굴하지않는','포기않는','의지','의지력','집념','집착력'],
+  // 33: 관대·너그러움
+  ['관대','너그러운','너그러움','관용','포용','이해심많은','관대한','관용적','포용적','너그럽게','용서하는','용납하는','배려하는','열린마음','열린마음의','이해하는'],
+  // 34: 인색·탐욕
+  ['인색','구두쇠','치사','쪼잔','욕심','인색한','탐욕','탐욕스러운','욕심많은','구두쇠같은','치사한','욕심쟁이','자기중심','이기적','이기적인','탐스러운'],
+  // 35: 독립적·자주적
+  ['독립적','자주적','자율적','스스로하는','자립','자립하는','주체적','주체적으로','자기주도','자기주도적','독자적','독자','혼자서하는','자기결정','자기결정적'],
+  // 36: 의존적·수동적
+  ['의존적','의존하는','수동적','의지하는','남에게기대는','의뢰하는','의존','종속','종속적','피동적','끌려다니는','자주성없는','남따라하는','맹목적순종'],
+  // 37: 사교적·외향적
+  ['사교적','외향적','활발','활발한','붙임성있는','사람좋아하는','사귐성있는','명랑','명랑한','밝은','밝다','쾌활','쾌활한','활기넘치는','인기많은','어울리는'],
+  // 38: 내성적·수줍은
+  ['내성적','수줍은','내성','부끄러워하는','혼자를좋아하는','조용한','조용히','말없는','과묵','과묵한','홀로있기좋아하는','내향','내향적','혼자있는','혼자가좋은'],
+  // 39: 공감적·동정심있는
+  ['공감','공감적','동정심','동정','연민','연민하는','이해하는','공감하는','배려','감정이입','감정이입하는','측은','측은하게','측은히여기는','안타까운','안타깝게'],
+
+  // ════════════════════════════════════════════════════════════
+  // [40~59] 지적 능력 · 사고 · 언어 — 수능 고난도 어휘
+  // ════════════════════════════════════════════════════════════
+  // 40: 영리·현명·총명
+  ['영리','똑똑','현명','지혜','총명','명석','슬기','영리한','똑똑한','현명한','지혜로운','총명한','명석한','슬기로운','현명하게','명민','명민한','기민','기민한','예리한'],
+  // 41: 어리석음·무지
+  ['어리석은','어리석음','미련','무지','멍청','우둔','몰지각','어리석게','미련하게','무지한','멍청한','우둔한','어리석게도','철없는','단순한생각','근시안적'],
+  // 42: 논리적·합리적
+  ['논리적','이성적','합리적','체계적','분석적','비판적','논리','이성','합리','체계','분석','논리적으로','이성적으로','합리적으로','체계적으로','논증','논증하는','객관적'],
+  // 43: 창의적·독창적
+  ['창의적','독창적','혁신적','참신','발상','상상력','독특한','창의','독창','혁신','참신한','창조적','창조','발명','발명적','기발한','기발','독창성','창의성'],
+  // 44: 기억·회상
+  ['기억','회상','상기','떠올리','추억','암기','기억하다','회상하다','상기하다','떠올리다','기억나는','회상하는','되새기는','회고','회고하는','떠올림','생각나는'],
+  // 45: 이해·통찰·파악
+  ['이해','파악','깨닫','인식','통찰','이해하다','파악하다','깨닫다','인식하다','통찰하다','이해하는','파악하는','깨닫는','통찰력','이해력','꿰뚫는','간파하는'],
+  // 46: 추측·추론·추정
+  ['추측','추론','추정','짐작','가정','유추','추측하다','추론하다','추정하다','짐작하다','가정하다','유추하다','추정하는','상상하는','전제하는','가설세우는','예측하는'],
+  // 47: 집중·몰두
+  ['집중','몰두','전념','열중','주목','골몰','집중하다','몰두하다','전념하다','열중하다','주목하다','골몰하다','몰입','몰입하는','빠져드는','열심히하는','전심전력','온전히'],
+  // 48: 혼란·모호·불분명
+  ['혼란','복잡','어지러운','불분명','모호','애매','혼란스러운','복잡한','불분명한','모호한','애매한','뒤엉킨','흐릿한','불확실한','불확실','불투명','불투명한','불명확'],
+  // 49: 명확·분명·정확
+  ['명확','분명','확실','뚜렷','선명','정확','명확한','분명한','확실한','뚜렷한','선명한','정확한','명료','명료한','또렷','또렷한','확실히','분명히','명백','명백한'],
+  // 50: 주장·단언·강조
+  ['주장','단언','강조','역설','역설하다','주장하다','단언하다','강조하다','강력히주장하는','단정하는','확언','확언하다','강변','강변하다','단정','주장을관철하는'],
+  // 51: 설명·서술·묘사
+  ['설명','서술','묘사','기술','설명하다','서술하다','묘사하다','기술하다','표현하다','표현','나타내다','나타냄','그려내다','그려내는','보여주다','보여주는'],
+  // 52: 비교·대조·구분
+  ['비교','대조','구분','구별','비교하다','대조하다','구분하다','구별하다','견주다','견주는','차이를두는','차이화','차별화','변별','변별하는','대비하는'],
+  // 53: 반박·비판·반론
+  ['반박','반증','비판','반론','이의','반박하다','반증하다','비판하다','반론하다','이의를제기하다','반발하는','부정하는','부인하는','이의제기','비판적시각'],
+  // 54: 강조·부각·부각시킴
+  ['강조','부각','강조하다','부각하다','두드러지게하다','두드러지는','두드러진','부각시키는','돋보이게하는','부각되는','강조되는','핵심을짚는','중요시하는'],
+  // 55: 암시·시사·함축
+  ['암시','시사','함축','내포','암시하다','시사하다','함축하다','내포하다','넌지시말하는','넌지시','은연중에','의미하는','내비치는','에둘러말하는','우회적으로말하는'],
+  // 56: 표현·나타냄
+  ['표현','나타냄','표출','표현하다','나타내다','표출하다','발산하다','발산','드러내다','드러냄','표명하다','표명','외적으로보이는'],
+  // 57: 언어·소통·전달
+  ['언어','소통','전달','의사소통','대화','언어로표현하는','소통하는','전달하는','말로하는','표현하는','화법','논리적으로말하는','설득하는'],
+  // 58: 글쓰기·서술·저술
+  ['글쓰기','서술','저술','작문','글','쓰다','저술하다','서술하다','기록하다','기록','집필','집필하다','저작','저작하다','논술','논술하다'],
+  // 59: 독해·해석·분석
+  ['독해','해석','분석','읽기','독해하다','해석하다','분석하다','읽다','파악하다','내용파악','글의의미','맥락파악','문맥','논지파악','주제찾기'],
+
+  // ════════════════════════════════════════════════════════════
+  // [60~79] 행동 · 변화 · 상태 동사 — 수능·토익 핵심 동사 뜻
+  // ════════════════════════════════════════════════════════════
+  // 60: 빠름·신속·즉각
+  ['빠른','신속','재빠른','민첩','즉각','빠르게','신속한','재빠르게','민첩한','즉각적','날쌘','순식간에','빠르다','신속하게','재빠르다','번개같이','즉시','신속히'],
+  // 61: 느림·더딤·지체
+  ['느린','느리게','천천히','느릿느릿','더디','굼뜬','지체','느리다','더디다','느릿','굼뜨다','느긋하게','천천히하는','지체되는','지체된','만만디','서두르지않는'],
+  // 62: 시작·개시·착수
+  ['시작','출발','개시','착수','개막','시작하다','출발하다','개시하다','착수하다','시작되다','시작하는','첫발','첫발을내딛는','시동','시동걸다','개시되다','발동','발동하다'],
+  // 63: 완료·종결·마무리
+  ['끝','완료','종료','마치다','마무리','종결','결말','끝나다','완료하다','종료하다','마치다','마무리하다','완결','완결하다','매듭','매듭짓다','종지부'],
+  // 64: 증가·확대·성장
+  ['증가','늘다','상승','확장','확대','성장','증가하다','늘어나다','올라가다','확장하다','확대하다','성장하다','늘리다','불어나다','팽창','팽창하다','확충','확충하다'],
+  // 65: 감소·축소·하락
+  ['감소','줄다','하락','축소','감소하다','줄어들다','하락하다','축소하다','줄이다','내려가다','쇠퇴하다','쇠퇴','감축','감축하다','縮小','줄어드는','하향','하향하다'],
+  // 66: 강화·강력화
+  ['강화','보강','강화하다','보강하다','굳히다','다지다','공고히하다','강력하게하다','견고하게하다','단단히하다','힘을키우다','역량강화','강력하게만드는'],
+  // 67: 약화·퇴화·쇠퇴
+  ['약화','쇠약','감퇴','무너뜨리다','약화하다','쇠약하게하다','감퇴하다','약해지다','힘을잃다','저하','저하하다','퇴화','퇴화하다','기력을잃는','쇠하다','약해지는'],
+  // 68: 유지·보존·지속
+  ['유지','보존','보호','지속','지탱','유지하다','보존하다','보호하다','지속하다','지탱하다','지키다','보전','보전하다','유지되다','지속되다','유지시키다','유지되는'],
+  // 69: 파괴·손상·훼손
+  ['파괴','훼손','부수다','손상','망가뜨리다','파괴하다','훼손하다','손상하다','허물다','무너뜨리다','박살내다','부수는','파괴적','망가진','훼손된','손상된','깨부수다'],
+  // 70: 돕다·지원·지지
+  ['도움','돕다','지원','지지','원조','보조','후원','지원하다','지지하다','원조하다','보조하다','후원하다','돕는','지원해주는','힘이되는','뒷받침','뒷받침하는','보완하는'],
+  // 71: 방해·저지·장애
+  ['방해','훼방','저지','장애','방해하다','저지하다','막다','방해물','걸림돌','장애물','훼방놓다','제지','제지하다','차단','차단하다','봉쇄','봉쇄하다','가로막다'],
+  // 72: 변화·전환·변혁
+  ['변화','전환','변혁','변동','변화하다','바뀌다','전환하다','변혁하다','변동하다','바꾸다','개선','개선하다','개혁','개혁하다','혁신','혁신하다','변모하다','변모'],
+  // 73: 유지·보수·현상유지
+  ['보수','현상유지','보존','보수적','전통유지','유지하려는','변화를거부하는','전통고수','보전','지속성','일관성','불변','불변의','고수하는','기존방식'],
+  // 74: 증명·입증·확인
+  ['증명','입증','검증','확인','확증','증명하다','입증하다','검증하다','확인하다','확증하다','실증','실증하다','증거로보이다','증거제시','사실로밝히다','논증'],
+  // 75: 시도·노력·추구
+  ['시도','노력','추구','시도하다','노력하다','추구하다','애쓰다','힘쓰다','도전','도전하다','꾀하다','추진하다','추진','모색','모색하다','지향','지향하다'],
+  // 76: 회피·도피·기피
+  ['회피','도피','기피','회피하다','도피하다','기피하다','피하다','피하는','외면하다','외면','회피적','도망치다','피해가다','모면하다','모면','외면하는'],
+  // 77: 선택·결정·결심
+  ['선택','결정','결심','선택하다','결정하다','결심하다','채택하다','채택','고르다','고르는','결단','결단하다','택하다','택하는','결심서다','마음먹다','마음먹는'],
+  // 78: 거부·반대·저항
+  ['거부','반대','저항','거절','사양','거부하다','반대하다','저항하다','거절하다','사양하다','반발하다','반발','부정하다','부정','반기들다','이의제기','불복','불복하다'],
+  // 79: 복종·순응·따름
+  ['복종','순종','순응','굴복','따르다','복종하다','순종하다','순응하다','굴복하다','따르는','복종하는','말을듣는','지시따르는','명을따르는','수용하는','수용','받아들이는'],
+
+  // ════════════════════════════════════════════════════════════
+  // [80~99] 상태·성질 형용사 — 수능 빈출 형용사 어휘
+  // ════════════════════════════════════════════════════════════
+  // 80: 크다·방대·광대
+  ['크다','거대하다','방대하다','광대하다','넓다','광범위하다','웅장하다','커다란','방대한','광대한','거대한','광범위한','웅장한','드넓은','드넓다','방대하게','거대하게'],
+  // 81: 작다·미세·소소
+  ['작다','미세하다','작은','소형','조그마한','미소한','왜소한','미미한','경미한','소소한','미미','자그마한','조그만','아담한','아담','세밀한','세밀','미세'],
+  // 82: 많다·풍부·넉넉
+  ['많은','다량','풍부한','넘치는','수많은','다수','대량','풍부하다','넘치다','무수한','무수','충분한','충분하다','넉넉한','넉넉하다','풍성한','풍성하다','다양한'],
+  // 83: 적다·부족·결핍
+  ['적은','소량','부족한','드문','희소한','결핍된','부족하다','드물다','희소하다','결핍','빈약한','빈약하다','부족함','모자란','모자라다','희귀한','희귀하다'],
+  // 84: 강하다·강력·견고
+  ['강한','강력한','강하다','힘찬','견고한','단단한','튼튼한','억센','굳건한','강력하게','강력히','굳건하게','강렬한','강렬하다','강성한','강성','힘세다'],
+  // 85: 약하다·연약·취약
+  ['약한','약하다','무력한','연약한','허약한','취약한','취약하다','미약한','연약하다','나약한','나약하다','허약하다','힘없는','힘이없는','무기력한'],
+  // 86: 중요하다·핵심·결정적
+  ['중요한','핵심','결정적','중대한','필수','필수적','중요하다','핵심적','중요하게','결정적인','중대하게','핵심이되는','본질적','본질','근본적','근본','핵심적인'],
+  // 87: 사소하다·하찮다
+  ['사소한','하찮은','미미한','별것아닌','대수롭지않은','무의미한','사소하다','하찮다','미미하다','지엽적','지엽','부차적','부차','보잘것없는','보잘것없다'],
+  // 88: 복잡하다·난해·어렵다
+  ['복잡한','난해한','어려운','까다로운','곤란한','복잡하다','난해하다','어렵다','까다롭다','곤란하다','심층적','심층','고난도','고난도의','복잡다양한','얽힌'],
+  // 89: 단순하다·간단·쉽다
+  ['단순한','간단한','쉬운','평이한','간소한','기본적','단순하다','간단하다','쉽다','평이하다','간소하다','명쾌한','명쾌하다','직접적','직접','단도직입적'],
+  // 90: 오래됨·전통·유서깊음
+  ['오래된','낡은','고전적','전통적','역사적','유서깊은','오랜','고래의','고풍스러운','고풍','전통을지닌','유구한','유구','역사를지닌','오래됨','낡아빠진'],
+  // 91: 새롭다·신선·최신
+  ['새로운','신선한','최신','현대적','첨단','신식','신규','새롭다','신선하다','현대적인','첨단의','신식의','혁신적','혁신','참신한','참신','신생','신생의'],
+  // 92: 진짜·순수·진정
+  ['진짜','진실된','진정한','순수한','본래의','원래의','실제의','정통','정통의','진짜의','진정','순수','진솔한','진솔','성실한','정직한','꾸밈없는'],
+  // 93: 가짜·인공·모조
+  ['가짜','인공적','모조','위조','위조된','허위의','가식적','인위적','가짜의','모조품','위조품','가식','허울','허울뿐인','겉치레','겉치레의','인공','합성의'],
+  // 94: 일반적·평범·보통
+  ['일반적','평범','보통','일상적','통상','평균','일반','보편적','보편','흔한','흔하다','일반적인','평범한','보통의','평균적','보편적인','표준적','표준'],
+  // 95: 특수·독특·드문
+  ['특수','독특','드문','특별한','희귀한','비범','비범한','예외적','예외','특이한','특이','이례적','이례','일반적이지않은','보기드문','드문경우의','독특한경우'],
+  // 96: 긍정적·낙관적
+  ['긍정적','낙관적','희망적','밝은전망','긍정','낙관','희망','밝게보는','좋은방향의','호의적','호의','유리한','우호적','우호','우호적으로'],
+  // 97: 부정적·비관적
+  ['부정적','비관적','부정','비관','어두운전망','회의적','회의','비판적','염세적','염세','냉소적','냉소','부정론','어두운','암울한','암울'],
+  // 98: 적극적·능동적
+  ['적극적','능동적','주도적','솔선수범하는','먼저나서는','앞장서는','주도적으로','적극','능동','진취적','진취','도전적','진취성'],
+  // 99: 소극적·수동적
+  ['소극적','수동적','피동적','남눈치보는','뒤따르는','끌려가는','소극','수동','피동','끌려다니는','적극성없는','의욕없는','자발성없는'],
+
+  // ════════════════════════════════════════════════════════════
+  // [100~119] 관계·사회·제도 — 공무원·수능 사회 영역
+  // ════════════════════════════════════════════════════════════
+  // 100: 협력·협동·공조
+  ['협력','협동','협조','공조','함께하다','합심','협력하다','협동하다','공조하다','협조하다','연대','연대하다','공동으로','함께','동참','동참하다','공동','합동'],
+  // 101: 경쟁·대결·대립
+  ['경쟁','대결','대립','맞서다','겨루다','경쟁하다','대결하다','대립하다','싸우다','다투다','경쟁관계','적대','적대적','라이벌','경쟁적','대척점'],
+  // 102: 통치·지배·관리
+  ['통치','지배','관리','통제','장악','통치하다','지배하다','관리하다','통제하다','장악하다','다스리다','지휘','지휘하다','운영','운영하다','총괄','총괄하다'],
+  // 103: 법률·규정·제도
+  ['법률','법','규정','규범','제도','법률적','규정에따른','법적','합법','합법적','법에따른','규정하는','법규','법규에따른','조항','조항의','법령','법제'],
+  // 104: 권리·의무·책임
+  ['권리','의무','책임','권한','직무','권리를가진','의무를지는','책임을지는','권한을가진','직무를수행하는','책무','권익','기본권'],
+  // 105: 허락·승인·인가
+  ['허락','허가','승인','동의','인가','허락하다','허가하다','승인하다','동의하다','인가하다','허용','허용하다','용인','용인하다','묵인','묵인하다','수락','수락하다'],
+  // 106: 거절·거부·반대
+  ['거절','거부','반대','반려','사절','거절하다','거부하다','반대하다','반려하다','사절하다','불허','불허하다','거절당하다','부결','부결하다','거부권','반대의사'],
+  // 107: 비난·질책·비판
+  ['비난','질책','꾸짖다','지적','책망','나무라다','비판','비난하다','질책하다','책망하다','비판하다','지적하다','꾸중','꾸중하다','힐난','힐난하다','문책','문책하다'],
+  // 108: 칭찬·격려·찬사
+  ['칭찬','격려','칭송','찬사','추켜올리다','칭찬하다','격려하다','칭송하다','찬사를보내다','상찬','상찬하다','칭호','인정하다','인정','높이평가하다'],
+  // 109: 복종·순종·굴복
+  ['복종','순종','순응','굴복','따르다','복종하다','순종하다','순응하다','굴복하다','복종적','말을잘듣는','지시따르는','수용하는','받아들이는'],
+  // 110: 반항·저항·반란
+  ['반항','저항','거역','반발','반란','반항하다','저항하다','거역하다','반발하다','반기','반기들다','거부','항거','항거하다','거역','불복','불복종'],
+  // 111: 속임·기만·사기
+  ['속이다','기만하다','사기','거짓말','위장','조작','속임수','기만','꾸며내다','속여넘기다','사기치다','위조','위선','위선적행동','허위정보','허위'],
+  // 112: 폭로·고발·공개
+  ['드러내다','밝히다','폭로하다','공개하다','폭로','공개','발각','고발','고발하다','까발리다','들추다','들추어내다','폭로되다','발각되다'],
+  // 113: 은폐·숨김·비밀
+  ['숨기다','감추다','은닉','은폐','비밀로하다','은닉하다','은폐하다','비밀','비밀스러운','숨겨진','감추어진','은밀','은밀한','은밀히','몰래','비밀스럽게'],
+  // 114: 자유·해방·독립
+  ['자유','해방','독립','자율','자유롭다','해방되다','독립하다','자율적','자유로운','구속없는','해방된','독립된','자유를얻은','해방시키는'],
+  // 115: 억압·탄압·구속
+  ['억압','탄압','제한','구속','강제','억압하다','탄압하다','제한하다','구속하다','강제하다','통제','억눌리는','탄압받는','구속당하는','억제','억제하다'],
+  // 116: 평등·공정·균등
+  ['평등','공평','균등','동등','공정','평등한','공평한','균등한','동등한','공정한','차별없는','공정하게','균형','균형잡힌','평등하게'],
+  // 117: 차별·편견·불공정
+  ['차별','편견','불평등','불공정','편파','차별하다','편견을가진','불평등한','불공정한','편파적','차별적','차별대우','불균형','불균형적'],
+  // 118: 성공·달성·성취
+  ['성공','달성','이루다','실현','완수','성취','성공하다','달성하다','이루다','실현하다','완수하다','성취하다','목표달성','목표를이루다','업적','업적을남기다'],
+  // 119: 실패·좌절·무산
+  ['실패','좌절','무산','실수','실패하다','좌절하다','무산되다','실수하다','실패로끝나다','실망','낙제','낙제하다','수포','수포로돌아가다','실패하고만다'],
+
+  // ════════════════════════════════════════════════════════════
+  // [120~139] 학문·연구·교육 — 수능 학술 어휘
+  // ════════════════════════════════════════════════════════════
+  // 120: 연구·탐구·조사
+  ['연구','탐구','조사','분석','검토','탐색','연구하다','탐구하다','조사하다','분석하다','검토하다','탐색하다','연구하는','조사하는','탐사','탐사하다','살피다'],
+  // 121: 발견·규명·밝힘
+  ['발견','발굴','규명','밝혀내다','발견하다','발굴하다','규명하다','밝혀내는','찾아내다','알아내다','밝히다','드러내다','파악하다','진상규명','규명되는'],
+  // 122: 이론·원리·학설
+  ['이론','원리','학설','개념','법칙','가설','이론적','원칙','이론을세우다','원리를밝히다','학설을제시하다','개념화','이론화','논리틀','체계'],
+  // 123: 증명·검증·실증
+  ['증명','입증','검증','확인','확증','실증','증명하다','입증하다','검증하다','확인하다','실증하다','증거로뒷받침하다','사실로확인하다','논증하다'],
+  // 124: 가르침·교육·지도
+  ['가르치다','교육','지도','훈련','교수','가르치는','교육하다','지도하다','훈련하다','교수하다','교육적','훈육','훈육하다','지식전달','지식을가르치는'],
+  // 125: 배움·학습·습득
+  ['배우다','학습','습득','익히다','숙달','공부','배우는','학습하다','습득하다','익히는','숙달하다','공부하다','터득','터득하다','수학','수학하다'],
+  // 126: 기록·문서화
+  ['기록','기록하다','문서화','문서','기술하다','기술','서류','작성하다','작성','문서에남기다','문헌','문헌화','역사기록','역사에남기다'],
+  // 127: 인용·참조·언급
+  ['인용','인용하다','참조','참조하다','언급','언급하다','참고','참고하다','예시','예시하다','예를들다','인용문','사례로들다','사례','예로들다'],
+  // 128: 정의·개념규정
+  ['정의','정의하다','개념규정','의미규정','의미를규정하다','뜻을밝히다','개념을설명하다','의미','의미하다','규정','규정하다','한정','한정하다','범주화'],
+  // 129: 적용·실행·실천
+  ['적용','적용하다','실행','실행하다','실천','실천하다','실시','실시하다','이행','이행하다','수행','수행하다','실제로행하다','실습','실습하다'],
+  // 130: 의문·질문·의심
+  ['의문','질문','의심','궁금','의문을품다','질문하다','의심하다','문제제기','문제를제기하다','의아하게여기다','물어보다','의혹','의혹을제기하다'],
+  // 131: 해결·풀다·극복
+  ['해결','풀다','극복','해결하다','풀어내다','극복하다','문제해결','문제를풀다','타개','타개하다','해소','해소하다','처리','처리하다','완화하다'],
+  // 132: 평가·판단·측정
+  ['평가','판단','측정','평가하다','판단하다','측정하다','사정','사정하다','가늠하다','가늠','심사','심사하다','판가름','판가름하다','판별','판별하다'],
+  // 133: 예측·예상·전망
+  ['예측','예상','전망','예측하다','예상하다','전망하다','예견','예견하다','전망하는','내다보다','미래를보다','선견','선견지명','예보','예보하다'],
+  // 134: 수정·보완·개선
+  ['수정','보완','개선','수정하다','보완하다','개선하다','수정보완','고치다','교정','교정하다','보수','보수하다','개량','개량하다','바꾸다','향상시키다'],
+  // 135: 확산·전파·퍼뜨림
+  ['확산','전파','퍼뜨리다','확산하다','전파하다','퍼지다','전달되다','보급','보급하다','보급되다','유포','유포하다','퍼져나가다','확대되다','확장되다'],
+  // 136: 결합·통합·통일
+  ['결합','통합','통일','연결','합치다','결합하다','통합하다','통일하다','연결하다','합병','합병하다','통합되다','합치','융합','융합하다','합일','합일하다'],
+  // 137: 분리·분할·구분
+  ['분리','분할','구분','나누다','분리하다','분할하다','구분하다','나뉘다','분열','분열하다','갈라지다','갈라','분단','분단하다','구별하다','분리되다'],
+  // 138: 상호작용·영향
+  ['상호작용','영향','영향을미치다','상호작용하다','영향받다','영향주다','영향을끼치다','작용','작용하다','반작용','반작용하다','상호영향','서로영향을'],
+  // 139: 원인·결과·인과
+  ['원인','결과','인과','이유','원인이되다','결과로나타나다','인과관계','때문에','으로인해','초래하다','유발하다','야기하다','기인하다','결과적으로'],
+
+  // ════════════════════════════════════════════════════════════
+  // [140~159] 경제·정치·사회제도 — 공무원·토익 핵심 영역
+  // ════════════════════════════════════════════════════════════
+  // 140: 이익·수익·흑자
+  ['이익','수익','이득','흑자','수익성','이익을얻다','수익을내다','이득을보다','흑자를내다','이윤','이윤을남기다','수익을올리다','흑자전환','이익창출'],
+  // 141: 손실·손해·적자
+  ['손실','손해','적자','결손','마이너스','손실을보다','적자를내다','손해를보다','결손이나다','적자전환','손해배상','피해','피해를입다','손실발생'],
+  // 142: 투자·출자·자본
+  ['투자','출자','자본투입','투자하다','출자하다','자본을투입하다','자금을대다','자금','자금지원','자본','금융','금융지원','투자유치','자본유치'],
+  // 143: 소비·지출·소비자
+  ['소비','지출','구매','소비하다','지출하다','구매하다','사다','구입','구입하다','소비자','소비행위','소비활동','구매활동','지출하는'],
+  // 144: 생산·제조·창출
+  ['생산','제조','창출','산출','공급','생산하다','제조하다','창출하다','만들다','생산물','산출하다','공급하다','생산성','제조업','생산활동'],
+  // 145: 무역·거래·교환
+  ['거래','무역','교환','매매','상거래','거래하다','무역하다','교환하다','매매하다','수출','수입','수출하다','수입하다','교역','교역하다','통상','통상하다'],
+  // 146: 성장·발전·번창
+  ['성장','발전','번창','번성','성장하다','발전하다','번창하다','번성하다','확장하다','성장세','성장률','경제성장','발전하는','번영','번영하다'],
+  // 147: 쇠퇴·침체·불황
+  ['쇠퇴','침체','불황','하락','쇠퇴하다','침체되다','하락하다','퇴보하다','경기침체','경기하락','경기불황','불경기','경제쇠퇴','침체기'],
+  // 148: 절약·검약·저축
+  ['절약','검약','저축','아끼다','절약하다','검약하다','저축하다','아껴쓰다','절감','절감하다','절제','절제하다','모으다','모아두다','적금','적금하다'],
+  // 149: 낭비·허비·탕진
+  ['낭비','허비','탕진','낭비하다','허비하다','탕진하다','흥청망청','흥청망청쓰다','낭비되다','허비되다','탕진되다','불필요하게쓰다','방만하게쓰다'],
+  // 150: 정책·방침·정부
+  ['정책','방침','정부','정부정책','정부방침','국정','행정','행정정책','공공정책','입법','입법정책','정부기관','정부의','국가정책','정부결정'],
+  // 151: 법률·입법·제정
+  ['법률','법','입법','제정','법률을만들다','입법하다','법을제정하다','법령','법규','법안','법안을통과시키다','법제화','법제화하다','조례','조례를만들다'],
+  // 152: 세금·세율·조세
+  ['세금','세율','조세','세금을내다','납세','납세하다','세금부과','세금을매기다','세금인상','세금인하','세율조정','세금감면','면세','면세하다'],
+  // 153: 복지·혜택·지원
+  ['복지','혜택','지원','사회복지','복지정책','혜택을주다','지원하다','지원받다','복지서비스','사회보장','보조금','보조금을지급하다','사회지원','지원제도'],
+  // 154: 환경·생태·기후
+  ['환경','생태','기후','환경보호','환경오염','생태계','기후변화','자연환경','환경문제','환경적','생태계보존','기후위기','환경파괴','지속가능한'],
+  // 155: 인구·사회·공동체
+  ['인구','사회','공동체','인구변화','사회구조','공동체의식','인구감소','인구증가','사회변화','공동체생활','집단','집단생활','사회구성원','사회적'],
+  // 156: 문화·전통·관습
+  ['문화','전통','관습','문화적','전통적','관습적','문화유산','전통문화','관행','관행적','문화를보존하다','전통을이어가다','관습을따르다','풍습','풍습적'],
+  // 157: 도덕·윤리·가치
+  ['도덕','윤리','가치','도덕적','윤리적','가치있는','도덕성','윤리성','가치관','도덕관','도덕규범','윤리규범','가치기준','도덕적행동','윤리적판단'],
+  // 158: 권력·힘·영향력
+  ['권력','힘','영향력','권력을가진','힘있는','영향력있는','권력자','세력','세력가','강자','강력한힘','권세','권세를가진','실권','실권자'],
+  // 159: 갈등·분쟁·충돌
+  ['갈등','분쟁','충돌','갈등하다','분쟁하다','충돌하다','다툼','다투다','마찰','마찰을빚다','대립','대립하다','불화','불화를빚다','분열','분열하다'],
+
+  // ════════════════════════════════════════════════════════════
+  // [160~179] 자연·환경·과학 — 수능 과학 영역 어휘
+  // ════════════════════════════════════════════════════════════
+  // 160: 아름답다·수려
+  ['아름다운','멋진','훌륭한','수려한','화려한','빛나는','아름답다','멋지다','훌륭하다','수려하다','화려하다','우아한','우아하다','매력적','매력적인','절경'],
+  // 161: 추하다·볼품없음
+  ['추한','흉한','못생긴','볼품없는','처참한','흉물스러운','추하다','흉하다','볼품없다','처참하다','흉측한','흉측하다','보기흉한','볼품없는외관'],
+  // 162: 밝다·빛나다
+  ['밝은','빛나는','환한','찬란한','눈부신','밝다','빛나다','환하다','찬란하다','눈부시다','빛','광채','광채로운','광채나는','번쩍이는','빛발하는'],
+  // 163: 어둡다·음산
+  ['어두운','칠흑','컴컴한','깜깜한','음침한','음산한','어둡다','컴컴하다','깜깜하다','음침하다','음산하다','어둠','암흑','칠흑같은','음울한','음울하다'],
+  // 164: 차갑다·냉랭
+  ['차가운','냉각된','싸늘한','냉랭한','얼음같은','서늘한','차갑다','싸늘하다','냉랭하다','서늘하다','얼어붙은','냉기어린','냉냉한','싸늘히'],
+  // 165: 뜨겁다·따뜻·열기
+  ['뜨거운','따뜻한','더운','열기','온난한','뜨겁다','따뜻하다','덥다','열기어린','온난하다','열','더위','따뜻함','훈훈한','훈훈하다','온기','온기어린'],
+  // 166: 조용하다·고요·정숙
+  ['조용한','고요한','잠잠한','정숙한','평온한','차분한','조용하다','고요하다','잠잠하다','정숙하다','무소음','정적','정적인','침묵','침묵하는','소리없는'],
+  // 167: 시끄럽다·소란·떠들썩
+  ['시끄러운','소란스러운','떠들썩한','요란한','시끄럽다','소란하다','떠들썩하다','요란하다','굉음','소음','소음가득한','왁자지껄','왁자지껄한','시끌벅적'],
+  // 168: 생명·생존·살아있음
+  ['생명','생존','살아있음','살아있는','생명력','생명력있는','생존하는','살아남는','생기','생기넘치는','활력','활력있는','싱싱한','싱싱하다','생동감'],
+  // 169: 죽음·소멸·죽음
+  ['죽음','소멸','사망','죽다','소멸하다','사망하다','죽어가는','사라지는','사라지다','멸망','멸망하다','소실','소실되다','사라짐','없어짐'],
+  // 170: 성장·번식·발달
+  ['성장','번식','발달','성장하다','번식하다','발달하다','자라다','자라는','발전하다','커지다','늘어나다','성숙','성숙하다','성숙해지다','발육','발육하다'],
+  // 171: 쇠퇴·노화·약해짐
+  ['쇠퇴','노화','약해짐','쇠퇴하다','노화하다','약해지다','늙다','늙어가는','쇠약해지다','낡아지다','퇴화하다','퇴화','약화되다','쇠하다','기력이쇠하다'],
+  // 172: 균형·조화·안정
+  ['균형','조화','안정','균형잡힌','조화로운','안정적','균형을이루다','조화를이루다','안정되다','균형상태','안정상태','조화있는','균형감','조화감'],
+  // 173: 불균형·혼란·불안정
+  ['불균형','혼란','불안정','불균형한','혼란스러운','불안정한','불균형을이루다','혼란에빠지다','불안정하다','균형을잃다','무질서','무질서한','혼돈','혼돈상태'],
+  // 174: 순환·반복·주기
+  ['순환','반복','주기','순환하다','반복하다','주기적','순환적','반복적','주기적으로','되풀이','되풀이되다','사이클','사이클적','순환계','반복운동'],
+  // 175: 변화·진화·적응
+  ['변화','진화','적응','변화하다','진화하다','적응하다','적응하는','변화에적응하다','변모하다','변모','진보','진보하다','발달하다','발전','성변'],
+  // 176: 파괴·훼손·오염
+  ['파괴','훼손','오염','파괴하다','훼손하다','오염하다','손상하다','손상','오염되다','파괴되다','훼손되다','오염물','오염물질','환경파괴','환경오염'],
+  // 177: 보호·보전·보존
+  ['보호','보전','보존','보호하다','보전하다','보존하다','지키다','유지하다','지속하다','보호되다','보전되다','보존되다','지키는','보호자','보전활동'],
+  // 178: 공간·영역·범위
+  ['공간','영역','범위','공간적','영역적','범위적','공간을차지하다','영역을넓히다','범위에포함되다','범주','범주에속하는','영역안의','범위내의'],
+  // 179: 시간·기간·시기
+  ['시간','기간','시기','시간적','기간동안','시기에','시간이지나다','시간이흐르다','기간을정하다','시기를정하다','일시','일시적','기간중'],
+
+  // ════════════════════════════════════════════════════════════
+  // [180~199] 수능·토익 핵심 고급 형용사 · 동사 뜻 클러스터
+  // ════════════════════════════════════════════════════════════
+  // 180: 모호하다·불분명·애매
+  ['모호한','모호하다','불분명한','불분명하다','애매한','애매하다','불확실한','불확실하다','흐릿한','명확하지않은','뚜렷하지않은','분명하지않은','불명확','다의적'],
+  // 181: 명백하다·뚜렷·분명
+  ['명백한','명백하다','뚜렷한','뚜렷하다','분명한','분명하다','확실한','확실하다','명료한','명료하다','확연한','확연하다','선명한','명확한'],
+  // 182: 타당하다·합당·적절
+  ['타당한','타당하다','합당한','합당하다','적절한','적절하다','합리적인','합리적이다','마땅한','정당한','정당하다','올바른','올바르다','적합한','적합하다'],
+  // 183: 부당하다·불합리·부적절
+  ['부당한','부당하다','불합리한','불합리하다','부적절한','부적절하다','부당하게','잘못된','잘못됨','불공평한','부정한','부정하다','무리한','무리가있는'],
+  // 184: 강요하다·압박·강압
+  ['강요','강요하다','압박','압박하다','강압','강압하다','억지로하게하다','강제하다','밀어붙이다','몰아붙이다','강행','강행하다','독촉','독촉하다'],
+  // 185: 설득하다·납득·이해시키다
+  ['설득','설득하다','납득','납득하다','이해시키다','수긍하게하다','동의를이끌어내다','믿게하다','확신시키다','확신하게하다','설복','설복하다'],
+  // 186: 지지하다·옹호·변호
+  ['지지','지지하다','옹호','옹호하다','변호','변호하다','지원하다','편들다','편들어주다','지원하는','후원하는','편을들다','지지를보내다'],
+  // 187: 비난하다·공격·맹비난
+  ['비난','비난하다','공격','공격하다','맹비난','맹비난하다','힐난하다','힐난','탓하다','탓','책임을돌리다','비방하다','비방','매도','매도하다'],
+  // 188: 무시하다·간과·경시
+  ['무시','무시하다','간과','간과하다','경시','경시하다','외면하다','못본척하다','가볍게여기다','과소평가','과소평가하다','소홀히하다','소홀','소홀히'],
+  // 189: 강조하다·역설·부각
+  ['강조','강조하다','역설','역설하다','부각','부각하다','두드러지게하다','중요시하다','핵심으로다루다','주목하게하다','특히강조하다','부각시키다'],
+  // 190: 완화하다·누그러뜨리다
+  ['완화','완화하다','누그러뜨리다','경감하다','경감','경부하다','가볍게하다','줄이다','약하게하다','풀어주다','풀다','해소하다','달래다','달래주다'],
+  // 191: 악화하다·심화·격화
+  ['악화','악화하다','심화','심화하다','격화','격화하다','더나빠지다','더심해지다','심각해지다','더욱심각한','더욱나빠지는','가중되다','가중','심각하게되다'],
+  // 192: 촉진하다·가속·활성화
+  ['촉진','촉진하다','가속','가속하다','활성화','활성화하다','더빠르게하다','촉구하다','촉구','가속시키다','앞당기다','추진력을높이다','탄력받다'],
+  // 193: 억제하다·제어·통제
+  ['억제','억제하다','제어','제어하다','통제','통제하다','억누르다','제한하다','자제하다','자제','막다','저지하다','제동을걸다','제동','규제하다'],
+  // 194: 직면하다·맞닥뜨리다
+  ['직면','직면하다','맞닥뜨리다','마주하다','마주치다','부딪히다','부딪치다','상황을마주하다','마주보다','맞서다','현실에직면하다','현실직시'],
+  // 195: 회피하다·피하다·도망
+  ['회피','회피하다','피하다','도망','도피','도망치다','피해가다','모면하다','비껴가다','피해다니다','기피하다','기피','외면하다','의식적으로피하다'],
+  // 196: 유사하다·비슷하다
+  ['유사한','유사하다','비슷한','비슷하다','유사하게','흡사한','흡사하다','비슷한점','유사점','공통점','공통적인','동일한측면','닮은','닮다','비슷한양상'],
+  // 197: 상이하다·다르다·차이
+  ['상이한','상이하다','다른','다르다','차이나는','상반된','상반되다','서로다른','구별되는','구별','차이점','다른점','차별점','불일치','불일치하다'],
+  // 198: 의존하다·기대다·의지
+  ['의존','의존하다','기대다','의지하다','의지','기대는','의지하는','의존하는','남에게기대다','도움에의존하다','의탁','의탁하다','매달리다','의존적'],
+  // 199: 자립하다·독립·자활
+  ['자립','자립하다','독립','독립하다','자활','자활하다','혼자하다','스스로하다','자생','자생하다','독자적으로하다','혼자서해내다','자기힘으로','자생력'],
+
+  // ════════════════════════════════════════════════════════════
+  // [200~219] 수능 빈출 추상명사 · 고급 어휘 클러스터
+  // ════════════════════════════════════════════════════════════
+  // 200: 개념·관념·사상
+  ['개념','관념','사상','아이디어','생각','개념적','관념적','사상적','이념','이념적','관점','관점에서','시각','시각에서','세계관','인생관'],
+  // 201: 현상·사태·상황
+  ['현상','사태','상황','사정','형편','상태','현상을보다','사태를파악하다','상황을이해하다','현황','현황을파악하다','실정','실태','실정에맞는'],
+  // 202: 목적·목표·의도
+  ['목적','목표','의도','목적을가진','목표를정하다','의도하다','의도','목적의식','목적이있는','지향','지향하는','추구하는','바라는','지향점'],
+  // 203: 수단·방법·방식
+  ['수단','방법','방식','방식으로','수단으로','방법으로','방도','방도를찾다','수단과방법','방법론','기법','기법을쓰다','전략','전략을쓰다'],
+  // 204: 결과·성과·산물
+  ['결과','성과','산물','결과물','결과로나타나다','성과를내다','산물로나타나다','결실','결실을맺다','산출물','성취물','이루어낸것','이루어낸결과'],
+  // 205: 원칙·기준·규범
+  ['원칙','기준','규범','원칙을지키다','기준을정하다','규범을따르다','원칙적','기준이되는','규범적','기준이되다','표준','표준적','잣대','잣대로삼다'],
+  // 206: 예외·특례·특수경우
+  ['예외','특례','특수경우','예외적','특수한','일반적이지않은','예외를두다','특별대우','예외가되다','특수케이스','예외상황','특수상황'],
+  // 207: 비율·정도·수준
+  ['비율','정도','수준','비율적으로','어느정도','수준에서','비율을나타내다','정도의차이','수준을보이다','정도에따라','수준이높은','수준이낮은'],
+  // 208: 범주·분류·종류
+  ['범주','분류','종류','범주에속하다','분류하다','종류를나누다','카테고리','종류별로','범주화','분류체계','유형','유형별','종류에따라','항목'],
+  // 209: 관련·연관·관계
+  ['관련','연관','관계','관련된','연관된','관계있는','관련하여','연관지어','관련성','연관성','관계성','연결','연결된','관련있는','관련성이있는'],
+  // 210: 비교·대비·차이점
+  ['비교','대비','차이점','비교하다','대비하다','차이를비교하다','비교분석','대조분석','견주다','비교검토','비교관점','차이를분석하다'],
+  // 211: 예시·사례·실제예
+  ['예시','사례','실제예','예를들다','사례를들다','실제예를들다','예시를제시하다','예로들다','구체예','구체적예시','예증','예증하다'],
+  // 212: 가치·의미·중요성
+  ['가치','의미','중요성','가치있는','의미있는','중요한','가치를가지다','의미를가지다','중요성을가지다','가치있게','의미깊은','중요하게'],
+  // 213: 한계·제약·제한
+  ['한계','제약','제한','한계가있는','제약이있는','제한이있는','한계를가지다','제약을받다','한계점','제약조건','제한사항','한계에이르다'],
+  // 214: 가능성·잠재력·전망
+  ['가능성','잠재력','전망','가능한','잠재적인','전망이좋은','가능성이있는','잠재력이있는','가능성을보이다','전망을밝히다','희망적전망'],
+  // 215: 위기·기회·전환점
+  ['위기','기회','전환점','위기의','기회가되는','전환점이되는','위기를맞다','기회를잡다','전환점을맞이하다','기회로삼다','위기극복'],
+  // 216: 전통·관습·관행
+  ['전통','관습','관행','전통적','관습적','관행적','전통을따르다','관습에따르다','관행적으로','전통을이어가다','전통문화','관습과전통'],
+  // 217: 변혁·혁신·개혁
+  ['변혁','혁신','개혁','변혁하다','혁신하다','개혁하다','변화시키다','개혁적','혁신적','변혁적','개혁을추진하다','혁신을이루다','개혁안'],
+  // 218: 모순·역설·아이러니
+  ['모순','역설','아이러니','모순적','역설적','아이러니한','모순을이루다','역설적으로','모순이있는','역설적상황','아이러니하게도','모순점'],
+  // 219: 균형·조화·통합
+  ['균형','조화','통합','균형잡힌','조화로운','통합적','균형을이루다','조화를이루다','통합하다','균형상태','조화로운관계','균형과조화'],
+
+  // ════════════════════════════════════════════════════════════
+  // [220~239] 수능 핵심 동사 뉘앙스 — 특히 토익·수능 고난도
+  // ════════════════════════════════════════════════════════════
+  // 220: 강조하다·고집하다·주장하다
+  ['강조하다','역설하다','고집하다','주장하다','단언하다','고집','주장','단언','주장을굽히지않다','강력히주장하다','주장을관철하다'],
+  // 221: 인정하다·시인하다·수긍하다
+  ['인정하다','시인하다','수긍하다','인정','시인','수긍','인정해주다','인정받다','수긍하게되다','동의하다','받아들이다','승인하다'],
+  // 222: 부정하다·부인하다·반박하다
+  ['부정하다','부인하다','반박하다','부정','부인','반박','인정하지않다','반박하는','부정하는','거부하다','반발하다','부정의견을내다'],
+  // 223: 묘사하다·서술하다·그려내다
+  ['묘사하다','서술하다','그려내다','묘사','서술','그려냄','표현하다','표현','나타내다','보여주다','드러내다','형용하다','형용'],
+  // 224: 분석하다·검토하다·살피다
+  ['분석하다','검토하다','살피다','분석','검토','살핌','조사하다','검사하다','들여다보다','면밀히살피다','조목조목따지다','검토'],
+  // 225: 제안하다·제시하다·권고하다
+  ['제안하다','제시하다','권고하다','제안','제시','권고','제안을하다','제안을드리다','제안을내다','건의하다','건의','추천하다','추천'],
+  // 226: 수집하다·모으다·취합하다
+  ['수집하다','모으다','취합하다','수집','모음','취합','모아들이다','취합되다','수집되다','축적하다','축적','집결하다','모아서정리하다'],
+  // 227: 배포하다·전달하다·보급하다
+  ['배포하다','전달하다','보급하다','배포','전달','보급','전파하다','전파','유포하다','유포','공유하다','공유','나누다','나눔'],
+  // 228: 검토하다·심사하다·심의하다
+  ['검토하다','심사하다','심의하다','검토','심사','심의','살펴보다','면밀하게보다','검사하다','검사','심의를거치다','심의를통과하다'],
+  // 229: 수용하다·받아들이다·채택하다
+  ['수용하다','받아들이다','채택하다','수용','채택','받아들임','인정하다','포용하다','포용','동의하다','동의','승인하다','승인'],
+  // 230: 거부하다·받아들이지않다
+  ['거부하다','받아들이지않다','거부','배척하다','배척','배제하다','배제','무시하다','무시','묵살하다','묵살','반려하다','반려'],
+  // 231: 요구하다·촉구하다·촉발하다
+  ['요구하다','촉구하다','요구','촉구','요청하다','요청','강요하다','강요','명령하다','명령','지시하다','지시','독촉하다','독촉'],
+  // 232: 제공하다·공급하다·지원하다
+  ['제공하다','공급하다','지원하다','제공','공급','지원','제공하는','공급하는','지원하는','공급해주다','도움을제공하다','서비스를제공하다'],
+  // 233: 유발하다·일으키다·야기하다
+  ['유발하다','일으키다','야기하다','유발','야기','일으킴','초래하다','초래','발생시키다','발생','일어나게하다','생겨나게하다','원인이되다'],
+  // 234: 방지하다·예방하다·막다
+  ['방지하다','예방하다','막다','방지','예방','막음','차단하다','차단','저지하다','저지','봉쇄하다','봉쇄','방어하다','방어'],
+  // 235: 보여주다·증명하다·입증하다
+  ['보여주다','증명하다','입증하다','보여줌','증명','입증','나타내다','드러내다','밝히다','제시하다','확인해주다','알려주다','사실로보여주다'],
+  // 236: 강조되다·부각되다·두드러지다
+  ['강조되다','부각되다','두드러지다','강조됨','부각됨','두드러짐','주목받다','눈에띄다','두드러지게나타나다','부각되어나타나다','눈에띄는'],
+  // 237: 약화되다·감소하다·쇠하다
+  ['약화되다','감소하다','쇠하다','약해지다','줄어들다','쇠퇴하다','힘을잃다','기력이쇠하다','약화','쇠퇴','감소','떨어지다','저하되다'],
+  // 238: 강화되다·증가하다·높아지다
+  ['강화되다','증가하다','높아지다','강해지다','늘어나다','상승하다','강화','증가','상승','향상되다','향상','높아짐','올라가다','오르다'],
+  // 239: 반영하다·나타내다·보여주다
+  ['반영하다','나타내다','보여주다','반영','반영됨','반영되다','나타내는','보여주는','표현하다','표현','담겨있다','함축하다','내포하다'],
+
+  // ════════════════════════════════════════════════════════════
+  // [240~259] 공무원 시험 특화 행정·법률·경제 어휘
+  // ════════════════════════════════════════════════════════════
+  // 240: 시행하다·집행하다·실행하다
+  ['시행하다','집행하다','실행하다','시행','집행','실행','실시하다','실시','이행하다','이행','수행하다','수행','실천하다','실천'],
+  // 241: 폐지하다·철폐·취소하다
+  ['폐지하다','철폐','취소하다','폐지','취소','철폐하다','없애다','없앰','무효화하다','무효화','폐기하다','폐기','해제하다','해제'],
+  // 242: 도입하다·채택하다·적용하다
+  ['도입하다','채택하다','적용하다','도입','채택','적용','들여오다','사용하다','이용하다','실시하다','활용하다','활용','적용시키다'],
+  // 243: 제한하다·규제하다·통제하다
+  ['제한하다','규제하다','통제하다','제한','규제','통제','한계를두다','범위를정하다','억제하다','억제','제약하다','제약','제동을걸다'],
+  // 244: 확대하다·확장하다·늘리다
+  ['확대하다','확장하다','늘리다','확대','확장','늘림','팽창하다','팽창','넓히다','범위를넓히다','영역을확장하다','규모를키우다'],
+  // 245: 축소하다·줄이다·감축하다
+  ['축소하다','줄이다','감축하다','축소','줄임','감축','줄어들게하다','규모를줄이다','범위를줄이다','규모를축소하다','감량','감량하다'],
+  // 246: 보장하다·보증하다·담보하다
+  ['보장하다','보증하다','담보하다','보장','보증','담보','보장해주다','보증해주다','담보해주다','확실히하다','보정','보정하다','보호하다'],
+  // 247: 위반하다·어기다·준수하지않다
+  ['위반하다','어기다','위반','위반하는','어기는','준수하지않다','규정을어기다','법을어기다','위법하다','위법','불법적으로','규칙위반'],
+  // 248: 준수하다·따르다·지키다
+  ['준수하다','따르다','지키다','준수','법을따르다','규정을따르다','규칙을지키다','규범을따르다','지켜나가다','준수하는','따르는'],
+  // 249: 계약하다·협약하다·합의하다
+  ['계약하다','협약하다','합의하다','계약','협약','합의','계약을맺다','합의를이끌어내다','협약을체결하다','체결하다','체결','협정하다','협정'],
+  // 250: 청원하다·탄원하다·호소하다
+  ['청원하다','탄원하다','호소하다','청원','탄원','호소','간청하다','간청','요청하다','요구하다','애원하다','애원','제출하다'],
+  // 251: 고소하다·고발하다·제소하다
+  ['고소하다','고발하다','제소하다','고소','고발','제소','소송하다','소송','소를제기하다','소를제기','법적조치를취하다','형사고소하다'],
+  // 252: 판결하다·판정하다·선고하다
+  ['판결하다','판정하다','선고하다','판결','판정','선고','재판하다','재판','결정하다','최종결정','판정을내리다','판결을내리다'],
+  // 253: 재정·예산·예산안
+  ['재정','예산','예산안','재정적','예산을편성하다','예산을짜다','재정을운용하다','재원','재원을마련하다','예산지원','예산삭감','재정상태'],
+  // 254: 임명하다·선임하다·발탁하다
+  ['임명하다','선임하다','발탁하다','임명','선임','발탁','임용하다','임용','선발하다','선발','지명하다','지명','위촉하다','위촉'],
+  // 255: 해임하다·면직하다·파면하다
+  ['해임하다','면직하다','파면하다','해임','면직','파면','해고하다','해고','면하게하다','직위해제','직위해제하다','물러나게하다'],
+  // 256: 심의하다·검토하다·의결하다
+  ['심의하다','검토하다','의결하다','심의','검토','의결','검토를거치다','심의과정','의결하는','채택하다','의안','의안을처리하다'],
+  // 257: 공표하다·발표하다·공포하다
+  ['공표하다','발표하다','공포하다','공표','발표','공포','발표를하다','알리다','알림','공개하다','공개','선포하다','선포'],
+  // 258: 보고하다·보고서·보고
+  ['보고하다','보고','보고서','보고를올리다','보고하는','보고를제출하다','공지하다','통보하다','통보','알리다','상부에알리다','보고내용'],
+  // 259: 수정하다·개정하다·수정안
+  ['수정하다','개정하다','수정','개정','수정안','개정안','고치다','교정하다','교정','보완하다','보완','변경하다','변경','바꾸다'],
+
+  // ════════════════════════════════════════════════════════════
+  // [260~279] 수능 독서·문학 빈출 개념 어휘 클러스터
+  // ════════════════════════════════════════════════════════════
+  // 260: 서사·이야기·서술
+  ['서사','이야기','서술','이야기를풀다','서술하다','이야기를전개하다','이야기전개','서사구조','이야기구조','이야기를이어가다','이야기속의'],
+  // 261: 관점·시각·입장
+  ['관점','시각','입장','관점에서','시각에서','입장에서','관점을가지다','입장을취하다','시각을가지다','눈으로보다','관점의차이','입장의차이'],
+  // 262: 주제·요지·핵심내용
+  ['주제','요지','핵심내용','핵심','주제를파악하다','요지를파악하다','핵심을찾다','주제문','논지','논지를파악하다','글의주제','글의핵심'],
+  // 263: 근거·논거·이유
+  ['근거','논거','이유','근거를들다','논거를제시하다','이유를밝히다','이유를들다','근거가되는','근거를바탕으로','논리적근거','이유와근거'],
+  // 264: 구체적·상세히·자세히
+  ['구체적','구체적으로','상세히','자세히','상세한','자세한','구체화','구체화하다','세부적','세부적으로','세밀하게','세밀하게설명하다'],
+  // 265: 추상적·일반적·포괄적
+  ['추상적','추상','일반적','포괄적','추상화','일반화','포괄','추상적개념','일반론','포괄적의미','추상적표현','일반적원칙'],
+  // 266: 인과·원인과결과
+  ['인과','원인과결과','원인','결과','인과관계','이유와결과','원인분석','결과를초래하다','때문에','의결과로','인과적관계','인과적으로'],
+  // 267: 유추·비유·예시
+  ['유추','비유','예시','유추하다','비유하다','예시하다','비유적으로','예시를들다','유사한사례를들다','비유를통해','예를통해','비유를쓰다'],
+  // 268: 정의·설명·규정
+  ['정의','설명','규정','정의하다','설명하다','규정하다','개념을밝히다','의미를설명하다','정의를내리다','의미규정하다','설명을덧붙이다'],
+  // 269: 결론·결론짓다·마무리
+  ['결론','결론짓다','마무리','결론을내리다','결론적으로','마무리하다','요약하다','요약','최종결론','결론에이르다','종합하다','정리하다'],
+  // 270: 비판·비평·평가
+  ['비판','비평','평가','비판하다','비평하다','평가하다','비판적으로','비평적으로','객관적평가','비판적시각','비판적분석','비평하는'],
+  // 271: 발전·심화·확장
+  ['발전','심화','확장','발전하다','심화하다','확장하다','더발전시키다','심화되다','확장되다','내용을심화하다','논의를발전시키다'],
+  // 272: 전환·변화·새로운방향
+  ['전환','새로운방향','방향전환','방향을바꾸다','새로운관점','다른측면으로','이제는','한편으로는','대조적으로','반면에','역으로'],
+  // 273: 요약·정리·핵심정리
+  ['요약','정리','핵심정리','요약하다','정리하다','간추리다','핵심만말하다','짧게설명하다','간단히설명하다','한마디로','핵심은'],
+  // 274: 예외·특수한경우·반례
+  ['예외','특수한경우','반례','예외적으로','반례를들다','특수한상황','예외를두다','특수사례','반례로제시하다','일반적이지않은경우'],
+  // 275: 종합·통합·전체적
+  ['종합','통합','전체적','종합하다','통합하다','전체적으로','총괄하다','총괄','종합적으로','총체적으로','총체적','아우르다','포괄하다'],
+  // 276: 반복·지속·유지
+  ['반복','지속','유지','반복하다','지속하다','유지하다','반복적으로','지속적으로','유지되다','계속하다','계속','지속되다','반복되다'],
+  // 277: 대조·반대·상반
+  ['대조','반대','상반','대조하다','반대되다','상반되다','대조적','반대로','상반된','반대되는','상충하다','상충','모순적','대비되는'],
+  // 278: 누적·축적·쌓임
+  ['누적','축적','쌓임','누적되다','축적되다','쌓이다','누적하다','축적하다','쌓아가다','축적되어','쌓여서','모아지다','누적시키다'],
+  // 279: 해석·의미부여·이해
+  ['해석','의미부여','이해','해석하다','의미를부여하다','이해하다','해석이다르다','다르게해석하다','해석하는','풀이하다','풀이','의미를찾다'],
+
+  // ════════════════════════════════════════════════════════════
+  // [280~299] 수능 과학·기술·의학 영역 어휘 클러스터
+  // ════════════════════════════════════════════════════════════
+  // 280: 물질·구조·성분
+  ['물질','구조','성분','물질적','구조적','성분상의','물질을이루다','구조를가지다','성분으로이루어지다','조성','조성하다','구성','구성하다'],
+  // 281: 에너지·동력·힘
+  ['에너지','동력','힘','에너지를가지다','동력을제공하다','힘을내다','에너지원','동력원','힘의원천','에너지변환','에너지소비'],
+  // 282: 반응·작용·효과
+  ['반응','작용','효과','반응하다','작용하다','효과가있다','반응을보이다','작용을하다','효과를내다','반응결과','작용하는','효과적'],
+  // 283: 측정·수치·계량
+  ['측정','수치','계량','측정하다','수치를재다','계량하다','수치로나타내다','측정하는','정량','정량적','수치화','수치화하다'],
+  // 284: 관찰·실험·실증
+  ['관찰','실험','실증','관찰하다','실험하다','실증하다','관찰하는','실험을통해','실증적','경험적','경험적으로','실제로확인하다'],
+  // 285: 발전·진보·혁신
+  ['발전','진보','혁신','발전하다','진보하다','혁신하다','발달하다','발달','진보적','혁신적','발전된','진보한','혁신된','앞서가다'],
+  // 286: 적응·진화·변화
+  ['적응','진화','변화','적응하다','진화하다','변화하다','환경에적응하다','진화되다','변화에적응하다','변모하다','변모','개선되다'],
+  // 287: 치료하다·치유하다·고치다
+  ['치료하다','치유하다','고치다','치료','치유','고침','회복시키다','회복','낫게하다','치료를받다','치료하는','치유하는','치료효과'],
+  // 288: 예방하다·방지하다·막다
+  ['예방하다','방지하다','막다','예방','방지','막음','사전에막다','사전예방','사전에방지하다','방어하다','방어','예방적','방지적'],
+  // 289: 진단하다·판별하다·분류하다
+  ['진단하다','판별하다','분류하다','진단','판별','분류','감별하다','감별','구별하다','구별','분류하는','판별하는','진단결과','진단하는'],
+  // 290: 감염·전파·확산
+  ['감염','전파','확산','감염되다','전파되다','확산되다','감염하다','전파하다','확산하다','퍼지다','퍼져나가다','번지다','번지는','확산세'],
+  // 291: 유전·형질·특성
+  ['유전','형질','특성','유전적','형질적','특성상','유전자','유전되다','형질을가지다','특성을가지다','생물학적특성','유전정보'],
+  // 292: 생태계·환경·생물
+  ['생태계','환경','생물','생태계를이루다','환경에서살다','생물이살다','생태적','환경적','생물학적','생태계내의','환경내에서','생물군'],
+  // 293: 순환·주기·사이클
+  ['순환','주기','사이클','순환하다','주기적으로','사이클을이루다','순환계','생태적순환','자연의순환','순환과정','주기가있는'],
+  // 294: 기술·기법·방법론
+  ['기술','기법','방법론','기술적','기법을쓰다','방법론적','기술을활용하다','기법을적용하다','방법론을세우다','기술개발','방법론연구'],
+  // 295: 혁신·첨단·최첨단
+  ['혁신','첨단','최첨단','혁신적','첨단의','최첨단의','첨단기술','혁신기술','최신기술','혁신을이루다','첨단을달리다','최첨단기술'],
+  // 296: 데이터·정보·자료
+  ['데이터','정보','자료','데이터를모으다','정보를수집하다','자료를분석하다','데이터분석','정보를처리하다','자료를활용하다','정보처리'],
+  // 297: 시스템·체계·구조
+  ['시스템','체계','구조','시스템을갖추다','체계를세우다','구조를이루다','시스템적','체계적','구조적','시스템화','체계화','구조화'],
+  // 298: 효율성·생산성·성과
+  ['효율성','생산성','성과','효율적인','생산적인','성과를내다','효율을높이다','생산성을높이다','성과를올리다','효율화','효율화하다'],
+  // 299: 지속가능·지속성·지속적
+  ['지속가능','지속성','지속적','지속가능한','지속적인','지속성있는','지속가능하게','지속적으로','지속가능성','지속성을높이다','유지가능한'],
+];
+
+// 클러스터 맵 생성: 토큰 → 클러스터 인덱스
+const KO_TOKEN_TO_CLUSTER = new Map();
+KO_SYN_CLUSTERS.forEach((cluster, idx) => {
+    cluster.forEach(token => { KO_TOKEN_TO_CLUSTER.set(token, idx); });
+});
+
+// 한국어 어미 제거 (형태소 간소화)
 const KO_SUF=['스럽다','스러운','하다','하는','하여','하게','한','함','히','이다','이란','되다','되는','된','됨','적인','적으로','적','롭다','로운','없다','없는','있다','있는','지다','진','ㄴ','는','을','를','이','가','의','에','로','과','와','도'].sort((a,b)=>b.length-a.length);
-function tokenize(str){
+
+function koStem(word) {
+    let s = word.trim();
+    for (const suf of KO_SUF) {
+        if (s.length > suf.length + 1 && s.endsWith(suf)) { return s.slice(0, -suf.length); }
+    }
+    return s;
+}
+
+// 뜻 문자열 → 토큰 셋 (원형 + 어간)
+function tokenize(str) {
     const tokens = new Set();
     str.split(/[,\/\s·]+/).map(s => s.trim()).filter(Boolean).forEach(c => {
-        let stem = c;
-        for (const suf of KO_SUF) {
-            if (stem.length > suf.length + 1 && stem.endsWith(suf)) {
-                stem = stem.slice(0, -suf.length);
-                break;
-            }
-        }
+        tokens.add(c);
+        const stem = koStem(c);
         if (stem.length >= 1) tokens.add(stem);
-        tokens.add(c); // 원형도 함께 추가 (어간만 남기면 과도한 일반화 발생)
     });
     return tokens;
 }
 
+// 토큰 → 소속 클러스터 인덱스 집합 반환
+function getClusters(tokens) {
+    const clusters = new Set();
+    tokens.forEach(t => {
+        if (KO_TOKEN_TO_CLUSTER.has(t)) clusters.add(KO_TOKEN_TO_CLUSTER.get(t));
+        const stem = koStem(t);
+        if (KO_TOKEN_TO_CLUSTER.has(stem)) clusters.add(KO_TOKEN_TO_CLUSTER.get(stem));
+    });
+    return clusters;
+}
+
+/**
+ * semSim: 두 한국어 뜻 문자열의 의미 유사도 (0~100)
+ *
+ * 점수 구성:
+ *  ① 클러스터 일치 (최대 70점) — 같은 유의어 군에 속하면 강력 보너스
+ *  ② 토큰 완전 일치 Jaccard (최대 20점) — 글자가 겹쳐도 점수
+ *  ③ 문자 겹침 (최대 10점) — 한자어 공유 등 부분 반영
+ */
 function semSim(a, b) {
     const tA = tokenize(a), tB = tokenize(b);
     if (!tA.size || !tB.size) return 0;
 
-    // 1) 토큰 완전 일치 (Jaccard) — 가장 신뢰도 높음
+    // ① 클러스터 보너스
+    const cA = getClusters(tA), cB = getClusters(tB);
+    let clusterScore = 0;
+    if (cA.size > 0 && cB.size > 0) {
+        let shared = 0;
+        cA.forEach(c => { if (cB.has(c)) shared++; });
+        const clusterJaccard = shared / Math.max(1, new Set([...cA, ...cB]).size);
+        // 완전 일치(같은 클러스터만 소속)면 70, 부분 겹침이면 비례
+        clusterScore = Math.round(clusterJaccard * 70);
+        // 하나라도 공유 클러스터 있으면 최소 45점 보장
+        if (shared > 0 && clusterScore < 45) clusterScore = 45;
+    }
+
+    // ② 토큰 Jaccard
     let exactMatch = 0;
     tA.forEach(t => { if (tB.has(t)) exactMatch++; });
     const union = new Set([...tA, ...tB]).size;
-    const jaccard = exactMatch / union;
+    const tokenScore = Math.round((exactMatch / union) * 20);
 
-    // 2) 부분 포함 — 길이 2자 이상 토큰만, 짧은 토큰의 spurious 매칭 방지
-    let partial = 0;
-    tA.forEach(ta => {
-        if (ta.length < 2) return;
-        tB.forEach(tb => {
-            if (tb.length < 2 && ta === tb) return;
-            if (ta !== tb && ta.length >= 2 && tb.length >= 2) {
-                if (ta.includes(tb) || tb.includes(ta)) partial += 0.25;
-            }
-        });
-    });
-    // partial 과잉 방지: 최대 0.3으로 cap
-    const partialScore = Math.min(0.3, partial * 0.1);
+    // ③ 문자 겹침 (자모 레벨)
+    const chA = new Set([...a.replace(/[,\/\s·]/g, '')]);
+    const chB = new Set([...b.replace(/[,\/\s·]/g, '')]);
+    let charOverlap = 0; chA.forEach(c => { if (chB.has(c)) charOverlap++; });
+    const charScore = Math.round((charOverlap / Math.max(chA.size, chB.size)) * 10);
 
-    // 3) 문자 셋 겹침 — 한국어 단어 자체가 짧아서 기여도 낮춤 (10% → 8%)
-    const chA = new Set([...a.replace(/[,\/\s]/g, '')]);
-    const chB = new Set([...b.replace(/[,\/\s]/g, '')]);
-    let charOverlap = 0;
-    chA.forEach(c => { if (chB.has(c)) charOverlap++; });
-    const charScore = charOverlap / Math.max(chA.size, chB.size);
-
-    // 완전 일치 토큰이 있으면 점수 대폭 부스트
-    const exactBonus = exactMatch > 0 ? 0.15 : 0;
-
-    return Math.min(100, Math.round(
-        jaccard * 65 +
-        partialScore * 20 +
-        charScore * 8 +
-        exactBonus * 7
-    ) * 100) / 100;
+    return Math.min(100, clusterScore + tokenScore + charScore);
 }
-// ── 성능: 유사도 행렬 — 증분 업데이트 + 비동기 청크 ──────────────
-// 새 단어 추가/수정 시 해당 단어 관련 행만 업데이트 (O(n) vs O(n²))
 function buildSimMatrixForWord(w) {
   if (!simMatrix[w.id]) simMatrix[w.id] = {};
   for (const other of words) {
     if (other.id === w.id) continue;
     if (!simMatrix[other.id]) simMatrix[other.id] = {};
     const s = semSim(w.ko, other.ko);
-    simMatrix[w.id][other.id] = s;
-    simMatrix[other.id][w.id] = s;
+    simMatrix[w.id][other.id] = s; simMatrix[other.id][w.id] = s;
   }
 }
-
-// 전체 재계산 — 청크 단위로 나눠서 메인스레드 양보 (렉 방지)
-function buildSimMatrix() {
-  simMatrix = {};
-  if (words.length === 0) return;
-  // 즉시 동기 실행 (소규모 단어장)
-  for (let i = 0; i < words.length; i++) {
-    for (let j = i + 1; j < words.length; j++) {
-      const a = words[i], b = words[j];
-      if (!simMatrix[a.id]) simMatrix[a.id] = {};
-      if (!simMatrix[b.id]) simMatrix[b.id] = {};
-      const s = semSim(a.ko, b.ko);
-      simMatrix[a.id][b.id] = s;
-      simMatrix[b.id][a.id] = s;
-    }
-  }
-}
-
-// 비동기 전체 재계산 — 단어 많을 때 사용 (청크 8쌍씩 처리 후 yield)
 function buildSimMatrixAsync() {
   return new Promise(resolve => {
     simMatrix = {};
     if (words.length === 0) { resolve(); return; }
     const pairs = [];
-    for (let i = 0; i < words.length; i++)
-      for (let j = i + 1; j < words.length; j++)
-        pairs.push([i, j]);
+    for (let i = 0; i < words.length; i++) for (let j = i + 1; j < words.length; j++) pairs.push([i, j]);
     let idx = 0;
     const CHUNK = 30;
     function processChunk() {
       const end = Math.min(idx + CHUNK, pairs.length);
       for (; idx < end; idx++) {
-        const [i, j] = pairs[idx];
-        const a = words[i], b = words[j];
+        const [i, j] = pairs[idx], a = words[i], b = words[j];
         if (!simMatrix[a.id]) simMatrix[a.id] = {};
         if (!simMatrix[b.id]) simMatrix[b.id] = {};
         const s = semSim(a.ko, b.ko);
-        simMatrix[a.id][b.id] = s;
-        simMatrix[b.id][a.id] = s;
+        simMatrix[a.id][b.id] = s; simMatrix[b.id][a.id] = s;
       }
       if (idx < pairs.length) setTimeout(processChunk, 0);
       else resolve();
@@ -1430,6 +1904,264 @@ function buildSimMatrixAsync() {
   });
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// ★ 한국어 의미 그룹핑 — 오프라인 클러스터 DB 기반
+// ══════════════════════════════════════════════════════════════════════════
+
+// 각 클러스터에 사람이 읽기 좋은 이름·이모지 매핑
+const CLUSTER_META = [
+  // 감정·심리 (0~19)
+  { name:'기쁨·행복', emoji:'😊' }, { name:'슬픔·우울', emoji:'😢' },
+  { name:'분노·격분', emoji:'😠' }, { name:'두려움·불안', emoji:'😰' },
+  { name:'놀람·경악', emoji:'😲' }, { name:'수치·부끄러움', emoji:'😳' },
+  { name:'외로움·고독', emoji:'😔' }, { name:'열정·의욕', emoji:'🔥' },
+  { name:'평온·침착', emoji:'🧘' }, { name:'호기심·탐구', emoji:'🔍' },
+  { name:'혐오·반감', emoji:'🤢' }, { name:'동경·갈망', emoji:'💫' },
+  { name:'질투·시기', emoji:'💚' }, { name:'자부심·자신감', emoji:'💪' },
+  { name:'절망·포기', emoji:'😞' }, { name:'감사·고마움', emoji:'🙏' },
+  { name:'후회·반성', emoji:'😔' }, { name:'안도·위안', emoji:'😌' },
+  { name:'당혹·혼란감정', emoji:'😕' }, { name:'지루함·권태', emoji:'😑' },
+  // 성격·태도 (20~39)
+  { name:'용감·대담', emoji:'🦁' }, { name:'소심·주저', emoji:'🐭' },
+  { name:'성실·근면', emoji:'📚' }, { name:'게으름·나태', emoji:'😴' },
+  { name:'친절·온화', emoji:'🤝' }, { name:'냉정·냉담', emoji:'🧊' },
+  { name:'정직·솔직', emoji:'✅' }, { name:'거짓·위선', emoji:'🎭' },
+  { name:'겸손·겸허', emoji:'🙇' }, { name:'오만·교만', emoji:'👑' },
+  { name:'신중·사려', emoji:'🎯' }, { name:'충동·경솔', emoji:'⚡' },
+  { name:'인내·끈기', emoji:'🏃' }, { name:'관대·너그러움', emoji:'💝' },
+  { name:'인색·탐욕', emoji:'💰' }, { name:'독립적·자주', emoji:'🦅' },
+  { name:'의존적·수동', emoji:'🐑' }, { name:'사교적·외향', emoji:'🎉' },
+  { name:'내성적·수줍', emoji:'🌿' }, { name:'공감·동정심', emoji:'❤️' },
+  // 지적능력·사고·언어 (40~59)
+  { name:'영리·현명', emoji:'🧠' }, { name:'어리석음·무지', emoji:'😶' },
+  { name:'논리적·합리적', emoji:'⚖️' }, { name:'창의적·독창', emoji:'💡' },
+  { name:'기억·회상', emoji:'💭' }, { name:'이해·통찰', emoji:'👁️' },
+  { name:'추측·추론', emoji:'🔮' }, { name:'집중·몰두', emoji:'🎯' },
+  { name:'혼란·모호', emoji:'🌀' }, { name:'명확·정확', emoji:'🎯' },
+  { name:'주장·단언', emoji:'📣' }, { name:'설명·묘사', emoji:'📝' },
+  { name:'비교·대조', emoji:'⚖️' }, { name:'반박·비판', emoji:'❌' },
+  { name:'강조·부각', emoji:'⭐' }, { name:'암시·함축', emoji:'🌙' },
+  { name:'표현·표출', emoji:'🎨' }, { name:'언어·소통', emoji:'💬' },
+  { name:'글쓰기·저술', emoji:'✍️' }, { name:'독해·해석', emoji:'📖' },
+  // 행동·변화·상태동사 (60~79)
+  { name:'빠름·신속', emoji:'⚡' }, { name:'느림·더딤', emoji:'🐢' },
+  { name:'시작·개시', emoji:'🚀' }, { name:'완료·종결', emoji:'✅' },
+  { name:'증가·확대', emoji:'📈' }, { name:'감소·축소', emoji:'📉' },
+  { name:'강화·보강', emoji:'🔧' }, { name:'약화·쇠퇴', emoji:'📉' },
+  { name:'유지·보존', emoji:'🛡️' }, { name:'파괴·훼손', emoji:'💥' },
+  { name:'돕다·지원', emoji:'🤲' }, { name:'방해·저지', emoji:'🚧' },
+  { name:'변화·변혁', emoji:'🔄' }, { name:'현상유지·보수', emoji:'🔒' },
+  { name:'증명·확인', emoji:'✅' }, { name:'시도·노력', emoji:'💪' },
+  { name:'회피·도피', emoji:'🏃' }, { name:'선택·결정', emoji:'☑️' },
+  { name:'거부·저항', emoji:'✊' }, { name:'복종·순응', emoji:'🙇' },
+  // 상태·성질 (80~99)
+  { name:'크다·방대', emoji:'🌍' }, { name:'작다·미세', emoji:'🔬' },
+  { name:'많다·풍부', emoji:'🌊' }, { name:'적다·부족', emoji:'💧' },
+  { name:'강하다·견고', emoji:'💪' }, { name:'약하다·취약', emoji:'🌸' },
+  { name:'중요·핵심', emoji:'⭐' }, { name:'사소·하찮음', emoji:'🍃' },
+  { name:'복잡·난해', emoji:'🕸️' }, { name:'단순·간단', emoji:'✨' },
+  { name:'오래됨·전통', emoji:'🏛️' }, { name:'새롭다·최신', emoji:'🆕' },
+  { name:'진짜·순수', emoji:'💎' }, { name:'가짜·인공', emoji:'🎨' },
+  { name:'일반적·평범', emoji:'➖' }, { name:'특수·독특', emoji:'✨' },
+  { name:'긍정적·낙관', emoji:'☀️' }, { name:'부정적·비관', emoji:'🌧️' },
+  { name:'적극적·능동', emoji:'🏆' }, { name:'소극적·수동', emoji:'🐚' },
+  // 관계·사회·제도 (100~119)
+  { name:'협력·협동', emoji:'🤝' }, { name:'경쟁·대결', emoji:'🏆' },
+  { name:'통치·지배', emoji:'👑' }, { name:'법률·규정', emoji:'⚖️' },
+  { name:'권리·의무', emoji:'📋' }, { name:'허락·승인', emoji:'✅' },
+  { name:'거절·거부', emoji:'❌' }, { name:'비난·질책', emoji:'😤' },
+  { name:'칭찬·격려', emoji:'👏' }, { name:'복종·순종', emoji:'🙇' },
+  { name:'반항·저항', emoji:'✊' }, { name:'속임·기만', emoji:'🎭' },
+  { name:'폭로·공개', emoji:'📢' }, { name:'은폐·비밀', emoji:'🙈' },
+  { name:'자유·해방', emoji:'🕊️' }, { name:'억압·탄압', emoji:'⛓️' },
+  { name:'평등·공정', emoji:'⚖️' }, { name:'차별·편견', emoji:'🚫' },
+  { name:'성공·달성', emoji:'🏆' }, { name:'실패·좌절', emoji:'😔' },
+  // 학문·연구·교육 (120~139)
+  { name:'연구·탐구', emoji:'🔬' }, { name:'발견·규명', emoji:'💡' },
+  { name:'이론·원리', emoji:'📖' }, { name:'증명·검증', emoji:'✅' },
+  { name:'가르침·교육', emoji:'👨‍🏫' }, { name:'배움·학습', emoji:'📚' },
+  { name:'기록·문서화', emoji:'📝' }, { name:'인용·참조', emoji:'💬' },
+  { name:'정의·개념규정', emoji:'📌' }, { name:'적용·실행', emoji:'⚙️' },
+  { name:'의문·질문', emoji:'❓' }, { name:'해결·극복', emoji:'🔑' },
+  { name:'평가·판단', emoji:'📏' }, { name:'예측·전망', emoji:'🔭' },
+  { name:'수정·개선', emoji:'🔧' }, { name:'확산·전파', emoji:'📡' },
+  { name:'결합·통합', emoji:'🔗' }, { name:'분리·분할', emoji:'✂️' },
+  { name:'상호작용·영향', emoji:'🔄' }, { name:'원인·결과', emoji:'⚡' },
+  // 경제·정치·사회 (140~159)
+  { name:'이익·수익', emoji:'💰' }, { name:'손실·손해', emoji:'📉' },
+  { name:'투자·자본', emoji:'💹' }, { name:'소비·지출', emoji:'🛒' },
+  { name:'생산·제조', emoji:'🏭' }, { name:'무역·거래', emoji:'🤝' },
+  { name:'성장·번창', emoji:'📈' }, { name:'쇠퇴·침체', emoji:'📉' },
+  { name:'절약·저축', emoji:'🏦' }, { name:'낭비·탕진', emoji:'💸' },
+  { name:'정책·행정', emoji:'🏛️' }, { name:'법률·입법', emoji:'⚖️' },
+  { name:'세금·조세', emoji:'💴' }, { name:'복지·혜택', emoji:'🏥' },
+  { name:'환경·생태', emoji:'🌿' }, { name:'인구·사회', emoji:'👥' },
+  { name:'문화·관습', emoji:'🎎' }, { name:'도덕·윤리', emoji:'💎' },
+  { name:'권력·영향력', emoji:'⚡' }, { name:'갈등·분쟁', emoji:'⚔️' },
+  // 자연·환경·과학 (160~179)
+  { name:'아름다움·수려', emoji:'🌸' }, { name:'추함·볼품없음', emoji:'🌧️' },
+  { name:'밝다·빛나다', emoji:'☀️' }, { name:'어둡다·음산', emoji:'🌑' },
+  { name:'차갑다·냉랭', emoji:'❄️' }, { name:'뜨겁다·따뜻', emoji:'🔥' },
+  { name:'조용하다·고요', emoji:'🍃' }, { name:'시끄럽다·소란', emoji:'📢' },
+  { name:'생명·생존', emoji:'🌱' }, { name:'죽음·소멸', emoji:'💀' },
+  { name:'성장·발달', emoji:'🌳' }, { name:'쇠퇴·노화', emoji:'🍂' },
+  { name:'균형·조화', emoji:'⚖️' }, { name:'불균형·혼돈', emoji:'🌀' },
+  { name:'순환·반복', emoji:'🔄' }, { name:'변화·진화', emoji:'🦋' },
+  { name:'파괴·오염', emoji:'💥' }, { name:'보호·보전', emoji:'🛡️' },
+  { name:'공간·영역', emoji:'🗺️' }, { name:'시간·기간', emoji:'⏰' },
+  // 수능·토익 핵심 형용사·동사 뜻 (180~199)
+  { name:'모호·불분명', emoji:'🌫️' }, { name:'명백·분명', emoji:'🎯' },
+  { name:'타당·합당', emoji:'✅' }, { name:'부당·불합리', emoji:'❌' },
+  { name:'강요·압박', emoji:'🔒' }, { name:'설득·납득', emoji:'💬' },
+  { name:'지지·옹호', emoji:'🤝' }, { name:'비난·공격', emoji:'⚡' },
+  { name:'무시·간과', emoji:'👀' }, { name:'강조·부각', emoji:'⭐' },
+  { name:'완화·경감', emoji:'🕊️' }, { name:'악화·심화', emoji:'📈' },
+  { name:'촉진·가속', emoji:'🚀' }, { name:'억제·통제', emoji:'🔧' },
+  { name:'직면·맞닥뜨림', emoji:'👊' }, { name:'회피·피함', emoji:'🏃' },
+  { name:'유사·비슷', emoji:'≈' }, { name:'상이·다름', emoji:'≠' },
+  { name:'의존·기댐', emoji:'🤲' }, { name:'자립·독립', emoji:'🦅' },
+  // 추상명사·고급어휘 (200~219)
+  { name:'개념·사상', emoji:'💭' }, { name:'현상·상황', emoji:'🔍' },
+  { name:'목적·의도', emoji:'🎯' }, { name:'수단·방법', emoji:'🔧' },
+  { name:'결과·성과', emoji:'🏆' }, { name:'원칙·기준', emoji:'📏' },
+  { name:'예외·특수', emoji:'✨' }, { name:'비율·정도', emoji:'📊' },
+  { name:'범주·분류', emoji:'📂' }, { name:'관련·연관', emoji:'🔗' },
+  { name:'비교·차이점', emoji:'⚖️' }, { name:'예시·사례', emoji:'📋' },
+  { name:'가치·의미', emoji:'💎' }, { name:'한계·제약', emoji:'🚧' },
+  { name:'가능성·잠재력', emoji:'🌟' }, { name:'위기·기회', emoji:'⚡' },
+  { name:'전통·관행', emoji:'🏛️' }, { name:'변혁·개혁', emoji:'🔄' },
+  { name:'모순·역설', emoji:'🌀' }, { name:'균형·통합', emoji:'⚖️' },
+  // 핵심동사뉘앙스 (220~239)
+  { name:'강조·고집·주장', emoji:'📣' }, { name:'인정·수긍', emoji:'✅' },
+  { name:'부정·부인', emoji:'❌' }, { name:'묘사·서술', emoji:'📝' },
+  { name:'분석·살피다', emoji:'🔍' }, { name:'제안·권고', emoji:'💡' },
+  { name:'수집·모으다', emoji:'📦' }, { name:'배포·전달', emoji:'📡' },
+  { name:'검토·심의', emoji:'🔎' }, { name:'수용·채택', emoji:'✅' },
+  { name:'거부·배척', emoji:'❌' }, { name:'요구·촉구', emoji:'📋' },
+  { name:'제공·공급', emoji:'🎁' }, { name:'유발·야기', emoji:'⚡' },
+  { name:'방지·예방', emoji:'🛡️' }, { name:'보여주다·입증', emoji:'💡' },
+  { name:'두드러지다·부각', emoji:'⭐' }, { name:'약화·쇠하다', emoji:'📉' },
+  { name:'강화·높아지다', emoji:'📈' }, { name:'반영·나타내다', emoji:'🪞' },
+  // 공무원 행정·법률 (240~259)
+  { name:'시행·집행', emoji:'⚙️' }, { name:'폐지·취소', emoji:'🗑️' },
+  { name:'도입·채택', emoji:'🆕' }, { name:'제한·규제', emoji:'🚫' },
+  { name:'확대·확장', emoji:'📈' }, { name:'축소·감축', emoji:'📉' },
+  { name:'보장·보증', emoji:'🛡️' }, { name:'위반·어기다', emoji:'❌' },
+  { name:'준수·지키다', emoji:'✅' }, { name:'계약·합의', emoji:'🤝' },
+  { name:'청원·호소', emoji:'🙏' }, { name:'고소·고발', emoji:'⚖️' },
+  { name:'판결·선고', emoji:'⚖️' }, { name:'재정·예산', emoji:'💰' },
+  { name:'임명·선임', emoji:'👔' }, { name:'해임·파면', emoji:'🚪' },
+  { name:'심의·의결', emoji:'🏛️' }, { name:'공표·발표', emoji:'📢' },
+  { name:'보고·공지', emoji:'📋' }, { name:'수정·개정', emoji:'🔧' },
+  // 수능독서·문학 (260~279)
+  { name:'서사·이야기', emoji:'📖' }, { name:'관점·입장', emoji:'👁️' },
+  { name:'주제·요지', emoji:'🎯' }, { name:'근거·논거', emoji:'📋' },
+  { name:'구체적·상세', emoji:'🔬' }, { name:'추상적·일반', emoji:'🌫️' },
+  { name:'인과·원인결과', emoji:'🔄' }, { name:'유추·비유', emoji:'🌉' },
+  { name:'정의·설명', emoji:'📌' }, { name:'결론·마무리', emoji:'🏁' },
+  { name:'비판·비평', emoji:'📝' }, { name:'발전·심화', emoji:'🌱' },
+  { name:'전환·방향전환', emoji:'↩️' }, { name:'요약·정리', emoji:'📋' },
+  { name:'예외·반례', emoji:'⚠️' }, { name:'종합·통합', emoji:'🔗' },
+  { name:'반복·지속', emoji:'🔄' }, { name:'대조·상반', emoji:'⚖️' },
+  { name:'누적·축적', emoji:'📦' }, { name:'해석·의미부여', emoji:'🔍' },
+  // 과학·기술·의학 (280~299)
+  { name:'물질·구조', emoji:'⚗️' }, { name:'에너지·동력', emoji:'⚡' },
+  { name:'반응·작용', emoji:'🧪' }, { name:'측정·수치', emoji:'📏' },
+  { name:'관찰·실험', emoji:'🔬' }, { name:'발전·진보', emoji:'🚀' },
+  { name:'적응·진화', emoji:'🦋' }, { name:'치료·치유', emoji:'💊' },
+  { name:'예방·방지', emoji:'🛡️' }, { name:'진단·판별', emoji:'🏥' },
+  { name:'감염·확산', emoji:'🦠' }, { name:'유전·형질', emoji:'🧬' },
+  { name:'생태계·환경', emoji:'🌿' }, { name:'순환·주기', emoji:'🔄' },
+  { name:'기술·기법', emoji:'🔧' }, { name:'혁신·첨단', emoji:'🚀' },
+  { name:'데이터·정보', emoji:'💾' }, { name:'시스템·체계', emoji:'⚙️' },
+  { name:'효율성·성과', emoji:'📈' }, { name:'지속가능', emoji:'♻️' },
+];
+
+/**
+ * 단어 목록을 클러스터 DB로 의미 그룹핑
+ * - 오프라인, API 없음, 즉각 실행
+ * - 각 단어의 한국어 뜻 토큰이 어느 클러스터에 속하는지 판별
+ * - 같은 클러스터에 2개 이상 속하면 그룹 생성
+ */
+function runKoClusterGrouping(wordList) {
+    if (wordList.length < 2) return [];
+
+    // 단어별 소속 클러스터 ID 목록 계산
+    const wordClusters = wordList.map(w => {
+        const tokens = tokenize(w.ko);
+        const clusters = getClusters(tokens);
+        return { word: w, clusters };
+    });
+
+    // 클러스터별로 소속 단어 수집
+    const clusterToWords = new Map();
+    wordClusters.forEach(({ word, clusters }) => {
+        clusters.forEach(cIdx => {
+            if (!clusterToWords.has(cIdx)) clusterToWords.set(cIdx, []);
+            clusterToWords.get(cIdx).push(word);
+        });
+    });
+
+    // 2개 이상 단어 있는 클러스터만 그룹으로 출력
+    const groups = [];
+    clusterToWords.forEach((groupWords, cIdx) => {
+        if (groupWords.length < 2) return;
+        const meta = CLUSTER_META[cIdx] || { name: `그룹 ${cIdx}`, emoji: '📌' };
+        groups.push({
+            groupName: meta.name,
+            emoji: meta.emoji,
+            clusterIdx: cIdx,
+            words: groupWords,
+        });
+    });
+
+    // 단어 수 내림차순 정렬
+    groups.sort((a, b) => b.words.length - a.words.length);
+    return groups;
+}
+
+/**
+ * AI 의미 그룹 카드 렌더링
+ */
+function renderAIMeaningGroups(groups) {
+    const grid = document.getElementById('nlp-ai-meaning-grid');
+    grid.innerHTML = '';
+
+    if (!groups || groups.length === 0) {
+        grid.innerHTML = '<p class="text-gray-500 font-bold text-sm col-span-full">의미적으로 묶을 수 있는 그룹이 없습니다. 단어를 더 추가해보세요.</p>';
+        return;
+    }
+
+    const frag = document.createDocumentFragment();
+    groups.forEach((g, gIdx) => {
+        const chipColor = `ai-chip-${gIdx % 8}`;
+        const card = document.createElement('div');
+        card.className = 'ai-group-card p-6 rounded-3xl flex flex-col h-full fade-in';
+
+        const chips = g.words.map(w =>
+            `<span class="chip ${chipColor} cursor-pointer" onclick="openAnalysis(${w.id})" title="${w.en}">
+                <span class="font-black">${w.en}</span>
+                <span class="text-[10px] opacity-70 ml-1 font-bold">${w.ko}</span>
+            </span>`
+        ).join('');
+
+        card.innerHTML = `
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-700/60">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">${g.emoji}</span>
+                    <h4 class="font-black text-white text-base">${g.groupName}</h4>
+                </div>
+                <span class="text-[10px] font-black text-indigo-400 bg-indigo-900/30 border border-indigo-700/50 px-2 py-1 rounded-full whitespace-nowrap">${g.words.length}단어</span>
+            </div>
+            <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chips}</div>`;
+        frag.appendChild(card);
+    });
+    grid.appendChild(frag);
+}
+
+// ==============================
+// NLP 그룹핑 메인 함수 (AI 섹션 추가)
+// ==============================
 function getStem(w) {
     let s = w.toLowerCase();
     if(s.length < 4) return s;
@@ -1445,244 +2177,68 @@ function getStem(w) {
     if(s.endsWith('ly') && s.length>4) return s.slice(0,-2);
     return s;
 }
-// ── 접두사 DB: 긴 것부터 정렬 (shorter prefix가 longer를 가리는 문제 방지)
-// 예: "inter"가 "in"보다 먼저 매칭돼야 "interact"가 in- 아닌 inter-로 분류됨
+
 const PREFIX_DICT = [
-  // ── 5자 이상 (가장 구체적) ──────────────────────────────────────────
-  {p:'trans',  m:'가로질러·변환',    ex:'transport, transform, transcend'},
-  {p:'inter',  m:'사이·상호',        ex:'interact, international, interrupt'},
-  {p:'intra',  m:'내부·안에',        ex:'intracellular, intranet, intramural'},
-  {p:'intro',  m:'안으로',           ex:'introduce, introspect, introvert'},
-  {p:'super',  m:'위·초월',          ex:'superior, superficial, supernatural'},
-  {p:'hyper',  m:'과도·초',          ex:'hyperactive, hyperbole, hypersensitive'},
-  {p:'ultra',  m:'극도·초',          ex:'ultraviolet, ultrasound, ultramarathon'},
-  {p:'under',  m:'아래·부족',        ex:'undermine, undergo, underestimate'},
-  {p:'extra',  m:'밖·초과',          ex:'extraordinary, extravagant, extract'},
-  {p:'macro',  m:'큰·거시',          ex:'macroeconomics, macroscopic'},
-  {p:'micro',  m:'작은·미세',        ex:'microphone, microscope, microwave'},
-  {p:'multi',  m:'많은·다중',        ex:'multiply, multitude, multilingual'},
-  {p:'omni',   m:'모든·전체',        ex:'omnivore, omnipotent, omniscient'},
-  {p:'semi',   m:'반·절반',          ex:'semicolon, semifinal, semicircle'},
-  {p:'tele',   m:'멀리',             ex:'telephone, telescope, television'},
-  {p:'poly',   m:'많은',             ex:'polygon, polyglot, polynomial'},
-  {p:'mono',   m:'하나·단일',        ex:'monopoly, monotone, monarchy'},
-  {p:'auto',   m:'스스로·자동',      ex:'automatic, automobile, autonomous'},
-  {p:'anti',   m:'반대·대항',        ex:'antibody, antidote, antisocial'},
-  {p:'ante',   m:'앞·이전',          ex:'anterior, antechamber, antecedent'},
-  {p:'post',   m:'이후·뒤',          ex:'postpone, postmodern, postscript'},
-  {p:'para',   m:'옆·비슷·넘어서',  ex:'parallel, paradox, paraphrase'},
-  {p:'peri',   m:'주위·둘레',        ex:'perimeter, peripheral, perihelion'},
-  {p:'bene',   m:'좋은·혜택',        ex:'benefit, benevolent, beneficial'},
-  {p:'male',   m:'나쁜·악',          ex:'malevolent, malfunction, malicious'},
-  {p:'mal',    m:'나쁜·비정상',      ex:'malnutrition, malice, malpractice'},
-  {p:'fore',   m:'앞·미리',          ex:'foresee, forewarn, forecast'},
-  {p:'over',   m:'위·과도',          ex:'overcome, overlook, overwhelm'},
-  {p:'down',   m:'아래·감소',        ex:'downfall, downgrade, download'},
-  {p:'out',    m:'밖·능가',          ex:'outcome, outperform, outnumber'},
-  {p:'back',   m:'뒤·역',            ex:'backfire, backlash, backtrack'},
-  {p:'self',   m:'자기·스스로',      ex:'selfless, self-control, self-reliant'},
-  {p:'step',   m:'의붓·계',          ex:'stepfather, stepchild, stepmother'},
-  {p:'non',    m:'아닌·비',          ex:'nonfiction, nonprofit, nonviolent'},
-  {p:'mis',    m:'잘못·나쁘게',      ex:'misuse, misunderstand, mislead'},
-  {p:'dis',    m:'부정·분리·반대',   ex:'disagree, disorder, disconnect'},
-  {p:'pre',    m:'미리·이전',        ex:'predict, prepare, prevent'},
-  {p:'pro',    m:'앞·지지·대신',     ex:'progress, promote, prohibit'},
-  {p:'con',    m:'함께·완전히',      ex:'connect, confirm, contribute'},
-  {p:'com',    m:'함께·완전히',      ex:'complete, combine, commit'},
-  {p:'col',    m:'함께',             ex:'collect, collaborate, collision'},
-  {p:'cor',    m:'함께',             ex:'correspond, correlate, corrupt'},
-  {p:'sub',    m:'아래·부',          ex:'submit, subtract, subconscious'},
-  {p:'sup',    m:'아래·위로',        ex:'support, suppose, suppress'},
-  {p:'suf',    m:'아래·뒤',          ex:'suffer, sufficient, suffix'},
-  {p:'suc',    m:'아래·뒤따라',      ex:'succeed, success, succumb'},
-  {p:'sus',    m:'아래·올려받침',    ex:'sustain, suspend, suspect'},
-  {p:'abs',    m:'떨어져·완전히',    ex:'absorb, abstract, abstain'},
-  {p:'ob',     m:'맞서·향해',        ex:'object, observe, obstruct'},
-  {p:'op',     m:'맞서',             ex:'oppose, oppress, optimum'},
-  {p:'per',    m:'통하여·완전히',    ex:'perfect, perform, persist'},
-  {p:'por',    m:'앞으로',           ex:'portray, portal, portfolio'},
-  {p:'sym',    m:'함께·같은',        ex:'sympathy, symphony, symbol'},
-  {p:'syn',    m:'함께·동시에',      ex:'synchronize, synthesis, synonym'},
-  {p:'sys',    m:'함께',             ex:'system, systematic'},
-  {p:'dia',    m:'통하여·가로질러',  ex:'diagonal, dialogue, diameter'},
-  {p:'bio',    m:'생명·생물',        ex:'biology, biography, biosphere'},
-  {p:'geo',    m:'지구·땅',          ex:'geography, geology, geometry'},
-  {p:'log',    m:'말·이치',          ex:'logic, logarithm, loquacious'},
-  {p:'neo',    m:'새로운',           ex:'neonatal, neoclassical, neologism'},
-  {p:'neo',    m:'새로운',           ex:'neonatal, neoclassical, neologism'},
-  {p:'retro',  m:'뒤로·과거',        ex:'retrospect, retroactive, retrofit'},
-  {p:'circum', m:'둘레·주위',        ex:'circumvent, circumstance, circumference'},
-  {p:'contra', m:'반대',             ex:'contradict, contrast, contrary'},
-  {p:'counter',m:'반대·맞서',        ex:'counteract, counterpart, counterfeit'},
-  {p:'demi',   m:'반·절반',          ex:'demigod, demitasse'},
-  {p:'arch',   m:'최고·주요',        ex:'architect, archbishop, archetype'},
-  {p:'proto',  m:'최초·원형',        ex:'prototype, protocol, protagonist'},
-  {p:'pseudo', m:'가짜·거짓',        ex:'pseudonym, pseudoscience'},
-  {p:'crypto', m:'숨겨진·비밀',      ex:'cryptography, cryptocurrency'},
-  {p:'hetero', m:'다른·이질',        ex:'heterogeneous, heterosexual'},
-  {p:'homo',   m:'같은·동질',        ex:'homogeneous, homophone, homologous'},
-  {p:'iso',    m:'같은·동등',        ex:'isotope, isometric, isolation'},
-  {p:'hemi',   m:'반·절반',          ex:'hemisphere, hemicycle'},
-  {p:'eu',     m:'좋은·진실',        ex:'euphoria, eulogy, euthanasia'},
-  {p:'dys',    m:'나쁜·어려운',      ex:'dysfunction, dyslexia, dystopia'},
-  {p:'a',      m:'부정·없음',        ex:'atheist, amoral, asymmetry'},
-  // ── 부정 접두사 (형태 변이) ────────────────────────────────────────
-  {p:'im',     m:'부정·안으로',      ex:'impossible, immoral, import'},
-  {p:'il',     m:'부정',             ex:'illegal, illiterate, illogical'},
-  {p:'ir',     m:'부정',             ex:'irregular, irrational, irrelevant'},
-  // ── 수 접두사 ──────────────────────────────────────────────────────
-  {p:'uni',    m:'하나',             ex:'uniform, unique, unify'},
-  {p:'bi',     m:'둘·양쪽',          ex:'bilateral, bilingual, bicycle'},
-  {p:'du',     m:'둘',               ex:'duplicate, duo, duality'},
-  {p:'tri',    m:'셋',               ex:'triangle, triple, trilogy'},
-  {p:'quad',   m:'넷',               ex:'quadrant, quadruple, quadrilateral'},
-  {p:'quart',  m:'넷·사분의',        ex:'quarter, quartet, quarterly'},
-  {p:'pent',   m:'다섯',             ex:'pentagon, pentathlon'},
-  {p:'hex',    m:'여섯',             ex:'hexagon, hexadecimal'},
-  {p:'hept',   m:'일곱',             ex:'heptagon, heptathlon'},
-  {p:'oct',    m:'여덟',             ex:'octopus, octave, October'},
-  {p:'dec',    m:'열',               ex:'decade, decimal, decagon'},
-  {p:'cent',   m:'백',               ex:'century, centimeter, percent'},
-  {p:'kilo',   m:'천',               ex:'kilometer, kilogram, kilowatt'},
-  {p:'milli',  m:'천분의일',         ex:'millimeter, millisecond'},
-  {p:'mega',   m:'백만·거대',        ex:'megabyte, megaphone, megalopolis'},
-  {p:'giga',   m:'십억',             ex:'gigabyte, gigawatt'},
-  // ── 방향·공간 접두사 ───────────────────────────────────────────────
-  {p:'ab',     m:'떨어져·멀리',      ex:'absent, abnormal, abduct'},
-  {p:'ad',     m:'향해·붙어',        ex:'adapt, admit, advance'},
-  {p:'af',     m:'향해',             ex:'affect, affirm, afford'},
-  {p:'ag',     m:'향해',             ex:'aggravate, aggregate, aggressive'},
-  {p:'al',     m:'향해',             ex:'allocate, allure, ally'},
-  {p:'ap',     m:'향해',             ex:'appear, apply, approve'},
-  {p:'ar',     m:'향해',             ex:'arrange, arrive, arrest'},
-  {p:'at',     m:'향해',             ex:'attach, attract, attend'},
-  {p:'ac',     m:'향해',             ex:'accomplish, account, accuse'},
-  {p:'de',     m:'아래·분리·강조',   ex:'decrease, destroy, define'},
-  {p:'se',     m:'떨어져·분리',      ex:'separate, secure, select'},
-  {p:'e',      m:'밖으로',           ex:'emit, eject, evade'},
-  {p:'ef',     m:'밖으로·완전히',    ex:'effect, efficient, effort'},
-  // ── 시간 접두사 ────────────────────────────────────────────────────
-  {p:'neo',    m:'새로운',           ex:'neoclassical, neologism'},
-  {p:'paleo',  m:'오래된·고대',      ex:'paleontology, paleolithic'},
-  // ── 공통 접두사 (짧은 것 — 마지막에) ─────────────────────────────
-  {p:'un',     m:'부정·반대',        ex:'undo, unhappy, unexpected'},
-  {p:'re',     m:'다시·뒤로',        ex:'return, repeat, rebuild'},
-  {p:'in',     m:'안으로·부정',      ex:'include, inside, invisible'},
-  {p:'en',     m:'안에·만들다',      ex:'enable, enclose, encourage'},
-  {p:'em',     m:'안에·만들다',      ex:'embrace, empower, employ'},
-  {p:'ex',     m:'밖으로·이전',      ex:'export, exit, extract'},
-  {p:'co',     m:'함께',             ex:'cooperate, coexist, coauthor'},
-  {p:'up',     m:'위로·향상',        ex:'upgrade, uplift, upcoming'},
+  {p:'trans',m:'가로질러·변환',ex:'transport, transform, transcend'},{p:'inter',m:'사이·상호',ex:'interact, international'},{p:'intra',m:'내부·안에',ex:'intracellular, intranet'},{p:'intro',m:'안으로',ex:'introduce, introspect'},{p:'super',m:'위·초월',ex:'superior, supernatural'},{p:'hyper',m:'과도·초',ex:'hyperactive, hyperbole'},{p:'ultra',m:'극도·초',ex:'ultraviolet, ultrasound'},{p:'under',m:'아래·부족',ex:'undermine, undergo'},{p:'extra',m:'밖·초과',ex:'extraordinary, extravagant'},{p:'macro',m:'큰·거시',ex:'macroeconomics'},{p:'micro',m:'작은·미세',ex:'microphone, microscope'},{p:'multi',m:'많은·다중',ex:'multiply, multitude'},{p:'omni',m:'모든·전체',ex:'omnivore, omnipotent'},{p:'semi',m:'반·절반',ex:'semicolon, semifinal'},{p:'tele',m:'멀리',ex:'telephone, telescope'},{p:'poly',m:'많은',ex:'polygon, polyglot'},{p:'mono',m:'하나·단일',ex:'monopoly, monotone'},{p:'auto',m:'스스로·자동',ex:'automatic, automobile'},{p:'anti',m:'반대·대항',ex:'antibody, antidote'},{p:'ante',m:'앞·이전',ex:'anterior, antechamber'},{p:'post',m:'이후·뒤',ex:'postpone, postmodern'},{p:'para',m:'옆·비슷·넘어서',ex:'parallel, paradox'},{p:'peri',m:'주위·둘레',ex:'perimeter, peripheral'},{p:'bene',m:'좋은·혜택',ex:'benefit, benevolent'},{p:'male',m:'나쁜·악',ex:'malevolent, malfunction'},{p:'mal',m:'나쁜·비정상',ex:'malnutrition, malice'},{p:'fore',m:'앞·미리',ex:'foresee, forewarn'},{p:'over',m:'위·과도',ex:'overcome, overlook'},{p:'down',m:'아래·감소',ex:'downfall, downgrade'},{p:'out',m:'밖·능가',ex:'outcome, outperform'},{p:'non',m:'아닌·비',ex:'nonfiction, nonprofit'},{p:'mis',m:'잘못·나쁘게',ex:'misuse, misunderstand'},{p:'dis',m:'부정·분리·반대',ex:'disagree, disorder'},{p:'pre',m:'미리·이전',ex:'predict, prepare'},{p:'pro',m:'앞·지지·대신',ex:'progress, promote'},{p:'con',m:'함께·완전히',ex:'connect, confirm'},{p:'com',m:'함께·완전히',ex:'complete, combine'},{p:'col',m:'함께',ex:'collect, collaborate'},{p:'sub',m:'아래·부',ex:'submit, subtract'},{p:'sup',m:'아래·위로',ex:'support, suppose'},{p:'abs',m:'떨어져·완전히',ex:'absorb, abstract'},{p:'ob',m:'맞서·향해',ex:'object, observe'},{p:'per',m:'통하여·완전히',ex:'perfect, perform'},{p:'sym',m:'함께·같은',ex:'sympathy, symphony'},{p:'syn',m:'함께·동시에',ex:'synchronize, synthesis'},{p:'bio',m:'생명·생물',ex:'biology, biography'},{p:'geo',m:'지구·땅',ex:'geography, geology'},{p:'neo',m:'새로운',ex:'neonatal, neoclassical'},{p:'retro',m:'뒤로·과거',ex:'retrospect, retroactive'},{p:'circum',m:'둘레·주위',ex:'circumvent, circumstance'},{p:'contra',m:'반대',ex:'contradict, contrast'},{p:'counter',m:'반대·맞서',ex:'counteract, counterpart'},{p:'proto',m:'최초·원형',ex:'prototype, protocol'},{p:'uni',m:'하나',ex:'uniform, unique'},{p:'bi',m:'둘·양쪽',ex:'bilateral, bilingual'},{p:'tri',m:'셋',ex:'triangle, triple'},{p:'dec',m:'열',ex:'decade, decimal'},{p:'ab',m:'떨어져·멀리',ex:'absent, abnormal'},{p:'ad',m:'향해·붙어',ex:'adapt, admit'},{p:'de',m:'아래·분리·강조',ex:'decrease, destroy'},{p:'se',m:'떨어져·분리',ex:'separate, secure'},{p:'un',m:'부정·반대',ex:'undo, unhappy'},{p:'re',m:'다시·뒤로',ex:'return, repeat'},{p:'in',m:'안으로·부정',ex:'include, inside'},{p:'en',m:'안에·만들다',ex:'enable, enclose'},{p:'ex',m:'밖으로·이전',ex:'export, exit'},{p:'co',m:'함께',ex:'cooperate, coexist'},{p:'im',m:'부정·안으로',ex:'impossible, immoral'},{p:'il',m:'부정',ex:'illegal, illiterate'},{p:'ir',m:'부정',ex:'irregular, irrational'},
 ];
-// 중복 제거 + 길이 내림차순 정렬 (긴 접두사 우선 매칭)
 const _seen = new Set();
-const PREFIX_DICT_SORTED = PREFIX_DICT
-  .filter(pr => { if(_seen.has(pr.p)) return false; _seen.add(pr.p); return true; })
-  .sort((a,b) => b.p.length - a.p.length);
+const PREFIX_DICT_SORTED = PREFIX_DICT.filter(pr => { if(_seen.has(pr.p)) return false; _seen.add(pr.p); return true; }).sort((a,b) => b.p.length - a.p.length);
 
 function getPrefix(w) {
   const s = w.toLowerCase();
   for(const pr of PREFIX_DICT_SORTED) {
     if(s.startsWith(pr.p) && s.length > pr.p.length + 2) {
-      // 어간에 모음이 포함돼야 실제 단어 (false positive 방지)
       const stem = s.slice(pr.p.length);
       if(/[aeiou]/.test(stem)) return pr;
     }
   }
   return null;
 }
-// ─────────────────────────────────────────────────────────────────────
-// enrichWord — 2-source 전략으로 유의어/반의어 품질 대폭 향상
-//
-// 소스 1: Free Dictionary API (freedictionaryapi.com)
-//   - WordNet 기반, 키 불필요, sense별 synonyms/antonyms 제공
-//   - 예: "happy" → sense별로 [glad, pleased, content, joyful, ...]
-//
-// 소스 2: Datamuse rel_syn / rel_ant (max 50 → 기존 5에서 10배)
-//   - 통계 기반, 실제 텍스트 코퍼스에서 추출
-//   - max 50으로 단어장 내 다른 단어가 목록에 포함될 확률 대폭 상승
-//
-// 두 소스 병합 → 중복 제거 → dedupe Set 사용
-// ─────────────────────────────────────────────────────────────────────
+
 async function enrichWord(w) {
     if(w.nlp && w.nlp.fetched) return false;
     w.nlp = { syn: [], ant: [], stem: getStem(w.en), prefix: getPrefix(w.en), fetched: false };
     if (!navigator.onLine) { w.nlp.fetched = true; return true; }
-
     const toWords = arr => Array.isArray(arr) ? arr.map(x => typeof x === 'string' ? x.toLowerCase() : (x.word||'').toLowerCase()).filter(Boolean) : [];
-
     try {
-        // 4개 요청 동시 발사 (rel_spc 추가 — 카테고리 분류용)
         const [freeDictRes, dmSynRes, dmAntRes, dmSpcRes] = await Promise.allSettled([
-            fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.en)}`)
-                .then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(w.en)}&max=50`)
-                .then(r => r.json()).catch(() => []),
-            fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(w.en)}&max=50`)
-                .then(r => r.json()).catch(() => []),
-            fetch(`https://api.datamuse.com/words?rel_spc=${encodeURIComponent(w.en)}&max=10`)
-                .then(r => r.json()).catch(() => []),
+            fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.en)}`).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(w.en)}&max=50`).then(r => r.json()).catch(() => []),
+            fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(w.en)}&max=50`).then(r => r.json()).catch(() => []),
+            fetch(`https://api.datamuse.com/words?rel_spc=${encodeURIComponent(w.en)}&max=10`).then(r => r.json()).catch(() => []),
         ]);
-
         const dmSynSet = toWords(dmSynRes.status === 'fulfilled' ? dmSynRes.value : []);
         const dmAntSet = toWords(dmAntRes.status === 'fulfilled' ? dmAntRes.value : []);
-        // rel_spc: 상위 개념 (e.g. "dog" → ["animal","canine","pet"])
         const dmSpcSet = toWords(dmSpcRes.status === 'fulfilled' ? dmSpcRes.value : []);
-
-        // Free Dictionary API에서 sense별 syn/ant 추출
         let fdSyn = [], fdAnt = [];
         const fdData = freeDictRes.status === 'fulfilled' ? freeDictRes.value : null;
         if (Array.isArray(fdData)) {
             fdData.forEach(entry => {
                 (entry.meanings || []).forEach(m => {
-                    // 품사 레벨 syn/ant
-                    fdSyn.push(...toWords(m.synonyms));
-                    fdAnt.push(...toWords(m.antonyms));
-                    // 정의 레벨 syn/ant
-                    (m.definitions || []).forEach(d => {
-                        fdSyn.push(...toWords(d.synonyms));
-                        fdAnt.push(...toWords(d.antonyms));
-                    });
+                    fdSyn.push(...toWords(m.synonyms)); fdAnt.push(...toWords(m.antonyms));
+                    (m.definitions || []).forEach(d => { fdSyn.push(...toWords(d.synonyms)); fdAnt.push(...toWords(d.antonyms)); });
                 });
             });
         }
-
-        // 병합 + 중복 제거 (Set 사용)
         const selfWord = w.en.toLowerCase();
         const mergeDedupe = (...arrays) => {
-            const seen = new Set([selfWord]);
-            const result = [];
-            for (const arr of arrays) {
-                for (const word of arr) {
-                    const clean = word.replace(/_/g, ' ').trim();
-                    if (clean && !seen.has(clean)) { seen.add(clean); result.push(clean); }
-                }
-            }
+            const seen = new Set([selfWord]); const result = [];
+            for (const arr of arrays) { for (const word of arr) { const clean = word.replace(/_/g, ' ').trim(); if (clean && !seen.has(clean)) { seen.add(clean); result.push(clean); } } }
             return result;
         };
-
-        // Free Dictionary를 앞에 (더 신뢰도 높음), Datamuse를 뒤에 (커버리지 보완)
         w.nlp.syn = mergeDedupe(fdSyn, dmSynSet);
         w.nlp.ant = mergeDedupe(fdAnt, dmAntSet);
-        w.nlp.spc = dmSpcSet; // 상위 개념 — 카테고리 분류에 사용
-        w.nlp.fetched = true;
-        return true;
-    } catch(e) {
-        w.nlp.fetched = true;
-        return false;
-    }
+        w.nlp.spc = dmSpcSet;
+        w.nlp.fetched = true; return true;
+    } catch(e) { w.nlp.fetched = true; return false; }
 }
 
-// 병렬 배치 fetch — BATCH_SIZE개씩 동시 요청 (직렬 대비 ~5-8배 빠름)
 async function enrichWordsBatch(wordsToFetch, onProgress) {
-    const BATCH_SIZE = 6; // datamuse rate-limit 고려
-    let done = 0;
+    const BATCH_SIZE = 6; let done = 0;
     for (let i = 0; i < wordsToFetch.length; i += BATCH_SIZE) {
         const batch = wordsToFetch.slice(i, i + BATCH_SIZE);
         await Promise.allSettled(batch.map(w => enrichWord(w)));
-        done += batch.length;
-        onProgress(done, wordsToFetch.length);
-        // 브라우저에 프레임 양보 (UI 렉 방지)
+        done += batch.length; onProgress(done, wordsToFetch.length);
         await new Promise(r => setTimeout(r, 0));
     }
 }
@@ -1694,32 +2250,39 @@ async function runNLPGrouping() {
     const loadingUI = document.getElementById('group-loading');
     const progressBar = document.getElementById('nlp-progress-bar');
     const progressText = document.getElementById('nlp-progress-text');
+    const loadingMsg = document.getElementById('nlp-loading-msg');
     loadingUI.style.display = 'flex';
     progressBar.style.width = '0%';
 
+    // ── Step 1: enrichWord (사전 데이터 수집) ──
+    loadingMsg.textContent = '영영사전 데이터 수집 중...';
     const needsFetch = words.filter(w => !w.nlp || !w.nlp.fetched);
-    const totalToFetch = needsFetch.length;
-    const alreadyCached = words.length - totalToFetch;
-
-    // 캐시된 단어는 즉시 진행률 반영
+    const alreadyCached = words.length - needsFetch.length;
     if (alreadyCached > 0) {
-        progressBar.style.width = `${Math.round(alreadyCached / words.length * 100)}%`;
+        progressBar.style.width = `${Math.round(alreadyCached / words.length * 50)}%`;
         progressText.textContent = `${alreadyCached} / ${words.length} (캐시)`;
     }
-
-    let offlineWarning = !navigator.onLine && needsFetch.length > 0;
     if (needsFetch.length > 0) {
         await enrichWordsBatch(needsFetch, (done, total) => {
             const overall = alreadyCached + done;
-            progressBar.style.width = `${Math.round(overall / words.length * 100)}%`;
+            progressBar.style.width = `${Math.round(overall / words.length * 50)}%`;
             progressText.textContent = `${overall} / ${words.length}`;
         });
-        saveData({ skipRender: true, skipCloud: false });
-    } else {
-        progressBar.style.width = '100%';
-        progressText.textContent = `${words.length} / ${words.length}`;
+        saveData({ skipRender: true });
     }
-    if(offlineWarning) showToast("오프라인 상태입니다. 캐싱된 데이터만 활용합니다.", "info");
+    progressBar.style.width = '50%';
+
+    // ── Step 2: 한국어 의미 클러스터 그룹핑 (오프라인) ──
+    loadingMsg.textContent = '한국어 뜻 의미 분석 중... 🧠';
+    progressText.textContent = '유의어 DB 매핑';
+
+    const koGroups = runKoClusterGrouping(words);
+    progressBar.style.width = '75%';
+    renderAIMeaningGroups(koGroups);
+
+    // ── Step 3: 기존 NLP 분석 ──
+    loadingMsg.textContent = '어근·접두사·유의어 분석 중...';
+
     function buildCard(title, groupArr) {
         const card = document.createElement('div');
         card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
@@ -1727,85 +2290,32 @@ async function runNLPGrouping() {
         card.innerHTML = `<div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-700"><h4 class="text-base font-black text-white flex items-center gap-2 truncate pr-2">${title}</h4><span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span></div><div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>`;
         return card;
     }
-    // ── 어근 그룹: 정확도 개선 ──
-    // 기존: getStem이 너무 공격적 (e.g., "create"→"creat", "creative"→"creat" → 맞음)
-    // 개선: 어근이 3자 미만이거나 불규칙 동사 등 의미없는 매칭 필터링
-    //       + 어근 일치 외에도 실제 단어 포함 관계 검증 (false positive 제거)
+
     const COMMON_STEMS_BLACKLIST = new Set(['th','wh','be','do','go','ha','re','in','an','on','at','is','it','of','to','by','no','up','us','we','so']);
     let stemGroups = {};
     words.forEach(w => {
         if (!w.nlp) return;
         const stem = w.nlp.stem;
-        if (!stem || stem.length < 4) return;               // 3자 이하 어근 제외
-        if (COMMON_STEMS_BLACKLIST.has(stem)) return;        // 의미없는 접두 제외
-        // 어근이 실제로 단어에 포함되는지 검증 (false positive 방지)
+        if (!stem || stem.length < 4) return;
+        if (COMMON_STEMS_BLACKLIST.has(stem)) return;
         if (!w.en.toLowerCase().startsWith(stem) && !w.en.toLowerCase().includes(stem)) return;
         if (!stemGroups[stem]) stemGroups[stem] = [];
         stemGroups[stem].push(w);
     });
-    // 추가: simMatrix 기반 의미 유사도 높은 단어도 한국어 의미 그룹으로 묶기
-    const SIM_GROUP_THRESHOLD = 35; // 35% 이상 유사하면 같은 의미 그룹
-    let simGroups = {};
-    words.forEach(w => {
-        const simRow = simMatrix[w.id] || {};
-        words.forEach(other => {
-            if (other.id === w.id) return;
-            const sim = simRow[other.id] || 0;
-            if (sim >= SIM_GROUP_THRESHOLD && sim < SIM_DUP) {
-                // 두 단어 중 더 작은 ID를 키로 사용
-                const key = Math.min(w.id, other.id) + '_' + Math.max(w.id, other.id);
-                if (!simGroups[key]) simGroups[key] = new Set([w, other]);
-                else { simGroups[key].add(w); simGroups[key].add(other); }
-            }
-        });
-    });
-    // simGroups를 Union-Find로 병합 (연결 컴포넌트)
-    const simUfParent = new Map(words.map(w => [w.id, w.id]));
-    function simUfFind(id) { if (simUfParent.get(id) !== id) simUfParent.set(id, simUfFind(simUfParent.get(id))); return simUfParent.get(id); }
-    Object.values(simGroups).forEach(pair => {
-        const arr = [...pair];
-        for (let i = 1; i < arr.length; i++) simUfParent.set(simUfFind(arr[i].id), simUfFind(arr[0].id));
-    });
-    const koMeanGroups = new Map();
-    words.forEach(w => {
-        const root = simUfFind(w.id);
-        const comp = words.filter(x => simUfFind(x.id) === root);
-        if (comp.length > 1) koMeanGroups.set(root, comp);
-    });
-
     const stemGrid = document.getElementById('nlp-stem-grid');
     stemGrid.innerHTML = '';
     let stemFound = false;
-    Object.keys(stemGroups).forEach(stem => {
-        if (stemGroups[stem].length > 1) {
-            stemGrid.appendChild(buildCard(`어근 [ ${stem}- ]`, stemGroups[stem]));
-            stemFound = true;
-        }
-    });
-    // 한국어 의미 유사 그룹 추가 표시
-    koMeanGroups.forEach((group, rootId) => {
-        // 어근 그룹과 겹치지 않는 새로운 그룹만 추가
-        const rootWord = words.find(w => w.id === rootId);
-        if (rootWord) {
-            stemGrid.appendChild(buildCard(`🇰🇷 의미 유사 그룹 (${rootWord.ko} 계열)`, group));
-            stemFound = true;
-        }
-    });
+    Object.keys(stemGroups).forEach(stem => { if (stemGroups[stem].length > 1) { stemGrid.appendChild(buildCard(`어근 [ ${stem}- ]`, stemGroups[stem])); stemFound = true; } });
     if(!stemFound) stemGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">같은 어근을 공유하는 단어가 없습니다.</p>';
-    // ── 접두사 그룹: 정확도 개선 ──
-    // 기존: prefix 일치만 확인 → false positive (e.g., "remark"≠"re-mark")
-    // 개선: 접두사 제거 후 남은 어간이 2자 이상이고 실제 영어 단어처럼 보이는지 검증
+
     const VOWELS = new Set('aeiou');
-    function isLikelyWord(s) {
-        // 2자 이상이고 모음이 1개 이상 포함되어야 영어 어간으로 인정
-        return s.length >= 2 && [...s].some(c => VOWELS.has(c));
-    }
+    function isLikelyWord(s) { return s.length >= 2 && [...s].some(c => VOWELS.has(c)); }
     let prefixGroups = {};
     words.forEach(w => {
         if (!w.nlp || !w.nlp.prefix) return;
         const prefix = w.nlp.prefix;
         const stem = w.en.toLowerCase().slice(prefix.p.length);
-        if (!isLikelyWord(stem)) return; // false positive 필터
+        if (!isLikelyWord(stem)) return;
         const pkey = prefix.p;
         if (!prefixGroups[pkey]) prefixGroups[pkey] = { title: `${prefix.p}- (${prefix.m})`, arr: [] };
         prefixGroups[pkey].arr.push(w);
@@ -1813,7 +2323,6 @@ async function runNLPGrouping() {
     const prefixGrid = document.getElementById('nlp-prefix-grid');
     prefixGrid.innerHTML = '';
     let prefixFound = false;
-    // 2개 이상 + 어군 크기 순 정렬
     function buildPrefixCard(prefixInfo, groupArr) {
         const card = document.createElement('div');
         card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
@@ -1821,95 +2330,43 @@ async function runNLPGrouping() {
             `<span class="chip bg-gray-900 text-amber-300 border border-gray-700 hover:bg-gray-800 cursor-pointer font-black" onclick="openAnalysis(${w.id})" title="${w.ko}">
                 <span class="text-amber-500 font-black">${w.en.slice(0, prefixInfo.p.length)}</span><span class="text-white">${w.en.slice(prefixInfo.p.length)}</span>
                 <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span>
-            </span>`
-        ).join('');
-        // 접두사 ex 필드에서 단어장에 없는 예시 단어들
+            </span>`).join('');
         const exWords = (prefixInfo.ex || '').split(',').map(s=>s.trim()).filter(Boolean);
-        const exHtml = exWords.length
-            ? `<div class="mt-3 pt-3 border-t border-gray-700/50">
-                <p class="text-[10px] font-black text-gray-500 uppercase tracking-wide mb-1.5">대표 예시</p>
-                <p class="text-xs text-gray-500 font-bold leading-relaxed">${exWords.join(' · ')}</p>
-               </div>`
-            : '';
-        card.innerHTML = `
-            <div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-700">
-                <div class="min-w-0">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-lg font-black text-amber-400 font-mono">${prefixInfo.p}-</span>
-                        <span class="text-xs font-black text-gray-400 uppercase tracking-wide">${prefixInfo.m}</span>
-                    </div>
-                </div>
-                <span class="text-[10px] font-black text-amber-400 bg-amber-900/30 border border-amber-700/50 px-2 py-1 rounded-full whitespace-nowrap ml-2 flex-shrink-0">${groupArr.length}단어</span>
-            </div>
-            <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>
-            ${exHtml}`;
+        const exHtml = exWords.length ? `<div class="mt-3 pt-3 border-t border-gray-700/50"><p class="text-[10px] font-black text-gray-500 uppercase tracking-wide mb-1.5">대표 예시</p><p class="text-xs text-gray-500 font-bold leading-relaxed">${exWords.join(' · ')}</p></div>` : '';
+        card.innerHTML = `<div class="flex items-start justify-between mb-3 pb-3 border-b border-gray-700"><div class="min-w-0"><div class="flex items-baseline gap-2"><span class="text-lg font-black text-amber-400 font-mono">${prefixInfo.p}-</span><span class="text-xs font-black text-gray-400 uppercase tracking-wide">${prefixInfo.m}</span></div></div><span class="text-[10px] font-black text-amber-400 bg-amber-900/30 border border-amber-700/50 px-2 py-1 rounded-full whitespace-nowrap ml-2 flex-shrink-0">${groupArr.length}단어</span></div><div class="flex flex-wrap gap-2 items-start content-start flex-1">${chipsHtml}</div>${exHtml}`;
         return card;
     }
-
-    Object.entries(prefixGroups)
-        .filter(([, v]) => v.arr.length > 1)
-        .sort(([, a], [, b]) => b.arr.length - a.arr.length)
-        .forEach(([pkey, v]) => {
-            const prefixInfo = PREFIX_DICT_SORTED.find(pr => pr.p === pkey) || {p: pkey, m: '', ex: ''};
-            prefixGrid.appendChild(buildPrefixCard(prefixInfo, v.arr));
-            prefixFound = true;
-        });
+    Object.entries(prefixGroups).filter(([, v]) => v.arr.length > 1).sort(([, a], [, b]) => b.arr.length - a.arr.length).forEach(([pkey, v]) => {
+        const prefixInfo = PREFIX_DICT_SORTED.find(pr => pr.p === pkey) || {p: pkey, m: '', ex: ''};
+        prefixGrid.appendChild(buildPrefixCard(prefixInfo, v.arr));
+        prefixFound = true;
+    });
     if(!prefixFound) prefixGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">공통 접두사를 가진 단어가 없습니다.</p>';
-    // ── 유의어/반의어 그래프 — Union-Find로 정확한 연결 컴포넌트 추출 ──
-    // 기존: shift() 기반 그리디 → 노드 순서에 따라 그룹이 달라지는 버그
-    // 개선: Union-Find로 모든 엣지를 먼저 처리 후 컴포넌트 추출 (순서 무관)
-    const ufParent = new Map(words.map(w => [w.id, w.id]));
-    function ufFind(id) {
-        if (ufParent.get(id) !== id) ufParent.set(id, ufFind(ufParent.get(id)));
-        return ufParent.get(id);
-    }
-    function ufUnion(a, b) { ufParent.set(ufFind(a), ufFind(b)); }
 
-    // 엣지 판별: 양방향 유의어/반의어 확인 (단방향만 있어도 연결)
+    // 유의어/반의어 Union-Find
+    const ufParent = new Map(words.map(w => [w.id, w.id]));
+    function ufFind(id) { if (ufParent.get(id) !== id) ufParent.set(id, ufFind(ufParent.get(id))); return ufParent.get(id); }
+    function ufUnion(a, b) { ufParent.set(ufFind(a), ufFind(b)); }
     for (let i = 0; i < words.length; i++) {
         for (let j = i + 1; j < words.length; j++) {
             const a = words[i], b = words[j];
             if (!a.nlp || !b.nlp) continue;
             const aen = a.en.toLowerCase(), ben = b.en.toLowerCase();
-            const aSyn = a.nlp.syn || [], aAnt = a.nlp.ant || [];
-            const bSyn = b.nlp.syn || [], bAnt = b.nlp.ant || [];
-            const connected =
-                aSyn.includes(ben) || bSyn.includes(aen) ||
-                aAnt.includes(ben) || bAnt.includes(aen);
+            const connected = (a.nlp.syn||[]).includes(ben) || (b.nlp.syn||[]).includes(aen) || (a.nlp.ant||[]).includes(ben) || (b.nlp.ant||[]).includes(aen);
             if (connected) ufUnion(a.id, b.id);
         }
     }
-    // 컴포넌트 수집
     const synAntMap = new Map();
-    words.forEach(w => {
-        const root = ufFind(w.id);
-        if (!synAntMap.has(root)) synAntMap.set(root, []);
-        synAntMap.get(root).push(w);
-    });
+    words.forEach(w => { const root = ufFind(w.id); if (!synAntMap.has(root)) synAntMap.set(root, []); synAntMap.get(root).push(w); });
     const synAntGroups = [...synAntMap.values()].filter(g => g.length > 1);
-
-    // 그룹 내 각 단어의 관계 타입 표시 (유의어 / 반의어 구분)
-    function getRelationType(a, b) {
-        const aen = a.en.toLowerCase(), ben = b.en.toLowerCase();
-        const isSyn = (a.nlp?.syn||[]).includes(ben) || (b.nlp?.syn||[]).includes(aen);
-        const isAnt = (a.nlp?.ant||[]).includes(ben) || (b.nlp?.ant||[]).includes(aen);
-        if (isSyn && isAnt) return '유의+반의';
-        if (isSyn) return '유의어';
-        if (isAnt) return '반의어';
-        return '간접';
-    }
-
-    // 그룹 카드: 관계 타입 뱃지 추가
     function buildSynAntCard(title, groupArr) {
         const card = document.createElement('div');
         card.className = 'neon-card p-6 rounded-3xl flex flex-col h-full fade-in';
-        // 그룹 내 관계 요약
-        let relSummary = '';
         const hasSyn = groupArr.some((w,i) => groupArr.slice(i+1).some(w2 => (w.nlp?.syn||[]).includes(w2.en.toLowerCase()) || (w2.nlp?.syn||[]).includes(w.en.toLowerCase())));
         const hasAnt = groupArr.some((w,i) => groupArr.slice(i+1).some(w2 => (w.nlp?.ant||[]).includes(w2.en.toLowerCase()) || (w2.nlp?.ant||[]).includes(w.en.toLowerCase())));
+        let relSummary = '';
         if (hasSyn) relSummary += '<span class="text-[10px] font-black bg-purple-900/50 text-purple-300 border border-purple-700 px-2 py-0.5 rounded-full">유의어 포함</span> ';
         if (hasAnt) relSummary += '<span class="text-[10px] font-black bg-rose-900/50 text-rose-300 border border-rose-700 px-2 py-0.5 rounded-full">반의어 포함</span>';
-        // 각 단어의 그룹 내 관계 파악
         const wordMap = new Map(groupArr.map(w => [w.en.toLowerCase(), w]));
         let chipsHtml = groupArr.map(w => {
             const wen = w.en.toLowerCase();
@@ -1918,50 +2375,35 @@ async function runNLPGrouping() {
             let relTags = '';
             if (synLinks.length) relTags += `<span class="text-[9px] text-purple-400 font-bold bg-purple-900/30 px-1.5 py-0.5 rounded-full border border-purple-700/50">≈ ${synLinks.join(', ')}</span> `;
             if (antLinks.length) relTags += `<span class="text-[9px] text-rose-400 font-bold bg-rose-900/30 px-1.5 py-0.5 rounded-full border border-rose-700/50">↔ ${antLinks.join(', ')}</span>`;
-            return `<div class="flex flex-col gap-1 min-w-0">
-                <span class="chip bg-gray-900 text-indigo-300 border border-gray-700 hover:bg-gray-800 cursor-pointer" onclick="openAnalysis(${w.id})">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span></span>
-                ${relTags ? `<div class="flex flex-wrap gap-1 pl-1">${relTags}</div>` : ''}
-            </div>`;
+            return `<div class="flex flex-col gap-1 min-w-0"><span class="chip bg-gray-900 text-indigo-300 border border-gray-700 hover:bg-gray-800 cursor-pointer" onclick="openAnalysis(${w.id})">${w.en} <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span></span>${relTags ? `<div class="flex flex-wrap gap-1 pl-1">${relTags}</div>` : ''}</div>`;
         }).join('');
-        card.innerHTML = `
-            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700">
-                <h4 class="text-base font-black text-white truncate pr-2">${title}</h4>
-                <span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span>
-            </div>
-            <div class="flex gap-1.5 mb-3">${relSummary}</div>
-            <div class="flex flex-wrap gap-3 items-start content-start flex-1">${chipsHtml}</div>`;
+        card.innerHTML = `<div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700"><h4 class="text-base font-black text-white truncate pr-2">${title}</h4><span class="text-[10px] font-black text-indigo-400 bg-gray-800 px-2 py-1 rounded-full whitespace-nowrap border border-gray-700">${groupArr.length}단어</span></div><div class="flex gap-1.5 mb-3">${relSummary}</div><div class="flex flex-wrap gap-3 items-start content-start flex-1">${chipsHtml}</div>`;
         return card;
     }
-
     const synantGrid = document.getElementById('nlp-synant-grid');
     synantGrid.innerHTML = synAntGroups.length ? '' : '<p class="text-gray-500 font-bold text-sm">유의어/반의어로 묶이는 단어가 없습니다.</p>';
     synAntGroups.sort((a,b)=>b.length-a.length).forEach((g, idx) => { synantGrid.appendChild(buildSynAntCard(`의미 연결망 ${idx+1}`, g)); });
-    loadingUI.style.display = 'none';
-    // ── 4. 주제별 카테고리 분류 ───────────────────────────────────────
+
+    // 카테고리 분류
     const categoryGrid = document.getElementById('nlp-category-grid');
     categoryGrid.innerHTML = '';
     const catGroups = buildCategoryGroups(words);
     let catFound = false;
-    Object.entries(catGroups)
-        .filter(([,g]) => g.words.length > 0)
-        .sort(([,a],[,b]) => b.words.length - a.words.length)
-        .forEach(([catKey, g]) => {
-            categoryGrid.appendChild(buildCategoryCard(catKey, g));
-            catFound = true;
-        });
+    Object.entries(catGroups).filter(([,g]) => g.words.length > 0).sort(([,a],[,b]) => b.words.length - a.words.length).forEach(([catKey, g]) => { categoryGrid.appendChild(buildCategoryCard(catKey, g)); catFound = true; });
     if(!catFound) categoryGrid.innerHTML = '<p class="text-gray-500 font-bold text-sm">분류 가능한 카테고리가 없습니다.</p>';
 
+    progressBar.style.width = '100%';
+    loadingUI.style.display = 'none';
     document.getElementById('group-container').style.display = 'flex';
     } catch(err) {
         console.error('[NLP ERROR]', err);
         showToast('NLP 오류: ' + err.message, 'error');
-        const loadingUI = document.getElementById('group-loading');
-        if(loadingUI){ loadingUI.style.display = 'none'; }
+        document.getElementById('group-loading').style.display = 'none';
     }
 }
 
 // ==============================
-// 분석 탭 (기존 유지)
+// 분석 탭
 // ==============================
 function openAnalysis(id){const w=words.find(x=>x.id===id);if(!w)return;switchTab('analysis');setTimeout(()=>selectAnalysisWord(w),60);}
 function filterAnalysisWords(){renderAnalysisDD(document.getElementById('analysis-search').value.toLowerCase());}
@@ -1970,105 +2412,61 @@ function renderAnalysisDD(q=''){
   const dd=document.getElementById('analysis-dropdown');
   const f=words.filter(w=>w.en.toLowerCase().includes(q)||w.ko.includes(q));
   if(!f.length){dd.classList.add('hidden');return;}
-  dd.innerHTML=f.slice(0,50).map(w=>`<button
-    class="w-full text-left px-5 py-3.5 flex justify-between items-center border-b border-gray-700/60 last:border-0"
-    style="background:transparent;transition:background 0.1s;"
-    onmouseenter="this.style.background='rgba(55,65,81,0.8)'"
-    onmouseleave="this.style.background='transparent'"
-    onclick="selectAnalysisWord(words.find(x=>x.id===${w.id}))"
-    ><span class="font-black text-white text-sm">${w.en}</span><span class="text-xs font-bold text-indigo-400 ml-3 flex-shrink-0">${w.ko}</span></button>`).join('');
+  dd.innerHTML=f.slice(0,50).map(w=>`<button class="w-full text-left px-5 py-3.5 flex justify-between items-center border-b border-gray-700/60 last:border-0" style="background:transparent;transition:background 0.1s;" onmouseenter="this.style.background='rgba(55,65,81,0.8)'" onmouseleave="this.style.background='transparent'" onclick="selectAnalysisWord(words.find(x=>x.id===${w.id}))"><span class="font-black text-white text-sm">${w.en}</span><span class="text-xs font-bold text-indigo-400 ml-3 flex-shrink-0">${w.ko}</span></button>`).join('');
   dd.classList.remove('hidden');
 }
 function selectAnalysisWord(w, pushHistory=true){
   if(!w) return;
-  // 히스토리 쌓기 (현재 단어가 있고, 다른 단어로 이동할 때만)
-  if(pushHistory && analysisWord && analysisWord.id !== w.id){
-    _analysisHistory.push(analysisWord);
-    if(_analysisHistory.length > 20) _analysisHistory.shift();
-  }
+  if(pushHistory && analysisWord && analysisWord.id !== w.id){ _analysisHistory.push(analysisWord); if(_analysisHistory.length > 20) _analysisHistory.shift(); }
   analysisWord=w;
   document.getElementById('analysis-search').value='';
   document.getElementById('analysis-dropdown').classList.add('hidden');
   document.getElementById('analysis-word-en-display').textContent=w.en;
   document.getElementById('analysis-word-ko-display').textContent=w.ko;
   document.getElementById('analysis-selected-word').classList.remove('hidden');
-  // 뒤로가기 버튼 표시/숨김
-  const backBtn = document.getElementById('analysis-back-btn');
-  const posEl = document.getElementById('analysis-history-pos');
-  if(_analysisHistory.length > 0){
-    backBtn.classList.remove('hidden');
-    posEl.textContent = _analysisHistory.length + '단계 전';
-  } else {
-    backBtn.classList.add('hidden');
-    posEl.textContent = '';
-  }
+  const backBtn = document.getElementById('analysis-back-btn'), posEl = document.getElementById('analysis-history-pos');
+  if(_analysisHistory.length > 0){ backBtn.classList.remove('hidden'); posEl.textContent = _analysisHistory.length + '단계 전'; }
+  else { backBtn.classList.add('hidden'); posEl.textContent = ''; }
   runAnalysis(w);
 }
-
-function analysisGoBack(){
-  if(!_analysisHistory.length) return;
-  const prev = _analysisHistory.pop();
-  selectAnalysisWord(prev, false); // 뒤로가기는 히스토리에 안 쌓음
-}
+function analysisGoBack(){ if(!_analysisHistory.length) return; const prev = _analysisHistory.pop(); selectAnalysisWord(prev, false); }
 function clearAnalysisWord(){
-  analysisWord=null;
-  _analysisHistory=[];
+  analysisWord=null; _analysisHistory=[];
   document.getElementById('analysis-selected-word').classList.add('hidden');
   document.getElementById('analysis-result').classList.add('hidden');
   document.getElementById('analysis-loading').classList.add('hidden');
   document.getElementById('analysis-placeholder').classList.remove('hidden');
 }
 
-// 분석 결과 메모리 캐시 (같은 세션 내 재방문 시 즉시 표시)
 const _analysisCache = new Map();
 
 async function runAnalysis(w){
   document.getElementById('analysis-placeholder').classList.add('hidden');
   document.getElementById('analysis-result').classList.add('hidden');
   document.getElementById('analysis-loading').classList.remove('hidden');
-
-  // ── 캐시 히트: 로딩 없이 즉시 렌더 ──
   if (_analysisCache.has(w.en)) {
     document.getElementById('analysis-loading').classList.add('hidden');
     document.getElementById('analysis-result').classList.remove('hidden');
     const cached = _analysisCache.get(w.en);
-    _renderAnalysisResult(w, ...cached);
-    return;
+    _renderAnalysisResult(w, ...cached); return;
   }
-
-  const fetchDM = async (p) => {
-    try {
-      const r = await fetch(`https://api.datamuse.com/words?${p}`);
-      return r.ok ? r.json() : [];
-    } catch { return []; }
-  };
-
-  // ── 1단계: 핵심 데이터 — 사전(정의/예문/발음) + 유의어/반의어 동시 로드 ──
-  // 전략: Free Dictionary API(sense별 풍부한 syn/ant) + Datamuse rel_syn max=30 병합
+  const fetchDM = async (p) => { try { const r = await fetch(`https://api.datamuse.com/words?${p}`); return r.ok ? r.json() : []; } catch { return []; } };
   const [dictData, synExact, antExact] = await Promise.all([
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.en)}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => Array.isArray(d) ? d[0] : null)
-      .catch(() => null),
-    fetchDM(`rel_syn=${encodeURIComponent(w.en)}&max=30`),   // WordNet 유의어 (max 증가)
-    fetchDM(`rel_ant=${encodeURIComponent(w.en)}&max=20`),   // WordNet 반의어 (max 증가)
+    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.en)}`).then(r => r.ok ? r.json() : null).then(d => Array.isArray(d) ? d[0] : null).catch(() => null),
+    fetchDM(`rel_syn=${encodeURIComponent(w.en)}&max=30`),
+    fetchDM(`rel_ant=${encodeURIComponent(w.en)}&max=20`),
   ]);
-
-  // 1단계 즉시 표시
   document.getElementById('analysis-loading').classList.add('hidden');
   document.getElementById('analysis-result').classList.remove('hidden');
-
-  // ── 2단계: 연관어/콜로케이션 (백그라운드 병렬 로드) ──
   const [relTrg, relSpc, relGen, colAdj, colNoun, colBefore, colAfter] = await Promise.all([
-    fetchDM(`rel_trg=${encodeURIComponent(w.en)}&max=15`),   // 연상어
-    fetchDM(`rel_spc=${encodeURIComponent(w.en)}&max=10`),   // 상위 개념 (e.g. dog → animal)
-    fetchDM(`rel_gen=${encodeURIComponent(w.en)}&max=10`),   // 하위 개념 (e.g. animal → dog)
-    fetchDM(`rel_jja=${encodeURIComponent(w.en)}&max=12`),   // 수식 형용사 (e.g. ocean → vast)
-    fetchDM(`rel_jjb=${encodeURIComponent(w.en)}&max=12`),   // 형용사→명사 (e.g. happy → person)
-    fetchDM(`rel_bga=${encodeURIComponent(w.en)}&max=10`),   // bigram 앞 단어
-    fetchDM(`rel_bgb=${encodeURIComponent(w.en)}&max=10`),   // bigram 뒤 단어
+    fetchDM(`rel_trg=${encodeURIComponent(w.en)}&max=15`),
+    fetchDM(`rel_spc=${encodeURIComponent(w.en)}&max=10`),
+    fetchDM(`rel_gen=${encodeURIComponent(w.en)}&max=10`),
+    fetchDM(`rel_jja=${encodeURIComponent(w.en)}&max=12`),
+    fetchDM(`rel_jjb=${encodeURIComponent(w.en)}&max=12`),
+    fetchDM(`rel_bga=${encodeURIComponent(w.en)}&max=10`),
+    fetchDM(`rel_bgb=${encodeURIComponent(w.en)}&max=10`),
   ]);
-
   const cacheVal = [dictData, synExact, antExact, relTrg, relSpc, relGen, colAdj, colNoun, colBefore, colAfter];
   _analysisCache.set(w.en, cacheVal);
   _renderAnalysisResult(w, ...cacheVal);
@@ -2077,8 +2475,7 @@ async function runAnalysis(w){
 async function _renderAnalysisResult(w, dictData, synExact, antExact, relTrg, relSpc, relGen, colAdj, colNoun, colBefore, colAfter) {
   document.getElementById('ar-word').textContent=w.en;
   let dictSyns=[], dictAnts=[];
-  const examplesEl = document.getElementById('ar-examples');
-  examplesEl.innerHTML='';
+  const examplesEl = document.getElementById('ar-examples'); examplesEl.innerHTML='';
   if(dictData){
     document.getElementById('ar-definition').textContent=dictData.meanings?.[0]?.definitions?.[0]?.definition||'사전 정보 없음';
     document.getElementById('ar-phonetic').textContent=dictData.phonetics?.find(p=>p.text)?.text||'';
@@ -2086,22 +2483,13 @@ async function _renderAnalysisResult(w, dictData, synExact, antExact, relTrg, re
     const aBtn = document.getElementById('ar-audio-btn');
     aBtn.classList.remove('hidden');
     aBtn.innerHTML = aUrl ? '🔊 <span class="hidden sm:inline">원어민 발음</span>' : '🤖 <span class="hidden sm:inline">TTS 발음</span>';
-    aBtn.onclick = () => {
-        if(aUrl) { new Audio(aUrl).play(); }
-        else { const u=new SpeechSynthesisUtterance(w.en);u.lang='en-US';window.speechSynthesis.speak(u); }
-    };
+    aBtn.onclick = () => { if(aUrl) { new Audio(aUrl).play(); } else { const u=new SpeechSynthesisUtterance(w.en);u.lang='en-US';window.speechSynthesis.speak(u); } };
     const posSet=new Set();
-    // ── 개선: 품사 레벨 + 정의 레벨 syn/ant 모두 수집 (기존: 품사 레벨만)
     dictData.meanings?.forEach(m=>{
         if(m.partOfSpeech) posSet.add(m.partOfSpeech);
-        // 품사 레벨
         if(m.synonyms?.length) dictSyns.push(...m.synonyms.map(s=>({word:s.toLowerCase()})));
         if(m.antonyms?.length) dictAnts.push(...m.antonyms.map(a=>({word:a.toLowerCase()})));
-        // 정의 레벨 (더 많은 syn/ant 포함)
-        m.definitions?.forEach(d => {
-            if(d.synonyms?.length) dictSyns.push(...d.synonyms.map(s=>({word:s.toLowerCase()})));
-            if(d.antonyms?.length) dictAnts.push(...d.antonyms.map(a=>({word:a.toLowerCase()})));
-        });
+        m.definitions?.forEach(d => { if(d.synonyms?.length) dictSyns.push(...d.synonyms.map(s=>({word:s.toLowerCase()}))); if(d.antonyms?.length) dictAnts.push(...d.antonyms.map(a=>({word:a.toLowerCase()}))); });
     });
     const posStr=Array.from(posSet).join(', ');
     document.getElementById('ar-partOfSpeech').textContent=posStr;
@@ -2133,10 +2521,7 @@ async function _renderAnalysisResult(w, dictData, synExact, antExact, relTrg, re
   const newCands=new Set();
   function renderChips(elId, items, cls){
     const el=document.getElementById(elId);
-    if(!items.length){
-      el.innerHTML='<span class="text-sm font-bold text-gray-400 italic">해당 데이터 없음 (단어에 따라 API 미지원)</span>';
-      return;
-    }
+    if(!items.length){el.innerHTML='<span class="text-sm font-bold text-gray-400 italic">해당 데이터 없음</span>';return;}
     el.innerHTML='';
     const frag = document.createDocumentFragment();
     items.forEach(item=>{
@@ -2144,11 +2529,9 @@ async function _renderAnalysisResult(w, dictData, synExact, antExact, relTrg, re
       const inBook = existingEn.has(wordLower);
       if(!inBook) newCands.add(item.word);
       const span=document.createElement('span');
-      // 단어장 내 단어는 더 밝고 강조된 스타일
       span.className = inBook ? `chip ${cls} ring-1 ring-indigo-400/50 font-black` : `chip ${cls}`;
       const inBookWord = words.find(x=>x.en.toLowerCase()===wordLower);
       const knownKo = inBookWord ? inBookWord.ko : null;
-      // 단어장 내 단어: 📚 아이콘으로 명확하게 표시
       const label = inBook ? `📚 ${item.word}` : item.word;
       span.appendChild(document.createTextNode(label));
       const tooltip=document.createElement('span');
@@ -2158,16 +2541,7 @@ async function _renderAnalysisResult(w, dictData, synExact, antExact, relTrg, re
       span.onclick = async () => {
           const found=words.find(x=>x.en.toLowerCase()===wordLower);
           if(found){selectAnalysisWord(found);}
-          else{
-              span.classList.add('force-tooltip');
-              if(!knownKo && !span.dataset.fetched){
-                span.dataset.fetched="true";
-                tooltip.classList.remove('loading');
-                tooltip.textContent='번역 중...';
-                tooltip.textContent=await getTranslationSafe(item.word);
-              }
-              setTimeout(()=>span.classList.remove('force-tooltip'),3000);
-          }
+          else{ span.classList.add('force-tooltip'); if(!knownKo && !span.dataset.fetched){span.dataset.fetched="true";tooltip.classList.remove('loading');tooltip.textContent='번역 중...';tooltip.textContent=await getTranslationSafe(item.word);} setTimeout(()=>span.classList.remove('force-tooltip'),3000); }
       };
       if(!knownKo){span.addEventListener('mouseenter',async()=>{if(span.dataset.fetched)return;span.dataset.fetched=true;tooltip.textContent=await getTranslationSafe(item.word);tooltip.classList.remove('loading');});}
       frag.appendChild(span);
@@ -2175,19 +2549,15 @@ async function _renderAnalysisResult(w, dictData, synExact, antExact, relTrg, re
     el.appendChild(frag);
   }
   const mergeWords=(...arrays)=>{const map=new Map();arrays.flat().forEach(item=>{if(item&&item.word&&item.word.toLowerCase()!==w.en.toLowerCase()){map.set(item.word.toLowerCase(),item);}});return Array.from(map.values());};
-  // synExact + 사전 유의어 병합 (정확도 높은 소스 우선)
   renderChips('ar-synonyms', mergeWords(dictSyns, synExact).slice(0,20), 'chip-syn');
-  // antExact + 사전 반의어 (모두 WordNet 기반 → 신뢰도 높음)
   renderChips('ar-antonyms', mergeWords(dictAnts, antExact).slice(0,15), 'chip-ant');
-  // 연상어 + 상위/하위 개념 (의미망 기반 연관어)
   renderChips('ar-related', mergeWords(relTrg, relSpc, relGen).slice(0,20), 'chip-rel');
-  // bigram 콜로케이션 + 형용사-명사 관계 (실제 용례 기반)
   renderChips('ar-collocations', mergeWords(colBefore, colAfter, colAdj, colNoun).slice(0,20), 'chip-freq');
   const recs=[...newCands].slice(0,25);
   document.getElementById('ar-recommendations').innerHTML=recs.length?recs.map(x=>`<button class="chip chip-new" onclick="quickAdd('${x.replace(/'/g,"\\'")}')">+ ${x}</button>`).join(''):'<span class="text-sm font-bold text-gray-500">추천할 새 단어가 없습니다.</span>';
   const scrollContainer=document.getElementById('analysis-result').parentElement;
   if(scrollContainer)scrollContainer.scrollTop=0;
-} // end _renderAnalysisResult
+}
 function quickAdd(en){switchTab('manage');document.getElementById('input-en').value=en;document.getElementById('input-ko').focus();}
 
 // ==============================
@@ -2204,10 +2574,7 @@ function renderStats() {
         let dStr=checkDate.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).split('.').join('-').replace(/\s/g,'').replace(/-$/,'');
         let dData=activityLog[dStr];
         if(dData&&(dData.added>0||dData.tested>0||dData.quizzed>0)){streak++;checkDate.setDate(checkDate.getDate()-1);}
-        else{
-            if(streak===0){checkDate.setDate(checkDate.getDate()-1);dStr=checkDate.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).split('.').join('-').replace(/\s/g,'').replace(/-$/,'');dData=activityLog[dStr];if(dData&&(dData.added>0||dData.tested>0||dData.quizzed>0)){streak++;checkDate.setDate(checkDate.getDate()-1);continue;}}
-            break;
-        }
+        else{ if(streak===0){checkDate.setDate(checkDate.getDate()-1);dStr=checkDate.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).split('.').join('-').replace(/\s/g,'').replace(/-$/,'');dData=activityLog[dStr];if(dData&&(dData.added>0||dData.tested>0||dData.quizzed>0)){streak++;checkDate.setDate(checkDate.getDate()-1);continue;}} break; }
     }
     document.getElementById('stat-streak').innerHTML=`현재 <span class="text-emerald-400 font-black">${streak}일째</span> 연속 학습 중! 🔥`;
     const grid=document.getElementById('grass-grid'); grid.innerHTML='';
@@ -2231,300 +2598,77 @@ function renderStats() {
     }
 }
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 주제별 카테고리 분류 엔진
-// 전략: ① 한국어 뜻 키워드 매칭 (즉시) + ② 영어 동의어/상위개념 매칭 (enrichWord 데이터)
-// ═══════════════════════════════════════════════════════════════════════════
+// ==============================
+// 카테고리 DB + 분류
+// ==============================
 const CATEGORY_DB = {
-  // spc: Datamuse rel_spc / rel_gen 이 실제로 반환하는 WordNet 상위개념·관련어
-  // 단어 "dog" → rel_spc → ["animal","canine","domestic_animal","carnivore","mammal","vertebrate","creature"]
-
-  '🐾 동물': {
-    color:'emerald', icon:'🐾',
-    spc: new Set([
-      'animal','creature','organism','vertebrate','invertebrate',
-      'mammal','bird','fish','insect','reptile','amphibian',
-      'canine','feline','equine','bovine','rodent',
-      'carnivore','herbivore','omnivore','predator','prey',
-      'pet','livestock','wildlife','species','beast',
-      'domestic animal','wild animal','marine animal',
-      'primate','marsupial','cetacean','mollusk','arthropod',
-    ])
-  },
-  '🌿 식물·자연': {
-    color:'green', icon:'🌿',
-    spc: new Set([
-      'plant','tree','flower','shrub','herb','grass','vine','moss','fern',
-      'natural object','organism','vegetation','flora',
-      'geographical area','landform','body of water',
-      'forest','mountain','river','ocean','desert','weather','atmosphere',
-      'ecosystem','biome','habitat','landscape','terrain',
-      'fruit','seed','leaf','root','stem','branch','bark','petal',
-    ])
-  },
-  '🧬 신체·의학': {
-    color:'red', icon:'🧬',
-    spc: new Set([
-      'body part','organ','body fluid','tissue','cell','nerve','muscle','bone',
-      'disease','illness','disorder','syndrome','condition','symptom','sign',
-      'medicine','drug','medication','treatment','therapy','surgery','procedure',
-      'medical specialty','health','anatomy','physiology','pathology',
-      'sensation','pain','ache','wound','injury','infection','inflammation',
-    ])
-  },
-  '💭 감정·심리': {
-    color:'pink', icon:'💭',
-    spc: new Set([
-      'emotion','feeling','mental state','psychological state','mood','affect',
-      'attitude','disposition','temperament','personality','character',
-      'cognitive state','mental process','consciousness','perception',
-      'desire','motivation','instinct','urge','compulsion',
-      'happiness','sadness','anger','fear','surprise','disgust','joy',
-    ])
-  },
-  '👥 사람·관계': {
-    color:'purple', icon:'👥',
-    spc: new Set([
-      'person','human','individual','adult','man','woman','child',
-      'family member','relative','ancestor','descendant',
-      'social group','organization','community','society','tribe',
-      'relationship','role','occupation','status','position',
-      'friend','colleague','partner','associate','ally','rival',
-    ])
-  },
-  '💼 직업·경제': {
-    color:'yellow', icon:'💼',
-    spc: new Set([
-      'occupation','job','profession','career','trade','vocation','calling',
-      'economic activity','business activity','commerce','industry',
-      'financial institution','bank','market','exchange','fund',
-      'money','currency','payment','transaction','contract','agreement',
-      'worker','employee','employer','entrepreneur','executive',
-    ])
-  },
-  '⚖️ 정치·법률': {
-    color:'slate', icon:'⚖️',
-    spc: new Set([
-      'political system','government','state','authority','regime','administration',
-      'law','legislation','regulation','rule','statute','code',
-      'crime','offense','violation','felony','misdemeanor',
-      'right','freedom','liberty','duty','obligation','privilege',
-      'military','armed force','army','navy','police','court',
-    ])
-  },
-  '🔬 과학·기술': {
-    color:'cyan', icon:'🔬',
-    spc: new Set([
-      'science','scientific discipline','natural science','social science',
-      'technology','engineering','computing','algorithm','software','hardware',
-      'research','experiment','theory','hypothesis','discovery','innovation',
-      'element','compound','reaction','force','energy','radiation','particle',
-      'measurement','instrument','device','machine','tool','equipment',
-    ])
-  },
-  '📚 교육·학문': {
-    color:'indigo', icon:'📚',
-    spc: new Set([
-      'educational institution','school','university','college','academy',
-      'subject field','discipline','knowledge domain','branch of knowledge',
-      'academic degree','qualification','certificate','award',
-      'cognitive process','learning','memory','reasoning','intelligence',
-      'written communication','document','text','publication','book',
-    ])
-  },
-  '🍽️ 음식·요리': {
-    color:'orange', icon:'🍽️',
-    spc: new Set([
-      'food','foodstuff','nutrient','ingredient','dish','meal','course',
-      'beverage','drink','liquid','alcohol','juice',
-      'cooking','cuisine','recipe','method','preparation',
-      'taste','flavor','aroma','texture','spice','seasoning','condiment',
-      'vegetable','fruit','meat','seafood','grain','dairy','legume','nut',
-    ])
-  },
-  '⚽ 스포츠·운동': {
-    color:'lime', icon:'⚽',
-    spc: new Set([
-      'sport','athletic game','athletic competition','physical exercise','workout',
-      'game','match','tournament','championship','league','contest',
-      'player','athlete','team','coach','referee','official',
-      'equipment','gear','uniform','venue','stadium','court','field',
-      'score','point','goal','record','performance','technique','skill',
-    ])
-  },
-  '🎨 예술·문화': {
-    color:'fuchsia', icon:'🎨',
-    spc: new Set([
-      'art','visual art','fine art','art form','artistic style','art movement',
-      'music','musical composition','musical genre','instrument','melody','rhythm',
-      'literary work','literary genre','novel','poem','drama','narrative',
-      'film','movie','performance','exhibition','show','concert','play',
-      'culture','tradition','custom','ritual','ceremony','festival','religion',
-    ])
-  },
-  '⏰ 시간·공간': {
-    color:'teal', icon:'⏰',
-    spc: new Set([
-      'time period','time unit','era','epoch','age','century','decade','season',
-      'location','place','site','region','area','zone','territory',
-      'spatial relation','position','direction','distance','dimension',
-      'temporal relation','sequence','order','interval','frequency','duration',
-      'change','movement','transition','transformation','process',
-    ])
-  },
-  '🚗 교통·이동': {
-    color:'sky', icon:'🚗',
-    spc: new Set([
-      'vehicle','conveyance','craft','mode of transportation',
-      'car','automobile','truck','bus','motorcycle','bicycle',
-      'aircraft','airplane','helicopter','ship','boat','train','subway',
-      'travel','journey','trip','tour','voyage','expedition','commute',
-      'road','highway','route','path','track','lane','bridge','tunnel',
-    ])
-  },
-  '🏛️ 건물·시설': {
-    color:'stone', icon:'🏛️',
-    spc: new Set([
-      'building','structure','construction','edifice','facility','complex',
-      'house','dwelling','residence','home','apartment','shelter',
-      'institution','establishment','organization','center',
-      'room','space','area','floor','wall','door','window',
-      'landmark','monument','tower','bridge','infrastructure',
-    ])
-  },
-  '📡 통신·미디어': {
-    color:'violet', icon:'📡',
-    spc: new Set([
-      'communication','telecommunication','transmission','signal','broadcast',
-      'medium','media','channel','platform','network','system',
-      'message','information','content','data','news','report',
-      'publication','newspaper','magazine','book','journal','article',
-      'electronic device','computer','phone','radio','television','internet',
-    ])
-  },
-  '💡 추상·개념': {
-    color:'amber', icon:'💡',
-    spc: new Set([
-      'abstraction','concept','idea','notion','theory','principle','rule',
-      'attribute','property','quality','characteristic','feature','aspect',
-      'relation','connection','association','correlation','contrast',
-      'process','method','system','approach','strategy','framework',
-      'value','standard','criterion','measure','degree','level','amount',
-    ])
-  },
+  '🐾 동물': { color:'emerald', icon:'🐾', spc: new Set(['animal','creature','organism','vertebrate','invertebrate','mammal','bird','fish','insect','reptile','amphibian','canine','feline','equine','bovine','rodent','carnivore','herbivore','omnivore','predator','prey','pet','livestock','wildlife','species','beast','domestic animal','wild animal','marine animal','primate','marsupial','cetacean','mollusk','arthropod']) },
+  '🌿 식물·자연': { color:'green', icon:'🌿', spc: new Set(['plant','tree','flower','shrub','herb','grass','vine','moss','fern','natural object','organism','vegetation','flora','geographical area','landform','body of water','forest','mountain','river','ocean','desert','weather','atmosphere','ecosystem','biome','habitat','landscape','terrain','fruit','seed','leaf','root','stem','branch','bark','petal']) },
+  '🧬 신체·의학': { color:'red', icon:'🧬', spc: new Set(['body part','organ','body fluid','tissue','cell','nerve','muscle','bone','disease','illness','disorder','syndrome','condition','symptom','sign','medicine','drug','medication','treatment','therapy','surgery','procedure','medical specialty','health','anatomy','physiology','pathology','sensation','pain','ache','wound','injury','infection','inflammation']) },
+  '💭 감정·심리': { color:'pink', icon:'💭', spc: new Set(['emotion','feeling','mental state','psychological state','mood','affect','attitude','disposition','temperament','personality','character','cognitive state','mental process','consciousness','perception','desire','motivation','instinct','urge','compulsion','happiness','sadness','anger','fear','surprise','disgust','joy']) },
+  '👥 사람·관계': { color:'purple', icon:'👥', spc: new Set(['person','human','individual','adult','man','woman','child','family member','relative','ancestor','descendant','social group','organization','community','society','tribe','relationship','role','occupation','status','position','friend','colleague','partner','associate','ally','rival']) },
+  '💼 직업·경제': { color:'yellow', icon:'💼', spc: new Set(['occupation','job','profession','career','trade','vocation','calling','economic activity','business activity','commerce','industry','financial institution','bank','market','exchange','fund','money','currency','payment','transaction','contract','agreement','worker','employee','employer','entrepreneur','executive']) },
+  '⚖️ 정치·법률': { color:'slate', icon:'⚖️', spc: new Set(['political system','government','state','authority','regime','administration','law','legislation','regulation','rule','statute','code','crime','offense','violation','felony','misdemeanor','right','freedom','liberty','duty','obligation','privilege','military','armed force','army','navy','police','court']) },
+  '🔬 과학·기술': { color:'cyan', icon:'🔬', spc: new Set(['science','scientific discipline','natural science','social science','technology','engineering','computing','algorithm','software','hardware','research','experiment','theory','hypothesis','discovery','innovation','element','compound','reaction','force','energy','radiation','particle','measurement','instrument','device','machine','tool','equipment']) },
+  '📚 교육·학문': { color:'indigo', icon:'📚', spc: new Set(['educational institution','school','university','college','academy','subject field','discipline','knowledge domain','branch of knowledge','academic degree','qualification','certificate','award','cognitive process','learning','memory','reasoning','intelligence','written communication','document','text','publication','book']) },
+  '🍽️ 음식·요리': { color:'orange', icon:'🍽️', spc: new Set(['food','foodstuff','nutrient','ingredient','dish','meal','course','beverage','drink','liquid','alcohol','juice','cooking','cuisine','recipe','method','preparation','taste','flavor','aroma','texture','spice','seasoning','condiment','vegetable','fruit','meat','seafood','grain','dairy','legume','nut']) },
+  '⚽ 스포츠·운동': { color:'lime', icon:'⚽', spc: new Set(['sport','athletic game','athletic competition','physical exercise','workout','game','match','tournament','championship','league','contest','player','athlete','team','coach','referee','official','equipment','gear','uniform','venue','stadium','court','field','score','point','goal','record','performance','technique','skill']) },
+  '🎨 예술·문화': { color:'fuchsia', icon:'🎨', spc: new Set(['art','visual art','fine art','art form','artistic style','art movement','music','musical composition','musical genre','instrument','melody','rhythm','literary work','literary genre','novel','poem','drama','narrative','film','movie','performance','exhibition','show','concert','play','culture','tradition','custom','ritual','ceremony','festival','religion']) },
+  '⏰ 시간·공간': { color:'teal', icon:'⏰', spc: new Set(['time period','time unit','era','epoch','age','century','decade','season','location','place','site','region','area','zone','territory','spatial relation','position','direction','distance','dimension','temporal relation','sequence','order','interval','frequency','duration','change','movement','transition','transformation','process']) },
+  '🚗 교통·이동': { color:'sky', icon:'🚗', spc: new Set(['vehicle','conveyance','craft','mode of transportation','car','automobile','truck','bus','motorcycle','bicycle','aircraft','airplane','helicopter','ship','boat','train','subway','travel','journey','trip','tour','voyage','expedition','commute','road','highway','route','path','track','lane','bridge','tunnel']) },
+  '🏛️ 건물·시설': { color:'stone', icon:'🏛️', spc: new Set(['building','structure','construction','edifice','facility','complex','house','dwelling','residence','home','apartment','shelter','institution','establishment','organization','center','room','space','area','floor','wall','door','window','landmark','monument','tower','bridge','infrastructure']) },
+  '📡 통신·미디어': { color:'violet', icon:'📡', spc: new Set(['communication','telecommunication','transmission','signal','broadcast','medium','media','channel','platform','network','system','message','information','content','data','news','report','publication','newspaper','magazine','book','journal','article','electronic device','computer','phone','radio','television','internet']) },
+  '💡 추상·개념': { color:'amber', icon:'💡', spc: new Set(['abstraction','concept','idea','notion','theory','principle','rule','attribute','property','quality','characteristic','feature','aspect','relation','connection','association','correlation','contrast','process','method','system','approach','strategy','framework','value','standard','criterion','measure','degree','level','amount']) },
 };
-
-
-// ── rel_spc 기반 카테고리 분류 ──────────────────────────────────────────
-// Datamuse rel_spc: "dog" → ["animal","canine","pet","mammal"]
-// 이 상위개념 단어들이 카테고리 키워드 셋에 포함되는지 확인
-// 점수 체계: spc 직접 매칭(10) > 영어 단어 직접 매칭(8) > spc 부분 포함(5) > syn 매칭(3)
 
 function scoreWordForCategory(word, catData) {
   let score = 0;
   const enLower = (word.en || '').toLowerCase().replace(/_/g, ' ');
   const spc = (word.nlp?.spc || []).map(s => s.toLowerCase().replace(/_/g, ' '));
   const syn = (word.nlp?.syn || []).map(s => s.toLowerCase());
-  const kwSet = catData.spc; // 이미 Set
-
-  // 1) rel_spc 결과 정확 매칭 (+10)
-  for (const s of spc) {
-    if (kwSet.has(s)) { score += 10; break; }
-  }
-  // 2) rel_spc 부분 포함 매칭 (+6) — "body part" ∋ "part" 같은 케이스
-  if (score === 0) {
-    outer: for (const s of spc) {
-      for (const kw of kwSet) {
-        if (kw.length > 3 && (s.includes(kw) || kw.includes(s))) { score += 6; break outer; }
-      }
-    }
-  }
-  // 3) 단어 자체가 카테고리 키워드 (+8)
+  const kwSet = catData.spc;
+  for (const s of spc) { if (kwSet.has(s)) { score += 10; break; } }
+  if (score === 0) { outer: for (const s of spc) { for (const kw of kwSet) { if (kw.length > 3 && (s.includes(kw) || kw.includes(s))) { score += 6; break outer; } } } }
   if (kwSet.has(enLower)) score += 8;
-
-  // 4) 유의어 중 카테고리 키워드 매칭 (+4) — spc 없는 단어 보완
-  if (score === 0) {
-    for (const s of syn) {
-      if (kwSet.has(s)) { score += 4; break; }
-    }
-  }
+  if (score === 0) { for (const s of syn) { if (kwSet.has(s)) { score += 4; break; } } }
   return score;
 }
 
 function buildCategoryGroups(wordList) {
-  // enrichWord가 아직 실행 안 된 단어는 spc 없음 → 미분류로 갈 수 있음
-  // 사용자에게 NLP 가동 후 사용하라는 안내는 섹션 설명에서 처리
   const result = {};
-  for (const [catKey, catData] of Object.entries(CATEGORY_DB)) {
-    result[catKey] = { ...catData, words: [] };
-  }
+  for (const [catKey, catData] of Object.entries(CATEGORY_DB)) { result[catKey] = { ...catData, words: [] }; }
   result['❓ 미분류'] = { color: 'gray', icon: '❓', words: [], spc: new Set() };
-
   for (const w of wordList) {
     let bestCat = null, bestScore = 0;
     for (const [catKey, catData] of Object.entries(CATEGORY_DB)) {
-      if (!(catData.spc instanceof Set)) continue; // spc가 Set이 아니면 건너뜀
+      if (!(catData.spc instanceof Set)) continue;
       const score = scoreWordForCategory(w, catData);
       if (score > bestScore) { bestScore = score; bestCat = catKey; }
     }
-    const THRESHOLD = 4;
-    if (bestCat && bestScore >= THRESHOLD) {
-      result[bestCat].words.push({ word: w, score: bestScore });
-    } else {
-      result['❓ 미분류'].words.push({ word: w, score: 0 });
-    }
+    if (bestCat && bestScore >= 4) { result[bestCat].words.push({ word: w, score: bestScore }); }
+    else { result['❓ 미분류'].words.push({ word: w, score: 0 }); }
   }
-  for (const g of Object.values(result)) {
-    g.words.sort((a, b) => b.score - a.score);
-  }
+  for (const g of Object.values(result)) { g.words.sort((a, b) => b.score - a.score); }
   return result;
 }
 
 function buildCategoryCard(catKey, groupData) {
   if (!groupData || !groupData.words) return document.createElement('div');
   const card = document.createElement('div');
-  const colorMap = {
-    emerald:'border-emerald-700/50 bg-emerald-900/10', green:'border-green-700/50 bg-green-900/10',
-    red:'border-red-700/50 bg-red-900/10', pink:'border-pink-700/50 bg-pink-900/10',
-    purple:'border-purple-700/50 bg-purple-900/10', yellow:'border-yellow-700/50 bg-yellow-900/10',
-    slate:'border-slate-600/50 bg-slate-800/20', cyan:'border-cyan-700/50 bg-cyan-900/10',
-    indigo:'border-indigo-700/50 bg-indigo-900/10', orange:'border-orange-700/50 bg-orange-900/10',
-    lime:'border-lime-700/50 bg-lime-900/10', fuchsia:'border-fuchsia-700/50 bg-fuchsia-900/10',
-    teal:'border-teal-700/50 bg-teal-900/10', sky:'border-sky-700/50 bg-sky-900/10',
-    stone:'border-stone-600/50 bg-stone-800/20', violet:'border-violet-700/50 bg-violet-900/10',
-    amber:'border-amber-700/50 bg-amber-900/10', gray:'border-gray-600/50 bg-gray-800/20',
-  };
-  const textColorMap = {
-    emerald:'text-emerald-300', green:'text-green-300', red:'text-red-300', pink:'text-pink-300',
-    purple:'text-purple-300', yellow:'text-yellow-300', slate:'text-slate-300', cyan:'text-cyan-300',
-    indigo:'text-indigo-300', orange:'text-orange-300', lime:'text-lime-300', fuchsia:'text-fuchsia-300',
-    teal:'text-teal-300', sky:'text-sky-300', stone:'text-stone-300', violet:'text-violet-300',
-    amber:'text-amber-300', gray:'text-gray-400',
-  };
+  const colorMap = { emerald:'border-emerald-700/50 bg-emerald-900/10', green:'border-green-700/50 bg-green-900/10', red:'border-red-700/50 bg-red-900/10', pink:'border-pink-700/50 bg-pink-900/10', purple:'border-purple-700/50 bg-purple-900/10', yellow:'border-yellow-700/50 bg-yellow-900/10', slate:'border-slate-600/50 bg-slate-800/20', cyan:'border-cyan-700/50 bg-cyan-900/10', indigo:'border-indigo-700/50 bg-indigo-900/10', orange:'border-orange-700/50 bg-orange-900/10', lime:'border-lime-700/50 bg-lime-900/10', fuchsia:'border-fuchsia-700/50 bg-fuchsia-900/10', teal:'border-teal-700/50 bg-teal-900/10', sky:'border-sky-700/50 bg-sky-900/10', stone:'border-stone-600/50 bg-stone-800/20', violet:'border-violet-700/50 bg-violet-900/10', amber:'border-amber-700/50 bg-amber-900/10', gray:'border-gray-600/50 bg-gray-800/20' };
+  const textColorMap = { emerald:'text-emerald-300', green:'text-green-300', red:'text-red-300', pink:'text-pink-300', purple:'text-purple-300', yellow:'text-yellow-300', slate:'text-slate-300', cyan:'text-cyan-300', indigo:'text-indigo-300', orange:'text-orange-300', lime:'text-lime-300', fuchsia:'text-fuchsia-300', teal:'text-teal-300', sky:'text-sky-300', stone:'text-stone-300', violet:'text-violet-300', amber:'text-amber-300', gray:'text-gray-400' };
   const borderBg = colorMap[groupData.color] || colorMap.gray;
   const textCls = textColorMap[groupData.color] || 'text-gray-300';
   card.className = `neon-card p-5 rounded-3xl flex flex-col h-full fade-in border ${borderBg}`;
-
   const chips = groupData.words.map(({ word: w }) =>
     `<span class="chip bg-gray-900/80 border border-gray-700 hover:bg-gray-800 cursor-pointer text-sm" onclick="openAnalysis(${w.id})">
       <span class="font-black text-white">${w.en}</span>
       <span class="text-[10px] text-gray-500 ml-1 font-bold">${w.ko}</span>
     </span>`
   ).join('');
-
-  card.innerHTML = `
-    <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700/60">
-      <div class="flex items-center gap-2">
-        <span class="text-xl">${groupData.icon}</span>
-        <h4 class="font-black ${textCls} text-sm leading-tight">${catKey.replace(/^[^\s]+\s/, '')}</h4>
-      </div>
-      <span class="text-[10px] font-black ${textCls} bg-gray-800 px-2 py-1 rounded-full border border-gray-700 whitespace-nowrap">${groupData.words.length}단어</span>
-    </div>
-    <div class="flex flex-wrap gap-2 items-start content-start flex-1">${chips}</div>`;
+  card.innerHTML = `<div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-700/60"><div class="flex items-center gap-2"><span class="text-xl">${groupData.icon}</span><h4 class="font-black ${textCls} text-sm leading-tight">${catKey.replace(/^[^\s]+\s/, '')}</h4></div><span class="text-[10px] font-black ${textCls} bg-gray-800 px-2 py-1 rounded-full border border-gray-700 whitespace-nowrap">${groupData.words.length}단어</span></div><div class="flex flex-wrap gap-2 items-start content-start flex-1">${chips}</div>`;
   return card;
 }
-
 </script>
 
 <script type="module">
@@ -2558,8 +2702,6 @@ function buildCategoryCard(catKey, groupData) {
   signInAnonymously(auth).catch((error) => {
       console.error("자동 로그인 실패:", error);
       updateCloudStatus('rose', '오프라인 모드');
-      if (error.code === 'auth/operation-not-allowed') { window.showToast("Firebase 익명 로그인을 켜주세요!", "error"); }
-      else { window.showToast("클라우드 연결 실패: " + error.message, "error"); }
   });
 
   onAuthStateChanged(auth, (user) => { if (user) { setupRealtimeSync(); } });
@@ -2573,11 +2715,7 @@ function buildCategoryCard(catKey, groupData) {
           if (docSnap.exists()) {
               const data = docSnap.data();
               if(data.wordsList){
-                  try{
-                      const parsedData=JSON.parse(data.wordsList);
-                      window.updateFromCloud(parsedData);
-                      if(isInitialCloudLoad){window.showToast("☁️ 클라우드 동기화 완료!");}
-                  }catch(e){console.error("데이터 파싱 에러",e);}
+                  try{ const parsedData=JSON.parse(data.wordsList); window.updateFromCloud(parsedData); if(isInitialCloudLoad){window.showToast("☁️ 클라우드 동기화 완료!");} } catch(e){console.error("데이터 파싱 에러",e);}
               }
           } else {
               if(window.words&&window.words.length>0){window.triggerCloudSave({words:window.words,activityLog:window.activityLog});window.showToast("☁️ 기존 데이터를 클라우드에 백업했습니다.");}
@@ -2594,233 +2732,123 @@ function buildCategoryCard(catKey, groupData) {
         .catch(error => { console.error("클라우드 저장 실패:", error); updateCloudStatus('rose', '저장 실패'); });
   };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SRS 엔진 — Anki SM-2 알고리즘 구현
-// 각 단어에 srs: { interval, ease, due, reps, lapses } 저장
-// ═══════════════════════════════════════════════════════════════════════════
-const SRS_GOAL = 2000;  // 2주 목표 단어 수
-const SRS_DAYS = 14;    // 2주
-const SRS_NEW_PER_DAY = Math.ceil(SRS_GOAL / SRS_DAYS); // 약 143개 (현실적 조정은 사용자 몫)
-const EASE_DEFAULT = 2.5;
-const EASE_MIN = 1.3;
+  // ── SRS 엔진 ──
+  const SRS_GOAL = 2000, SRS_DAYS = 14;
+  const SRS_NEW_PER_DAY = Math.ceil(SRS_GOAL / SRS_DAYS);
+  const EASE_DEFAULT = 2.5, EASE_MIN = 1.3;
 
-function srsToday() {
-    // 오늘 날짜를 YYYY-MM-DD 형식으로 (타임존 보정)
-    return new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })
-        .split('.').filter(Boolean).map(s => s.trim().padStart(2, '0')).join('-');
-}
+  function srsToday() { return new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').filter(Boolean).map(s => s.trim().padStart(2, '0')).join('-'); }
+  function srsDaysFromNow(n) { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }).split('.').filter(Boolean).map(s => s.trim().padStart(2, '0')).join('-'); }
 
-function srsDaysFromNow(n) {
-    const d = new Date();
-    d.setDate(d.getDate() + n);
-    return d.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })
-        .split('.').filter(Boolean).map(s => s.trim().padStart(2, '0')).join('-');
-}
+  function sm2Next(srs, grade) {
+      let { interval = 0, ease = EASE_DEFAULT, reps = 0, lapses = 0 } = srs || {};
+      ease = Math.max(EASE_MIN, ease);
+      if (grade === 1) { lapses++; interval = 0; ease = Math.max(EASE_MIN, ease - 0.2); return { interval: 0, ease, reps: 0, lapses, due: srsDaysFromNow(0), minutesDelay: 10 }; }
+      if (grade === 2) { interval = 1; ease = Math.max(EASE_MIN, ease - 0.15); reps++; return { interval, ease, reps, lapses, due: srsDaysFromNow(1) }; }
+      if (reps === 0) interval = 1; else if (reps === 1) interval = 6; else interval = Math.round(interval * ease);
+      if (grade === 4) ease = Math.min(3.0, ease + 0.15); else ease = Math.max(EASE_MIN, ease - 0.05);
+      reps++;
+      return { interval, ease, reps, lapses: lapses || 0, due: srsDaysFromNow(interval) };
+  }
 
-// SM-2 알고리즘: grade 1~4 입력 → 다음 interval 계산
-// grade 1: 전혀 모름 (reset), 2: 어렴풋이, 3: 알았음, 4: 완벽
-function sm2Next(srs, grade) {
-    let { interval = 0, ease = EASE_DEFAULT, reps = 0, lapses = 0 } = srs || {};
-    ease = Math.max(EASE_MIN, ease);
+  function getSRSDue() { const today = srsToday(); return words.filter(w => w.srs && w.srs.due && w.srs.due <= today); }
+  function getSRSNew() { return words.filter(w => !w.srs || !w.srs.due); }
 
-    if (grade === 1) {
-        // 완전 실패 — 처음부터 다시
-        lapses++;
-        interval = 0;
-        ease = Math.max(EASE_MIN, ease - 0.2);
-        return { interval: 0, ease, reps: 0, lapses, due: srsDaysFromNow(0), minutesDelay: 10 };
-    }
+  function renderSRSDashboard() {
+      if (!Array.isArray(words)) return;
+      const due = getSRSDue(), newW = getSRSNew(), learning = words.filter(w => w.srs && w.srs.due);
+      document.getElementById('srs-count-due').textContent = due.length;
+      document.getElementById('srs-count-new').textContent = Math.min(newW.length, SRS_NEW_PER_DAY);
+      document.getElementById('srs-count-total').textContent = learning.length;
+      const pct = Math.min(100, Math.round(learning.length / SRS_GOAL * 100));
+      document.getElementById('srs-goal-pct').textContent = pct + '%';
+      document.getElementById('srs-goal-bar').style.width = pct + '%';
+      document.getElementById('srs-daily-target').textContent = SRS_NEW_PER_DAY;
+      document.getElementById('srs-goal-label').innerHTML = `목표: <span class="text-white">${SRS_GOAL}개</span> · 학습중: <span class="text-indigo-300">${learning.length}개</span> · 오늘 권장 신규: <span class="text-indigo-400">${SRS_NEW_PER_DAY}</span>개`;
+      const badge = document.getElementById('srs-due-badge');
+      if (due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); } else badge.classList.add('hidden');
+      document.getElementById('srs-btn-due').disabled = due.length === 0;
+      const upcoming = document.getElementById('srs-upcoming');
+      const schedule = [];
+      for (let i = 0; i <= 3; i++) {
+          const d = srsDaysFromNow(i);
+          const cnt = i === 0 ? due.length : words.filter(w => w.srs && w.srs.due === d).length;
+          schedule.push({ label: i === 0 ? '오늘' : i === 1 ? '내일' : `${i}일 후`, count: cnt, date: d });
+      }
+      upcoming.innerHTML = schedule.map(s => `<div class="flex justify-between items-center py-2 border-b border-gray-800 last:border-0"><span class="text-gray-400 font-bold">${s.label} <span class="text-gray-600 text-xs">${s.date}</span></span><span class="font-black ${s.count > 0 ? 'text-indigo-300' : 'text-gray-600'}">${s.count}개</span></div>`).join('');
+  }
+  window.renderSRSDashboard = renderSRSDashboard;
 
-    if (grade === 2) {
-        // 어렴풋이 — 1일 후
-        interval = 1;
-        ease = Math.max(EASE_MIN, ease - 0.15);
-        reps++;
-        return { interval, ease, reps, lapses, due: srsDaysFromNow(1) };
-    }
+  let srsQueue = [], srsIdx = 0, srsMode = 'due', srsCorrect = 0, srsWrong = 0, srsCurrentWord = null;
 
-    // grade 3 or 4
-    if (reps === 0) interval = 1;
-    else if (reps === 1) interval = 6;
-    else interval = Math.round(interval * ease);
+  function startSRS(mode) {
+      if (!words || !words.length) return showToast('단어가 없습니다!', 'error');
+      srsMode = mode;
+      srsQueue = mode === 'due' ? shuffle(getSRSDue()) : getSRSNew().slice(0, SRS_NEW_PER_DAY);
+      if (!srsQueue.length) return showToast(mode === 'due' ? '오늘 복습할 단어가 없어요! 신규 암기를 시작하세요.' : '신규 단어가 없어요!', 'info');
+      srsIdx = 0; srsCorrect = 0; srsWrong = 0;
+      document.getElementById('srs-dashboard').classList.add('hidden');
+      document.getElementById('srs-complete').classList.add('hidden');
+      document.getElementById('srs-session').classList.remove('hidden');
+      document.getElementById('srs-session-type').textContent = mode === 'due' ? '🔥 복습' : '✨ 신규';
+      document.getElementById('srs-session-total').textContent = srsQueue.length;
+      loadSRSCard();
+  }
+  window.startSRS = startSRS;
 
-    if (grade === 4) ease = Math.min(3.0, ease + 0.15);
-    else ease = Math.max(EASE_MIN, ease - 0.05); // grade 3: slight penalty
+  function loadSRSCard() {
+      if (srsIdx >= srsQueue.length) { showSRSComplete(); return; }
+      srsCurrentWord = srsQueue[srsIdx];
+      const w = srsCurrentWord, srs = w.srs || {};
+      document.getElementById('srs-session-idx').textContent = srsIdx + 1;
+      document.getElementById('srs-card-en').textContent = w.en;
+      document.getElementById('srs-card-phonetic').textContent = '';
+      document.getElementById('srs-card-ko').textContent = w.ko;
+      document.getElementById('srs-card-hint').textContent = w.nlp?.syn?.slice(0,3).join(', ') ? `유의어: ${w.nlp.syn.slice(0,3).join(', ')}` : '';
+      const badge = document.getElementById('srs-interval-badge');
+      if (srs.reps > 0) { badge.textContent = `${srs.interval || 0}일 간격 · ${srs.reps}회`; } else { badge.textContent = '신규'; }
+      const g3next = sm2Next(srs, 3), g4next = sm2Next(srs, 4);
+      document.getElementById('srs-grade3-days').textContent = g3next.interval > 0 ? `+${g3next.interval}일` : '+1일';
+      document.getElementById('srs-grade4-days').textContent = g4next.interval > 0 ? `+${g4next.interval}일` : '+6일';
+      document.getElementById('srs-card-answer').classList.add('hidden');
+      document.getElementById('srs-reveal-btn').classList.remove('hidden');
+      document.getElementById('srs-grade-btns').classList.add('hidden');
+  }
 
-    reps++;
-    return { interval, ease, reps, lapses: lapses || 0, due: srsDaysFromNow(interval) };
-}
+  function srsReveal() { document.getElementById('srs-card-answer').classList.remove('hidden'); document.getElementById('srs-reveal-btn').classList.add('hidden'); document.getElementById('srs-grade-btns').classList.remove('hidden'); }
+  window.srsReveal = srsReveal;
 
-// 오늘 복습해야 할 단어들
-function getSRSDue() {
-    const today = srsToday();
-    return words.filter(w => w.srs && w.srs.due && w.srs.due <= today);
-}
+  function gradeCard(grade) {
+      const w = srsCurrentWord;
+      const idx = words.findIndex(x => x.id === w.id);
+      if (idx !== -1) { words[idx].srs = sm2Next(words[idx].srs || {}, grade); saveData({ skipRender: true }); }
+      if (grade >= 3) srsCorrect++; else srsWrong++;
+      srsIdx++;
+      setTimeout(loadSRSCard, grade <= 2 ? 300 : 200);
+  }
+  window.gradeCard = gradeCard;
 
-// SRS에 아직 등록 안 된 신규 단어들
-function getSRSNew() {
-    return words.filter(w => !w.srs || !w.srs.due);
-}
+  function showSRSComplete() {
+      document.getElementById('srs-session').classList.add('hidden');
+      document.getElementById('srs-complete').classList.remove('hidden');
+      const total = srsCorrect + srsWrong, acc = total > 0 ? Math.round(srsCorrect / total * 100) : 0;
+      document.getElementById('srs-done-title').textContent = acc >= 80 ? '훌륭해요! 🎉' : acc >= 60 ? '잘 했어요! 👏' : '계속 연습해요! 💪';
+      document.getElementById('srs-done-subtitle').textContent = `${total}개 중 ${srsCorrect}개 정답 · 정확도 ${acc}%`;
+      document.getElementById('srs-done-emoji').textContent = acc >= 80 ? '🏆' : acc >= 60 ? '🎉' : '💪';
+      document.getElementById('srs-done-correct').textContent = srsCorrect;
+      document.getElementById('srs-done-wrong').textContent = srsWrong;
+      scheduleRender();
+  }
 
-// 대시보드 렌더
-function renderSRSDashboard() {
-    if (!Array.isArray(words)) return;
-    const due = getSRSDue();
-    const newW = getSRSNew();
-    const learning = words.filter(w => w.srs && w.srs.due);
-    const today = srsToday();
+  function exitSRS() { document.getElementById('srs-session').classList.add('hidden'); document.getElementById('srs-complete').classList.add('hidden'); document.getElementById('srs-dashboard').classList.remove('hidden'); renderSRSDashboard(); }
+  window.exitSRS = exitSRS;
 
-    document.getElementById('srs-count-due').textContent = due.length;
-    document.getElementById('srs-count-new').textContent = Math.min(newW.length, SRS_NEW_PER_DAY);
-    document.getElementById('srs-count-total').textContent = learning.length;
-
-    // 목표 진행률
-    const pct = Math.min(100, Math.round(learning.length / SRS_GOAL * 100));
-    document.getElementById('srs-goal-pct').textContent = pct + '%';
-    document.getElementById('srs-goal-bar').style.width = pct + '%';
-    document.getElementById('srs-daily-target').textContent = SRS_NEW_PER_DAY;
-    document.getElementById('srs-goal-label').innerHTML =
-        `목표: <span class="text-white">${SRS_GOAL}개</span> · 학습중: <span class="text-indigo-300">${learning.length}개</span> · 오늘 권장 신규: <span class="text-indigo-400">${SRS_NEW_PER_DAY}</span>개`;
-
-    // 뱃지
-    const badge = document.getElementById('srs-due-badge');
-    if (due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
-    else badge.classList.add('hidden');
-
-    // 버튼 상태
-    document.getElementById('srs-btn-due').disabled = due.length === 0;
-
-    // 다가오는 스케줄 (3일치)
-    const upcoming = document.getElementById('srs-upcoming');
-    const schedule = [];
-    for (let i = 0; i <= 3; i++) {
-        const d = srsDaysFromNow(i);
-        const cnt = i === 0 ? due.length : words.filter(w => w.srs && w.srs.due === d).length;
-        schedule.push({ label: i === 0 ? '오늘' : i === 1 ? '내일' : `${i}일 후`, count: cnt, date: d });
-    }
-    upcoming.innerHTML = schedule.map(s =>
-        `<div class="flex justify-between items-center py-2 border-b border-gray-800 last:border-0">
-            <span class="text-gray-400 font-bold">${s.label} <span class="text-gray-600 text-xs">${s.date}</span></span>
-            <span class="font-black ${s.count > 0 ? 'text-indigo-300' : 'text-gray-600'}">${s.count}개</span>
-        </div>`
-    ).join('');
-}
-
-// SRS 세션 상태
-let srsQueue = [], srsIdx = 0, srsMode = 'due', srsCorrect = 0, srsWrong = 0, srsCurrentWord = null;
-
-function startSRS(mode) {
-    if (!words || !words.length) return showToast('단어가 없습니다!', 'error');
-    srsMode = mode;
-    if (mode === 'due') {
-        srsQueue = shuffle(getSRSDue());
-    } else {
-        // 신규: 하루치만
-        srsQueue = getSRSNew().slice(0, SRS_NEW_PER_DAY);
-    }
-    if (!srsQueue.length) {
-        return showToast(mode === 'due' ? '오늘 복습할 단어가 없어요! 신규 암기를 시작하세요.' : '신규 단어가 없어요!', 'info');
-    }
-    srsIdx = 0; srsCorrect = 0; srsWrong = 0;
-    document.getElementById('srs-dashboard').classList.add('hidden');
-    document.getElementById('srs-complete').classList.add('hidden');
-    document.getElementById('srs-session').classList.remove('hidden');
-    document.getElementById('srs-session-type').textContent = mode === 'due' ? '🔥 복습' : '✨ 신규';
-    document.getElementById('srs-session-total').textContent = srsQueue.length;
-    loadSRSCard();
-}
-
-function loadSRSCard() {
-    if (srsIdx >= srsQueue.length) { showSRSComplete(); return; }
-    srsCurrentWord = srsQueue[srsIdx];
-    const w = srsCurrentWord;
-    const srs = w.srs || {};
-
-    document.getElementById('srs-session-idx').textContent = srsIdx + 1;
-    document.getElementById('srs-card-en').textContent = w.en;
-    document.getElementById('srs-card-phonetic').textContent = '';
-    document.getElementById('srs-card-ko').textContent = w.ko;
-    document.getElementById('srs-card-hint').textContent =
-        w.nlp?.syn?.slice(0,3).join(', ') ? `유의어: ${w.nlp.syn.slice(0,3).join(', ')}` : '';
-
-    // 인터벌 뱃지
-    const badge = document.getElementById('srs-interval-badge');
-    if (srs.reps > 0) {
-        badge.textContent = `${srs.interval || 0}일 간격 · ${srs.reps}회`;
-        badge.classList.remove('hidden');
-    } else {
-        badge.textContent = '신규';
-        badge.classList.remove('hidden');
-    }
-
-    // 다음 grade별 예상 인터벌 미리보기
-    const g3next = sm2Next(srs, 3);
-    const g4next = sm2Next(srs, 4);
-    document.getElementById('srs-grade3-days').textContent = g3next.interval > 0 ? `+${g3next.interval}일` : '+1일';
-    document.getElementById('srs-grade4-days').textContent = g4next.interval > 0 ? `+${g4next.interval}일` : '+6일';
-
-    // 카드 초기화
-    document.getElementById('srs-card-answer').classList.add('hidden');
-    document.getElementById('srs-reveal-btn').classList.remove('hidden');
-    document.getElementById('srs-grade-btns').classList.add('hidden');
-}
-
-function srsReveal() {
-    document.getElementById('srs-card-answer').classList.remove('hidden');
-    document.getElementById('srs-reveal-btn').classList.add('hidden');
-    document.getElementById('srs-grade-btns').classList.remove('hidden');
-}
-
-function gradeCard(grade) {
-    const w = srsCurrentWord;
-    const idx = words.findIndex(x => x.id === w.id);
-    if (idx !== -1) {
-        const newSrs = sm2Next(words[idx].srs || {}, grade);
-        words[idx].srs = newSrs;
-        saveData({ skipRender: true });
-    }
-
-    if (grade >= 3) srsCorrect++; else srsWrong++;
-    srsIdx++;
-
-    // 잠깐 피드백 후 다음 카드
-    setTimeout(loadSRSCard, grade <= 2 ? 300 : 200);
-}
-
-function showSRSComplete() {
-    document.getElementById('srs-session').classList.add('hidden');
-    document.getElementById('srs-complete').classList.remove('hidden');
-    const total = srsCorrect + srsWrong;
-    const acc = total > 0 ? Math.round(srsCorrect / total * 100) : 0;
-    document.getElementById('srs-done-title').textContent = acc >= 80 ? '훌륭해요! 🎉' : acc >= 60 ? '잘 했어요! 👏' : '계속 연습해요! 💪';
-    document.getElementById('srs-done-subtitle').textContent = `${total}개 중 ${srsCorrect}개 정답 · 정확도 ${acc}%`;
-    document.getElementById('srs-done-emoji').textContent = acc >= 80 ? '🏆' : acc >= 60 ? '🎉' : '💪';
-    document.getElementById('srs-done-correct').textContent = srsCorrect;
-    document.getElementById('srs-done-wrong').textContent = srsWrong;
-    scheduleRender();
-}
-
-function exitSRS() {
-    document.getElementById('srs-session').classList.add('hidden');
-    document.getElementById('srs-complete').classList.add('hidden');
-    document.getElementById('srs-dashboard').classList.remove('hidden');
-    renderSRSDashboard();
-}
-
-// SRS 탭 진입 시 대시보드 갱신
-const _origSwitchTab = switchTab;
-// (switchTab은 아래에서 후킹)
-
-
-
-// 초기 SRS 뱃지 갱신 (페이지 로드 후)
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const due = getSRSDue();
-        const badge = document.getElementById('srs-due-badge');
-        if (badge && due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
-    }, 500);
-});
+  document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+          const due = getSRSDue(), badge = document.getElementById('srs-due-badge');
+          if (badge && due.length > 0) { badge.textContent = due.length > 99 ? '99+' : due.length; badge.classList.remove('hidden'); }
+      }, 500);
+  });
 </script>
 </body>
 </html>
