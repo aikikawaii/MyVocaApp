@@ -2,1419 +2,1353 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vocab</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab — 나만의 영단어장</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #08090a;
-  --surface: #111214;
-  --surface-2: #16181b;
-  --surface-3: #1c1f23;
-  --border: rgba(255,255,255,0.06);
-  --border-strong: rgba(255,255,255,0.1);
-  --text: #e6e6e6;
-  --text-2: #9ca0a8;
-  --text-3: #5c6068;
-  --accent: #5e6ad2;
-  --accent-2: #7d8ae6;
-  --accent-dim: rgba(94,106,210,0.12);
-  --success: #4ade80;
-  --warn: #fbbf24;
-  --danger: #f87171;
-  --r-sm: 4px;
-  --r-md: 6px;
-  --r-lg: 10px;
+  --bg: #0a0a0a;
+  --bg-1: #111111;
+  --bg-2: #1a1a1a;
+  --bg-3: #242424;
+  --bg-hover: #2a2a2a;
+  --border: rgba(255,255,255,0.07);
+  --border-md: rgba(255,255,255,0.12);
+  --border-hi: rgba(255,255,255,0.22);
+  --text-1: #f0f0f0;
+  --text-2: #888888;
+  --text-3: #555555;
+  --accent: #5c6bc0;
+  --accent-dim: rgba(92,107,192,0.15);
+  --accent-hi: #7986cb;
+  --green: #4caf7d;
+  --green-dim: rgba(76,175,125,0.12);
+  --red: #e05c5c;
+  --red-dim: rgba(224,92,92,0.12);
+  --amber: #e8a838;
+  --amber-dim: rgba(232,168,56,0.12);
+  --purple: #ab6bf5;
+  --purple-dim: rgba(171,107,245,0.12);
+  --font: 'Pretendard', -apple-system, sans-serif;
+  --mono: 'Geist Mono', monospace;
+  --r: 8px;
+  --r-lg: 12px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 13px;
-  line-height: 1.5;
-  font-feature-settings: "cv11", "ss01";
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
-}
-button, input, select { font-family: inherit; font-size: inherit; color: inherit; }
-button { cursor: pointer; border: none; background: none; }
-input, select {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 6px 10px;
-  outline: none;
-  transition: border-color .15s, background .15s;
-}
-input:focus, select:focus { border-color: var(--accent); background: var(--surface-3); }
-::-webkit-scrollbar { width: 8px; height: 8px; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text-1); font-family: var(--font); font-size: 14px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 99px; }
 
-/* ── Layout ── */
-.app { display: grid; grid-template-rows: 44px 1fr; height: 100vh; }
-.topbar {
+/* LAYOUT */
+.app { display: flex; flex-direction: column; height: 100vh; max-width: 1200px; margin: 0 auto; }
+
+/* HEADER */
+.hdr {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 16px; border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  padding: 0 20px; height: 52px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; position: relative; z-index: 20;
 }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; }
-.brand-logo {
-  width: 22px; height: 22px; border-radius: 6px;
-  background: linear-gradient(135deg, var(--accent), #8b5cf6);
-  display: grid; place-items: center; font-size: 12px;
+.hdr-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text-1); letter-spacing: 0.08em; }
+.hdr-logo span { color: var(--accent-hi); }
+.cloud-pill {
+  display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 99px;
+  font-size: 11px; font-family: var(--mono); color: var(--text-2);
 }
-.tabs { display: flex; gap: 2px; }
-.tab {
-  padding: 6px 12px; border-radius: var(--r-md);
-  color: var(--text-3); font-weight: 500;
-  transition: color .15s, background .15s;
-  font-size: 13px;
-}
-.tab:hover { color: var(--text-2); background: var(--surface-2); }
-.tab.active { color: var(--text); background: var(--surface-2); }
-.tab .badge {
-  display: inline-block; margin-left: 6px; padding: 1px 6px;
-  background: var(--danger); color: white; font-size: 10px;
-  border-radius: 8px; font-weight: 600;
-}
-.topbar-right { display: flex; align-items: center; gap: 12px; color: var(--text-2); font-size: 12px; }
-.sync-status { display: flex; align-items: center; gap: 6px; }
-.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); }
-.sync-dot.connected { background: var(--success); box-shadow: 0 0 6px var(--success); }
-.sync-dot.syncing { background: var(--warn); }
-.sync-dot.error { background: var(--danger); }
+.cloud-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); transition: background 0.4s; }
 
-.view { display: none; height: 100%; overflow: hidden; }
-.view.active { display: flex; }
+/* NAV */
+.nav {
+  display: flex; align-items: center; gap: 2px;
+  padding: 8px 16px 0; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; overflow-x: auto;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  position: relative; display: flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: var(--r) var(--r) 0 0;
+  font-size: 12px; font-weight: 500; color: var(--text-2);
+  border: none; background: transparent; cursor: pointer;
+  white-space: nowrap; transition: color 0.15s, background 0.15s;
+  letter-spacing: 0.01em;
+}
+.nav-btn:hover { color: var(--text-1); background: var(--bg-2); }
+.nav-btn.active { color: var(--text-1); background: var(--bg-2); border: 1px solid var(--border); border-bottom: 1px solid var(--bg-2); }
+.nav-btn.active::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+  background: var(--bg-2);
+}
+.nav-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  background: var(--red); color: #fff; font-size: 9px; font-weight: 600;
+  border-radius: 99px; font-family: var(--mono);
+}
 
-/* ── Words View ── */
-#view-words { flex-direction: column; }
-.words-toolbar {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 16px; border-bottom: 1px solid var(--border);
-}
-.words-toolbar input[type=text] { flex: 1; max-width: 280px; }
-.btn {
-  padding: 6px 12px; border-radius: var(--r-md);
-  background: var(--surface-2); border: 1px solid var(--border);
-  color: var(--text); font-weight: 500;
-  transition: background .15s, border-color .15s;
-  display: inline-flex; align-items: center; gap: 6px;
-}
-.btn:hover { background: var(--surface-3); border-color: var(--border-strong); }
-.btn-primary { background: var(--accent); border-color: var(--accent); }
-.btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
-.btn-danger { color: var(--danger); }
-.btn-danger:hover { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.3); }
-.btn-icon { padding: 6px; }
-.btn-sm { padding: 4px 8px; font-size: 12px; }
+/* VIEWS */
+.views { flex: 1; overflow: hidden; position: relative; }
+.view { position: absolute; inset: 0; overflow-y: auto; padding: 24px 20px; display: none; }
+.view.active { display: block; }
 
-.words-add {
-  display: flex; gap: 8px; padding: 12px 16px;
-  border-bottom: 1px solid var(--border); background: var(--surface);
+/* ── MANAGE ── */
+.input-row {
+  display: flex; gap: 8px; margin-bottom: 20px;
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 8px;
 }
-.words-add input { flex: 1; }
-.words-add input[name=en] { font-weight: 600; }
+.input-row input {
+  flex: 1; background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 9px 12px; color: var(--text-1);
+  font-family: var(--font); font-size: 13px; outline: none;
+  transition: border-color 0.15s;
+}
+.input-row input:focus { border-color: var(--accent); }
+.input-row input::placeholder { color: var(--text-3); }
+.btn-add {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 16px; background: var(--accent); color: #fff;
+  border: none; border-radius: var(--r); font-family: var(--font);
+  font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.btn-add:hover { background: var(--accent-hi); }
 
-.words-list {
-  flex: 1; overflow-y: auto;
+.toolbar {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
 }
-.word-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto auto auto;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--border);
-  transition: background .1s;
+.stat-chip {
+  font-family: var(--mono); font-size: 11px; color: var(--text-2);
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 99px; padding: 4px 10px;
 }
-.word-row:hover { background: var(--surface); }
-.word-en { font-weight: 600; font-size: 14px; }
-.word-ko { color: var(--text-2); font-size: 13px; }
-.word-meta { display: flex; gap: 6px; align-items: center; font-size: 11px; color: var(--text-3); }
+.stat-chip b { color: var(--text-1); }
+.search-wrap { position: relative; flex: 1; min-width: 120px; }
+.search-wrap input {
+  width: 100%; background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 7px 10px 7px 32px; color: var(--text-1);
+  font-family: var(--font); font-size: 12px; outline: none;
+  transition: border-color 0.15s;
+}
+.search-wrap input:focus { border-color: var(--border-md); }
+.search-wrap input::placeholder { color: var(--text-3); }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 13px; }
+
+.btn-sm {
+  padding: 6px 12px; background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--r); font-family: var(--font); font-size: 12px;
+  color: var(--text-2); cursor: pointer; white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-sm:hover { border-color: var(--border-hi); color: var(--text-1); }
+.btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
+
+select.sort-sel {
+  padding: 6px 10px; background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--r); font-family: var(--font); font-size: 12px;
+  color: var(--text-2); outline: none; cursor: pointer;
+}
+
+/* WORD LIST */
+.word-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 8px;
+}
+.word-card {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 12px 14px; gap: 12px;
+  transition: border-color 0.15s, background 0.15s;
+  animation: fadeUp 0.2s ease forwards;
+}
+.word-card:hover { border-color: var(--border-md); background: var(--bg-2); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.wc-left { flex: 1; min-width: 0; }
+.wc-en {
+  font-size: 15px; font-weight: 600; color: var(--text-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: block; transform-origin: left;
+}
+.wc-ko { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.wc-tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
 .tag {
-  padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 500;
-  border: 1px solid;
+  font-family: var(--mono); font-size: 10px; padding: 2px 6px;
+  border-radius: 4px; border: 1px solid;
 }
-.tag-danger { color: var(--danger); border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.08); }
-.tag-warn { color: var(--warn); border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
-.tag-success { color: var(--success); border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.08); }
-.tag-muted { color: var(--text-3); border-color: var(--border); background: var(--surface-2); }
-.word-actions { display: flex; gap: 4px; opacity: 0; transition: opacity .15s; }
-.word-row:hover .word-actions { opacity: 1; }
-.word-actions button {
-  width: 26px; height: 26px; display: grid; place-items: center;
-  border-radius: var(--r-sm); color: var(--text-2);
-  transition: background .1s, color .1s;
-}
-.word-actions button:hover { background: var(--surface-3); color: var(--text); }
-.word-actions .del:hover { color: var(--danger); }
+.tag-wrong { background: var(--red-dim); color: var(--red); border-color: rgba(224,92,92,0.25); }
+.tag-dup   { background: var(--amber-dim); color: var(--amber); border-color: rgba(232,168,56,0.25); }
 
-.empty {
-  display: grid; place-items: center; padding: 80px 24px;
-  color: var(--text-3); text-align: center;
+.wc-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.icon-btn {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  background: transparent; border: 1px solid transparent; border-radius: var(--r);
+  color: var(--text-3); cursor: pointer; font-size: 13px;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
 }
-.empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
-.empty-text { font-size: 13px; }
+.icon-btn:hover { background: var(--bg-3); border-color: var(--border); color: var(--text-1); }
+.icon-btn.edit:hover { color: var(--green); }
+.icon-btn.del:hover  { color: var(--red); }
+.icon-btn.analyse:hover { color: var(--accent-hi); }
 
-.words-stats-bar {
-  padding: 8px 16px; border-bottom: 1px solid var(--border);
-  display: flex; gap: 16px; font-size: 12px; color: var(--text-2);
-  background: var(--surface);
+/* PAGINATION */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; }
+.page-btn {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--r);
+  color: var(--text-2); cursor: pointer; font-size: 12px;
+  transition: border-color 0.12s, color 0.12s;
 }
-.words-stats-bar strong { color: var(--text); font-weight: 600; }
+.page-btn:hover:not(:disabled) { border-color: var(--border-hi); color: var(--text-1); }
+.page-btn:disabled { opacity: 0.3; cursor: default; }
+.page-info { font-family: var(--mono); font-size: 11px; color: var(--text-2); padding: 0 8px; }
 
-/* ── Learn View ── */
-#view-learn { flex-direction: column; }
-.learn-hub {
-  flex: 1; overflow-y: auto; padding: 24px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-  align-content: start;
-  max-width: 1100px; margin: 0 auto; width: 100%;
-}
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 20px;
-}
-.card-title {
-  font-size: 11px; font-weight: 600; color: var(--text-3);
-  text-transform: uppercase; letter-spacing: 0.06em;
-  margin-bottom: 14px;
-}
-.stat-big { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
-.stat-label { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+/* EMPTY */
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 64px 20px; gap: 8px; }
+.empty-icon { font-size: 32px; opacity: 0.2; }
+.empty-text { font-size: 13px; color: var(--text-3); }
 
-.srs-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-  margin-bottom: 16px;
-}
-.srs-stat {
-  background: var(--surface-2); border: 1px solid var(--border);
-  padding: 14px; border-radius: var(--r-md);
-}
-.srs-stat .num { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
-.srs-stat .lbl { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-top: 4px; }
-.srs-stat.due .num { color: var(--danger); }
-.srs-stat.new .num { color: var(--success); }
-.srs-stat.learn .num { color: var(--accent-2); }
+/* ── STUDY TAB ── */
+.study-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+@media (max-width: 600px) { .study-grid { grid-template-columns: 1fr; } }
 
-.progress {
-  height: 6px; background: var(--surface-2);
-  border-radius: 3px; overflow: hidden;
-  border: 1px solid var(--border);
+.study-card {
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 20px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
 }
-.progress-bar {
-  height: 100%; background: linear-gradient(90deg, var(--accent), #8b5cf6);
-  transition: width .5s ease;
-}
+.study-card:hover { border-color: var(--border-md); background: var(--bg-2); }
+.study-card.active-card { border-color: var(--accent); }
+.sc-label { font-size: 11px; font-family: var(--mono); color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+.sc-title { font-size: 18px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+.sc-sub { font-size: 12px; color: var(--text-2); }
+.sc-count { font-family: var(--mono); font-size: 28px; font-weight: 600; }
+.sc-count.red { color: var(--red); }
+.sc-count.green { color: var(--green); }
+.sc-count.accent { color: var(--accent-hi); }
+.sc-count.amber { color: var(--amber); }
 
-.learn-actions { display: flex; gap: 8px; margin-top: 14px; }
-.learn-actions .btn { flex: 1; justify-content: center; padding: 10px; }
-
-.mode-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-}
+.mode-btns { display: flex; gap: 8px; margin-bottom: 20px; }
 .mode-btn {
-  background: var(--surface-2); border: 1px solid var(--border);
-  border-radius: var(--r-md); padding: 14px; text-align: left;
-  transition: border-color .15s, background .15s;
+  flex: 1; padding: 10px; background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--r-lg); font-family: var(--font); font-size: 13px; font-weight: 500;
+  color: var(--text-2); cursor: pointer; transition: all 0.15s; text-align: center;
 }
-.mode-btn:hover { border-color: var(--accent); background: var(--surface-3); }
-.mode-btn .ico { font-size: 18px; margin-bottom: 6px; }
-.mode-btn .name { font-weight: 600; font-size: 13px; }
-.mode-btn .desc { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.mode-btn:hover { border-color: var(--border-md); color: var(--text-1); }
+.mode-btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent-hi); }
+.mode-btn.primary:hover { background: rgba(92,107,192,0.25); }
+.mode-btn.secondary { background: var(--green-dim); border-color: rgba(76,175,125,0.35); color: var(--green); }
+.mode-btn.danger-mode { background: var(--red-dim); border-color: rgba(224,92,92,0.35); color: var(--red); }
 
-.upcoming-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 8px 0; border-bottom: 1px solid var(--border);
-  font-size: 12px;
-}
-.upcoming-row:last-child { border: none; }
-.upcoming-row .day { color: var(--text-2); }
-.upcoming-row .cnt { font-weight: 600; }
-.upcoming-row .cnt.active { color: var(--accent-2); }
+/* FLASH CARD AREA */
+.flash-wrap { display: none; }
+.flash-wrap.active { display: flex; flex-direction: column; }
+.flash-progress-bar { height: 2px; background: var(--bg-3); border-radius: 99px; margin-bottom: 20px; overflow: hidden; }
+.flash-progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.3s ease; }
 
-/* ── Session ── */
-.session {
-  flex: 1; display: flex; flex-direction: column;
-  max-width: 720px; margin: 0 auto; width: 100%;
-  padding: 24px; gap: 16px;
-}
-.session-header {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 12px;
-}
-.session-header .progress-text { color: var(--text-2); }
-.session-header .progress-text strong { color: var(--text); font-weight: 600; }
-.session-progress {
-  height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden;
-}
-.session-progress-bar {
-  height: 100%; background: var(--accent); transition: width .3s;
-}
-.session-card {
-  flex: 1; background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-lg); padding: 40px;
+.flash-card {
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: 16px; padding: 48px 32px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; gap: 16px; min-height: 280px; position: relative;
+  text-align: center; min-height: 240px; position: relative;
+  margin-bottom: 12px;
 }
-.session-prompt {
-  font-size: 11px; color: var(--text-3); text-transform: uppercase;
-  letter-spacing: 0.08em; font-weight: 600;
-}
-.session-word {
-  font-size: 44px; font-weight: 700; letter-spacing: -0.03em;
-  line-height: 1.1;
-}
-.session-answer {
-  font-size: 24px; color: var(--accent-2); font-weight: 600;
-}
-.session-hint { color: var(--text-2); font-size: 13px; max-width: 480px; }
+.flash-en { font-size: 42px; font-weight: 700; color: var(--text-1); letter-spacing: -0.02em; margin-bottom: 8px; }
+.flash-ko { font-size: 24px; font-weight: 500; color: var(--accent-hi); margin-top: 20px; display: none; }
+.flash-meta { font-size: 11px; font-family: var(--mono); color: var(--text-3); }
 
-.grade-buttons {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+.flash-btns { display: flex; gap: 10px; }
+.flash-btn {
+  flex: 1; padding: 14px; border-radius: var(--r-lg); font-family: var(--font);
+  font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid;
+  transition: opacity 0.15s;
 }
-.grade-btn {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-md); padding: 12px;
-  transition: all .15s; text-align: center;
-}
-.grade-btn:hover { border-color: var(--border-strong); background: var(--surface-2); }
-.grade-btn .g-name { font-weight: 600; font-size: 12px; }
-.grade-btn .g-time { font-size: 10px; color: var(--text-3); margin-top: 2px; }
-.grade-btn[data-grade="1"]:hover { border-color: var(--danger); }
-.grade-btn[data-grade="1"] .g-name { color: var(--danger); }
-.grade-btn[data-grade="2"]:hover { border-color: var(--warn); }
-.grade-btn[data-grade="2"] .g-name { color: var(--warn); }
-.grade-btn[data-grade="3"]:hover { border-color: var(--accent-2); }
-.grade-btn[data-grade="4"]:hover { border-color: var(--success); }
-.grade-btn[data-grade="4"] .g-name { color: var(--success); }
+.flash-btn:hover { opacity: 0.8; }
+.flash-btn.reveal { background: var(--bg-2); border-color: var(--border-md); color: var(--text-1); }
+.flash-btn.wrong  { background: var(--red-dim); border-color: rgba(224,92,92,0.3); color: var(--red); }
+.flash-btn.right  { background: var(--green-dim); border-color: rgba(76,175,125,0.3); color: var(--green); }
 
-/* ── Quiz options ── */
-.quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+/* QUIZ AREA */
+.quiz-wrap { display: none; }
+.quiz-wrap.active { display: flex; flex-direction: column; }
+.quiz-timer-bar { height: 3px; background: var(--bg-3); border-radius: 99px; margin-bottom: 16px; overflow: hidden; }
+.quiz-timer-fill {
+  height: 100%; border-radius: 99px; width: 100%;
+  background: var(--accent); transition: width 0.1s linear, background 0.3s;
+}
+.quiz-timer-fill.warn { background: var(--amber); }
+.quiz-timer-fill.danger { background: var(--red); animation: blink 0.5s infinite; }
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+.quiz-word {
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 36px;
+  text-align: center; margin-bottom: 12px;
+}
+.quiz-word-label { font-size: 10px; font-family: var(--mono); color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.quiz-word-en { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; }
+.quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .quiz-opt {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-md); padding: 16px;
-  text-align: left; font-size: 14px; font-weight: 500;
-  transition: all .15s;
+  padding: 16px; background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); font-size: 14px; font-weight: 500; color: var(--text-1);
+  cursor: pointer; text-align: center; transition: border-color 0.12s, background 0.12s;
 }
-.quiz-opt:hover:not(:disabled) { border-color: var(--accent); background: var(--surface-2); }
-.quiz-opt.correct { background: rgba(74,222,128,0.12); border-color: var(--success); color: var(--success); }
-.quiz-opt.wrong { background: rgba(248,113,113,0.12); border-color: var(--danger); color: var(--danger); }
-.quiz-opt.dim { opacity: 0.35; }
+.quiz-opt:not(:disabled):hover { border-color: var(--border-md); background: var(--bg-2); }
+.quiz-opt.correct { background: var(--green-dim) !important; border-color: rgba(76,175,125,0.5) !important; color: var(--green) !important; }
+.quiz-opt.wrong   { background: var(--red-dim) !important; border-color: rgba(224,92,92,0.5) !important; color: var(--red) !important; animation: shake 0.3s ease; }
+.quiz-opt.reveal  { background: var(--green-dim) !important; border-color: rgba(76,175,125,0.5) !important; color: var(--green) !important; transition-delay: 0.1s; }
+.quiz-opt.dimmed  { opacity: 0.3; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
 
-.timer-bar {
-  height: 2px; background: var(--surface-2); border-radius: 1px; overflow: hidden;
-  margin-bottom: 4px;
+.quiz-hud { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.hud-pill {
+  font-family: var(--mono); font-size: 11px; color: var(--text-2);
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 99px; padding: 4px 10px;
 }
-.timer-bar-fill {
-  height: 100%; background: var(--accent); transition: width .1s linear;
+.combo-pill {
+  font-family: var(--mono); font-size: 11px; color: var(--amber);
+  background: var(--amber-dim); border: 1px solid rgba(232,168,56,0.25);
+  border-radius: 99px; padding: 4px 10px;
 }
-.timer-bar-fill.warn { background: var(--warn); }
-.timer-bar-fill.danger { background: var(--danger); }
 
-.session-exit {
-  position: absolute; top: 12px; right: 12px;
-  width: 28px; height: 28px; border-radius: var(--r-sm);
-  display: grid; place-items: center; color: var(--text-3);
-}
-.session-exit:hover { background: var(--surface-2); color: var(--text); }
+/* SRS AREA */
+.srs-wrap { display: none; }
+.srs-wrap.active { display: flex; flex-direction: column; }
 
-/* ── Stats View ── */
-#view-stats {
-  flex-direction: column;
-  overflow-y: auto;
+/* RESULT SCREEN */
+.result-screen {
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 48px 20px; gap: 16px;
 }
-.stats-content {
-  padding: 24px; max-width: 1100px; width: 100%; margin: 0 auto;
-  display: flex; flex-direction: column; gap: 16px;
-}
-.stats-row {
-  display: grid; gap: 16px;
-}
-.stats-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
-.stats-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
-.stats-row.cols-2 { grid-template-columns: 1fr 1fr; }
+.result-screen.active { display: flex; }
+.result-emoji { font-size: 48px; }
+.result-title { font-size: 24px; font-weight: 700; }
+.result-stats { display: flex; gap: 24px; }
+.result-stat { text-align: center; }
+.result-stat-n { font-family: var(--mono); font-size: 28px; font-weight: 600; }
+.result-stat-l { font-size: 11px; color: var(--text-2); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); }
 
-.kpi-card { padding: 18px; }
-.kpi-card .lbl {
-  font-size: 11px; color: var(--text-3); text-transform: uppercase;
-  letter-spacing: 0.06em; font-weight: 600; margin-bottom: 8px;
+/* ── STATS ── */
+.stats-hero {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 24px;
 }
-.kpi-card .val {
-  font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
+@media (max-width: 640px) { .stats-hero { grid-template-columns: repeat(2,1fr); } }
+.stat-card {
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 16px;
 }
-.kpi-card .delta { font-size: 11px; color: var(--text-2); margin-top: 4px; }
-.kpi-card .delta.up { color: var(--success); }
-.kpi-card .delta.down { color: var(--danger); }
+.stat-card-label { font-size: 10px; font-family: var(--mono); color: var(--text-2); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.stat-card-val { font-size: 28px; font-weight: 700; font-family: var(--mono); color: var(--text-1); }
+.stat-card-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+.stat-card.accent-card { border-color: rgba(92,107,192,0.25); }
+.stat-card.green-card { border-color: rgba(76,175,125,0.2); }
+.stat-card.red-card { border-color: rgba(224,92,92,0.2); }
+.stat-card.amber-card { border-color: rgba(232,168,56,0.2); }
 
-.heatmap {
-  display: grid; grid-template-rows: repeat(7, 14px); grid-auto-flow: column;
-  grid-auto-columns: 14px; gap: 3px;
-}
-.heatmap .cell {
-  width: 14px; height: 14px; border-radius: 2px;
-  background: var(--surface-2); border: 1px solid var(--border);
-  position: relative; cursor: pointer;
-}
-.heatmap .cell.l1 { background: rgba(94,106,210,0.25); border-color: rgba(94,106,210,0.4); }
-.heatmap .cell.l2 { background: rgba(94,106,210,0.45); border-color: rgba(94,106,210,0.6); }
-.heatmap .cell.l3 { background: rgba(94,106,210,0.7); border-color: rgba(94,106,210,0.8); }
-.heatmap .cell.l4 { background: var(--accent); border-color: var(--accent-2); }
-.heatmap .cell:hover { outline: 1px solid var(--accent-2); }
-.heatmap-legend {
-  display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-3);
-  margin-top: 12px; justify-content: flex-end;
-}
-.heatmap-legend .cell { width: 11px; height: 11px; border-radius: 2px; border: 1px solid var(--border); }
+/* CHART SECTION */
+.chart-section { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; margin-bottom: 16px; }
+.chart-title { font-size: 12px; font-family: var(--mono); color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+.streak-badge { background: var(--amber-dim); border: 1px solid rgba(232,168,56,0.25); border-radius: 99px; padding: 3px 10px; color: var(--amber); font-size: 11px; font-family: var(--mono); }
 
-.chart-bars {
-  display: flex; align-items: flex-end; gap: 6px;
-  height: 140px; padding: 8px 0;
-}
-.chart-bars .bar-col {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; gap: 4px;
-}
-.chart-bars .bar {
-  width: 100%; background: var(--accent); border-radius: 3px 3px 0 0;
-  min-height: 2px; transition: height .5s ease;
+/* GRASS */
+.grass-wrap { overflow-x: auto; padding-bottom: 8px; }
+.grass-grid { display: flex; gap: 4px; min-width: max-content; }
+.grass-col { display: flex; flex-direction: column; gap: 4px; }
+.grass-cell {
+  width: 12px; height: 12px; border-radius: 3px; background: var(--bg-3);
+  cursor: default; transition: transform 0.1s;
   position: relative;
 }
-.chart-bars .bar:hover { background: var(--accent-2); }
-.chart-bars .bar-label { font-size: 10px; color: var(--text-3); }
-.chart-bars .bar-value {
-  position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
-  font-size: 10px; color: var(--text-2); font-weight: 600;
-  opacity: 0; transition: opacity .15s;
-}
-.chart-bars .bar-col:hover .bar-value { opacity: 1; }
+.grass-cell:hover { transform: scale(1.4); z-index: 10; }
+.grass-1 { background: rgba(92,107,192,0.25); }
+.grass-2 { background: rgba(92,107,192,0.5); }
+.grass-3 { background: rgba(92,107,192,0.75); }
+.grass-4 { background: #5c6bc0; }
 
-.donut-wrap { display: flex; align-items: center; gap: 20px; }
-.donut { position: relative; width: 120px; height: 120px; }
-.donut svg { transform: rotate(-90deg); }
-.donut-center {
-  position: absolute; inset: 0; display: grid; place-items: center;
-  text-align: center;
-}
-.donut-center .v { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
-.donut-center .l { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
-.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.donut-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-.donut-legend-item .dot { width: 10px; height: 10px; border-radius: 2px; }
-.donut-legend-item .nm { color: var(--text-2); flex: 1; }
-.donut-legend-item .vl { font-weight: 600; }
+/* BAR CHART */
+.bar-chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; }
+.bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 2px; transition: height 0.4s ease; }
+.bar.b-add { background: var(--accent); }
+.bar.b-test { background: var(--green); }
+.bar.b-quiz { background: var(--purple); }
+.bar-label { font-family: var(--mono); font-size: 9px; color: var(--text-3); text-align: center; white-space: nowrap; }
 
-.insight-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px;
-}
-.insight-row:last-child { border: none; }
-.insight-row .en { font-weight: 600; }
-.insight-row .ko { color: var(--text-2); font-size: 12px; }
-.insight-row .v { font-weight: 600; color: var(--danger); }
+/* ACCURACY RING */
+.ring-wrap { display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap; }
+.ring-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.ring-svg { transform: rotate(-90deg); }
+.ring-label { font-size: 11px; font-family: var(--mono); color: var(--text-2); text-align: center; text-transform: uppercase; letter-spacing: 0.06em; }
 
-/* ── Modal ── */
-.modal-bg {
+/* HEATMAP LEGEND */
+.grass-legend { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+.grass-legend span { font-size: 10px; color: var(--text-3); font-family: var(--mono); }
+
+/* MODALS */
+.overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.15s;
   backdrop-filter: blur(4px);
-  display: none; align-items: center; justify-content: center;
-  z-index: 100;
 }
-.modal-bg.open { display: flex; }
+.overlay.open { opacity: 1; pointer-events: all; }
 .modal {
-  background: var(--surface); border: 1px solid var(--border-strong);
-  border-radius: var(--r-lg); padding: 24px; min-width: 360px; max-width: 480px;
+  background: var(--bg-1); border: 1px solid var(--border-md);
+  border-radius: 16px; padding: 28px; width: 100%; max-width: 380px;
+  margin: 16px; transform: scale(0.96); transition: transform 0.15s;
 }
-.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-.modal p { color: var(--text-2); font-size: 13px; margin-bottom: 16px; }
-.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
-.modal input { width: 100%; margin-bottom: 8px; padding: 8px 10px; }
+.overlay.open .modal { transform: scale(1); }
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+.modal-input {
+  width: 100%; background: var(--bg-2); border: 1px solid var(--border-md);
+  border-radius: var(--r); padding: 10px 12px; color: var(--text-1);
+  font-family: var(--font); font-size: 14px; outline: none;
+  transition: border-color 0.15s; margin-bottom: 10px;
+}
+.modal-input:focus { border-color: var(--accent); }
+.modal-btns { display: flex; gap: 8px; margin-top: 20px; }
+.modal-btn {
+  flex: 1; padding: 10px; border-radius: var(--r); font-family: var(--font);
+  font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+  background: var(--bg-2); color: var(--text-2); transition: all 0.15s;
+}
+.modal-btn:hover { color: var(--text-1); border-color: var(--border-hi); }
+.modal-btn.primary-btn { background: var(--accent); color: #fff; border-color: var(--accent); }
+.modal-btn.primary-btn:hover { background: var(--accent-hi); }
+.modal-btn.danger-btn { background: var(--red-dim); color: var(--red); border-color: rgba(224,92,92,0.3); }
+.modal-btn.danger-btn:hover { background: rgba(224,92,92,0.2); }
 
+/* TOAST */
 .toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: var(--surface); border: 1px solid var(--border-strong);
-  padding: 10px 16px; border-radius: var(--r-md);
-  font-size: 13px; font-weight: 500;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  z-index: 200; opacity: 0; transition: opacity .2s, transform .2s;
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(8px);
+  background: var(--bg-2); border: 1px solid var(--border-md);
+  border-radius: 99px; padding: 8px 20px;
+  font-size: 12px; font-family: var(--mono); color: var(--text-1);
+  z-index: 200; pointer-events: none; opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
 }
-.toast.show { opacity: 1; }
-.toast.error { border-color: var(--danger); color: var(--danger); }
-.toast.success { border-color: var(--success); color: var(--success); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-.kbd {
-  display: inline-block; padding: 1px 5px; font-size: 10px;
-  background: var(--surface-3); border: 1px solid var(--border-strong);
-  border-radius: 3px; font-family: 'JetBrains Mono', monospace;
-  color: var(--text-2);
-}
+/* SECTION HEAD */
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: 11px; font-family: var(--mono); color: var(--text-2); letter-spacing: 0.08em; text-transform: uppercase; }
 
-/* responsive */
-@media (max-width: 800px) {
-  .learn-hub { grid-template-columns: 1fr; padding: 16px; }
-  .stats-row.cols-4 { grid-template-columns: 1fr 1fr; }
-  .stats-row.cols-3 { grid-template-columns: 1fr; }
-  .word-row { grid-template-columns: 1fr 1fr auto; gap: 8px; padding: 10px 12px; }
-  .word-row .word-meta { display: none; }
-  .word-actions { opacity: 1; }
-  .session-word { font-size: 32px; }
+/* BACK ROW */
+.back-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.back-btn {
+  display: flex; align-items: center; gap: 4px; background: transparent;
+  border: none; color: var(--text-2); font-size: 12px; font-family: var(--font);
+  cursor: pointer; padding: 4px 0; transition: color 0.12s;
 }
+.back-btn:hover { color: var(--text-1); }
+.session-info { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <header class="topbar">
-    <div style="display:flex;align-items:center;gap:20px;">
-      <div class="brand">
-        <div class="brand-logo">V</div>
-        <span>Vocab</span>
-      </div>
-      <nav class="tabs">
-        <button class="tab active" data-tab="words">Words</button>
-        <button class="tab" data-tab="learn">Learn <span id="due-badge" class="badge" style="display:none">0</span></button>
-        <button class="tab" data-tab="stats">Stats</button>
-      </nav>
-    </div>
-    <div class="topbar-right">
-      <span id="word-count-top" style="font-variant-numeric: tabular-nums;">0 words</span>
-      <div class="sync-status">
-        <span class="sync-dot" id="sync-dot"></span>
-        <span id="sync-text">connecting…</span>
-      </div>
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="hdr-logo">VOCAB<span>.</span></div>
+    <div class="cloud-pill">
+      <span class="cloud-dot" id="cloud-dot"></span>
+      <span id="cloud-txt">연결 중</span>
     </div>
   </header>
 
-  <!-- ═══ WORDS ═══ -->
-  <section class="view active" id="view-words">
-    <div class="words-add">
-      <input id="add-en" name="en" placeholder="English word" autocomplete="off">
-      <input id="add-ko" name="ko" placeholder="Korean meaning" autocomplete="off">
-      <button class="btn btn-primary" id="btn-add">Add <span class="kbd">↵</span></button>
-    </div>
-    <div class="words-toolbar">
-      <input type="text" id="search" placeholder="Search words..." style="flex:1;max-width:360px;">
-      <select id="sort">
-        <option value="newest">Newest</option>
-        <option value="oldest">Oldest</option>
-        <option value="wrong">Most wrong</option>
-        <option value="alpha">A → Z</option>
-      </select>
-      <select id="filter">
-        <option value="all">All</option>
-        <option value="due">Due today</option>
-        <option value="new">Unlearned</option>
-        <option value="mastered">Mastered</option>
-        <option value="struggling">Struggling</option>
-      </select>
-      <div style="flex:1"></div>
-      <button class="btn btn-sm" id="btn-export">Export</button>
-      <button class="btn btn-sm" onclick="document.getElementById('import-file').click()">Import</button>
-      <input type="file" id="import-file" accept=".json" style="display:none">
-      <button class="btn btn-sm btn-danger" id="btn-clear">Clear all</button>
-    </div>
-    <div class="words-stats-bar">
-      <span>Total <strong id="stat-total">0</strong></span>
-      <span>Learning <strong id="stat-learning">0</strong></span>
-      <span>Mastered <strong id="stat-mastered">0</strong></span>
-      <span>Due <strong id="stat-due">0</strong></span>
-    </div>
-    <div class="words-list" id="words-list"></div>
-  </section>
+  <!-- NAV -->
+  <nav class="nav">
+    <button class="nav-btn active" id="nav-words" onclick="switchTab('words')">단어장</button>
+    <button class="nav-btn" id="nav-study" onclick="switchTab('study')">
+      학습
+      <span class="nav-badge" id="srs-badge" style="display:none"></span>
+    </button>
+    <button class="nav-btn" id="nav-stats" onclick="switchTab('stats')">통계</button>
+  </nav>
 
-  <!-- ═══ LEARN ═══ -->
-  <section class="view" id="view-learn">
-    <div id="learn-hub" class="learn-hub">
-      <div class="card" style="grid-column: 1 / -1;">
-        <div class="card-title">Spaced Repetition</div>
-        <div class="srs-grid">
-          <div class="srs-stat due"><div class="num" id="srs-due">0</div><div class="lbl">Due now</div></div>
-          <div class="srs-stat new"><div class="num" id="srs-new">0</div><div class="lbl">New available</div></div>
-          <div class="srs-stat learn"><div class="num" id="srs-total">0</div><div class="lbl">In learning</div></div>
+  <!-- VIEWS -->
+  <div class="views">
+
+    <!-- ── WORDS ── -->
+    <div class="view active" id="view-words">
+      <div class="input-row">
+        <input id="in-en" type="text" placeholder="영어 단어 (예: persevere)" autocomplete="off">
+        <input id="in-ko" type="text" placeholder="한국어 뜻 (예: 인내하다)" autocomplete="off"
+               onkeypress="if(event.key==='Enter')addWord()">
+        <button class="btn-add" onclick="addWord()">추가 +</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="stat-chip"><b id="word-count">0</b> 단어</div>
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input id="search-in" type="text" placeholder="검색..." oninput="currentPage=1;renderWords()">
         </div>
-        <div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">
-            <span>Goal progress</span>
-            <span id="goal-pct">0%</span>
+        <select class="sort-sel" id="sort-sel" onchange="currentPage=1;renderWords()">
+          <option value="newest">최신순</option>
+          <option value="wrong">오답순</option>
+        </select>
+        <button class="btn-sm" onclick="exportData()">내보내기</button>
+        <button class="btn-sm" onclick="document.getElementById('f-upload').click()">불러오기</button>
+        <input type="file" id="f-upload" style="display:none" accept=".json" onchange="importData(event)">
+        <button class="btn-sm danger" onclick="confirmClearAll()">전체삭제</button>
+      </div>
+
+      <div class="word-grid" id="word-list"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- ── STUDY ── -->
+    <div class="view" id="view-study">
+
+      <!-- INTRO -->
+      <div id="study-intro">
+        <div class="study-grid">
+          <div class="study-card" onclick="studyStart('srs-due')">
+            <div class="sc-label">SRS 복습</div>
+            <div class="sc-count red" id="sc-due">0</div>
+            <div class="sc-sub" style="margin-top:4px">오늘 복습 필요</div>
           </div>
-          <div class="progress"><div class="progress-bar" id="goal-bar" style="width:0%"></div></div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:6px;">
-            <span id="goal-info">Target 2000 · Daily new: 25</span>
+          <div class="study-card" onclick="studyStart('srs-new')">
+            <div class="sc-label">신규 암기</div>
+            <div class="sc-count green" id="sc-new">0</div>
+            <div class="sc-sub" style="margin-top:4px">아직 학습 안 된 단어</div>
+          </div>
+          <div class="study-card" onclick="studyStart('flash-all')">
+            <div class="sc-label">플래시카드</div>
+            <div class="sc-count accent" id="sc-flash">0</div>
+            <div class="sc-sub" style="margin-top:4px">전체 무작위</div>
+          </div>
+          <div class="study-card" onclick="studyStart('flash-wrong')">
+            <div class="sc-label">틀린 단어</div>
+            <div class="sc-count amber" id="sc-wrong">0</div>
+            <div class="sc-sub" style="margin-top:4px">오답 집중 복습</div>
           </div>
         </div>
-        <div class="learn-actions">
-          <button class="btn btn-primary" id="btn-srs-due">Review due</button>
-          <button class="btn" id="btn-srs-new">Learn new</button>
+
+        <div class="divider"></div>
+        <div class="section-head"><span class="section-title">사지선다 퀴즈</span></div>
+        <div class="mode-btns">
+          <button class="mode-btn primary" onclick="studyStart('quiz-all')">무작위 퀴즈</button>
+          <button class="mode-btn danger-mode" onclick="studyStart('quiz-wrong')">오답 퀴즈</button>
+        </div>
+
+        <div id="srs-schedule-wrap">
+          <div class="divider"></div>
+          <div class="section-title" style="margin-bottom:12px">다가오는 복습 일정</div>
+          <div id="srs-schedule" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Practice modes</div>
-        <div class="mode-grid">
-          <button class="mode-btn" data-mode="flash-all">
-            <div class="ico">🃏</div>
-            <div class="name">Flashcards</div>
-            <div class="desc">All words, shuffled</div>
-          </button>
-          <button class="mode-btn" data-mode="flash-wrong">
-            <div class="ico">🎯</div>
-            <div class="name">Weak words</div>
-            <div class="desc">Most missed first</div>
-          </button>
-          <button class="mode-btn" data-mode="quiz-random">
-            <div class="ico">⚡</div>
-            <div class="name">Quick quiz</div>
-            <div class="desc">4-choice, 15s each</div>
-          </button>
-          <button class="mode-btn" data-mode="quiz-wrong">
-            <div class="ico">🔥</div>
-            <div class="name">Mistake quiz</div>
-            <div class="desc">Drill your errors</div>
-          </button>
+      <!-- FLASH CARD SESSION -->
+      <div class="flash-wrap" id="flash-wrap">
+        <div class="back-row">
+          <button class="back-btn" onclick="exitStudy()">← 나가기</button>
+          <span class="session-info" id="flash-progress-txt"></span>
+        </div>
+        <div class="flash-progress-bar"><div class="flash-progress-fill" id="flash-fill" style="width:0%"></div></div>
+        <div class="flash-card" id="flash-card">
+          <div class="flash-meta" id="flash-meta"></div>
+          <div class="flash-en" id="flash-en"></div>
+          <div class="flash-ko" id="flash-ko"></div>
+        </div>
+        <div class="flash-btns" id="flash-action-btns">
+          <button class="flash-btn reveal" id="flash-reveal-btn" onclick="flashReveal()">정답 확인</button>
+        </div>
+        <div class="flash-btns" id="flash-grade-btns" style="display:none">
+          <button class="flash-btn wrong" onclick="flashGrade(false)">✕ 몰랐어요</button>
+          <button class="flash-btn right"  onclick="flashGrade(true)">○ 알았어요</button>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Upcoming reviews</div>
-        <div id="upcoming-list"></div>
-      </div>
-    </div>
-
-    <!-- session container -->
-    <div class="session" id="session" style="display:none">
-      <div class="session-header">
-        <div class="progress-text"><span id="sess-mode-name">Review</span> · <strong id="sess-idx">1</strong> / <span id="sess-total">10</span></div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span style="color:var(--text-3);font-size:11px;" id="sess-score-text"></span>
-          <button class="btn btn-sm" id="sess-exit">Exit <span class="kbd">esc</span></button>
+      <!-- SRS SESSION -->
+      <div class="srs-wrap" id="srs-wrap">
+        <div class="back-row">
+          <button class="back-btn" onclick="exitStudy()">← 나가기</button>
+          <span class="session-info" id="srs-progress-txt"></span>
         </div>
-      </div>
-      <div class="session-progress"><div class="session-progress-bar" id="sess-progress" style="width:0%"></div></div>
-      <div id="timer-wrap" style="display:none">
-        <div class="timer-bar"><div class="timer-bar-fill" id="timer-bar" style="width:100%"></div></div>
-      </div>
-
-      <!-- SRS / Flash card -->
-      <div class="session-card" id="sess-card-srs" style="display:none">
-        <span class="session-prompt" id="sess-prompt">What does this mean?</span>
-        <h1 class="session-word" id="sess-word"></h1>
-        <div id="sess-reveal-area" style="display:none;flex-direction:column;align-items:center;gap:8px;">
-          <div class="session-answer" id="sess-meaning"></div>
+        <div class="flash-progress-bar"><div class="flash-progress-fill" id="srs-fill" style="width:0%;background:var(--green)"></div></div>
+        <div class="flash-card">
+          <div class="flash-meta" id="srs-meta"></div>
+          <div class="flash-en" id="srs-en"></div>
+          <div class="flash-ko" id="srs-ko" style="display:none"></div>
         </div>
-        <button class="btn btn-primary" id="sess-show-btn" style="margin-top:8px;">Show answer <span class="kbd">space</span></button>
-      </div>
-
-      <!-- Grade buttons for SRS -->
-      <div class="grade-buttons" id="sess-grade" style="display:none">
-        <button class="grade-btn" data-grade="1"><div class="g-name">Again</div><div class="g-time">&lt;10m</div></button>
-        <button class="grade-btn" data-grade="2"><div class="g-name">Hard</div><div class="g-time">1d</div></button>
-        <button class="grade-btn" data-grade="3"><div class="g-name">Good</div><div class="g-time" id="g3-time">3d</div></button>
-        <button class="grade-btn" data-grade="4"><div class="g-name">Easy</div><div class="g-time" id="g4-time">6d</div></button>
-      </div>
-
-      <!-- Flashcard buttons -->
-      <div class="grade-buttons" id="sess-flash-grade" style="display:none;grid-template-columns:1fr 1fr">
-        <button class="grade-btn" data-flash="0"><div class="g-name" style="color:var(--danger)">Didn't know</div></button>
-        <button class="grade-btn" data-flash="1"><div class="g-name" style="color:var(--success)">Knew it</div></button>
-      </div>
-
-      <!-- Quiz options -->
-      <div class="quiz-options" id="sess-quiz" style="display:none"></div>
-    </div>
-  </section>
-
-  <!-- ═══ STATS ═══ -->
-  <section class="view" id="view-stats">
-    <div class="stats-content">
-      <div class="stats-row cols-4">
-        <div class="card kpi-card">
-          <div class="lbl">Total words</div>
-          <div class="val" id="kpi-total">0</div>
-          <div class="delta" id="kpi-total-delta"></div>
+        <div id="srs-reveal-area">
+          <button class="flash-btn reveal" style="width:100%;margin-bottom:10px" onclick="srsReveal()">정답 확인</button>
         </div>
-        <div class="card kpi-card">
-          <div class="lbl">Mastered</div>
-          <div class="val" id="kpi-mastered" style="color:var(--success)">0</div>
-          <div class="delta" id="kpi-mastered-delta"></div>
-        </div>
-        <div class="card kpi-card">
-          <div class="lbl">Current streak</div>
-          <div class="val" id="kpi-streak" style="color:var(--accent-2)">0<span style="font-size:14px;color:var(--text-3);font-weight:500;"> days</span></div>
-          <div class="delta">🔥 Keep going</div>
-        </div>
-        <div class="card kpi-card">
-          <div class="lbl">Accuracy (7d)</div>
-          <div class="val" id="kpi-accuracy">—</div>
-          <div class="delta" id="kpi-accuracy-delta"></div>
-        </div>
-      </div>
-
-      <div class="stats-row cols-2">
-        <div class="card" style="grid-column: 1 / -1;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
-            <div>
-              <div class="card-title" style="margin-bottom:4px;">Activity heatmap</div>
-              <div style="font-size:11px;color:var(--text-3);">Last 12 weeks</div>
-            </div>
-            <div class="heatmap-legend">
-              <span>Less</span>
-              <div class="cell"></div>
-              <div class="cell l1"></div>
-              <div class="cell l2"></div>
-              <div class="cell l3"></div>
-              <div class="cell l4"></div>
-              <span>More</span>
-            </div>
-          </div>
-          <div style="overflow-x:auto;padding-bottom:4px;">
-            <div class="heatmap" id="heatmap"></div>
+        <div id="srs-grade-area" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+            <button class="flash-btn wrong" style="padding:12px 8px;font-size:12px" onclick="srsGrade(1)">😵<br><span style="font-size:10px;opacity:0.7">몰라<br>+10분</span></button>
+            <button class="flash-btn" style="padding:12px 8px;font-size:12px;background:var(--amber-dim);border-color:rgba(232,168,56,0.3);color:var(--amber)" onclick="srsGrade(2)">😕<br><span style="font-size:10px;opacity:0.7">애매<br>+1일</span></button>
+            <button class="flash-btn right" style="padding:12px 8px;font-size:12px" onclick="srsGrade(3)" id="srs-g3-btn">🙂<br><span style="font-size:10px;opacity:0.7;white-space:nowrap" id="srs-g3-lbl">+?일</span></button>
+            <button class="flash-btn right" style="padding:12px 8px;font-size:12px;background:rgba(76,175,125,0.2);border-color:rgba(76,175,125,0.5)" onclick="srsGrade(4)" id="srs-g4-btn">😄<br><span style="font-size:10px;opacity:0.7;white-space:nowrap" id="srs-g4-lbl">+?일</span></button>
           </div>
         </div>
       </div>
 
-      <div class="stats-row cols-2">
-        <div class="card">
-          <div class="card-title">Last 14 days</div>
-          <div class="chart-bars" id="bars-14"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Mastery distribution</div>
-          <div class="donut-wrap">
-            <div class="donut">
-              <svg width="120" height="120" viewBox="0 0 120 120" id="donut-svg"></svg>
-              <div class="donut-center"><div class="v" id="donut-total">0</div><div class="l">words</div></div>
-            </div>
-            <div class="donut-legend" id="donut-legend"></div>
+      <!-- QUIZ SESSION -->
+      <div class="quiz-wrap" id="quiz-wrap">
+        <div class="quiz-hud">
+          <button class="back-btn" onclick="exitStudy()">← 나가기</button>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="combo-pill" id="combo-pill" style="display:none"></span>
+            <span class="hud-pill" id="quiz-score-pill">0점</span>
+            <button class="btn-sm danger" onclick="showQuizResult()">종료</button>
           </div>
         </div>
+        <div class="quiz-timer-bar"><div class="quiz-timer-fill" id="quiz-timer-fill"></div></div>
+        <div class="quiz-word">
+          <div class="quiz-word-label">어떤 뜻일까요?</div>
+          <div class="quiz-word-en" id="quiz-word-en"></div>
+        </div>
+        <div class="quiz-opts" id="quiz-opts"></div>
       </div>
 
-      <div class="stats-row cols-2">
-        <div class="card">
-          <div class="card-title">Most missed</div>
-          <div id="top-wrong"></div>
+      <!-- RESULTS -->
+      <div class="result-screen" id="result-screen">
+        <div class="result-emoji" id="result-emoji">🎉</div>
+        <div class="result-title" id="result-title">완료!</div>
+        <div style="font-size:13px;color:var(--text-2)" id="result-sub"></div>
+        <div class="result-stats" id="result-stats"></div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button class="mode-btn" style="min-width:120px" onclick="exitStudy()">돌아가기</button>
+          <button class="mode-btn primary" style="min-width:120px" id="result-retry-btn">다시 하기</button>
         </div>
-        <div class="card">
-          <div class="card-title">Learning velocity</div>
-          <div id="velocity"></div>
+      </div>
+
+    </div>
+
+    <!-- ── STATS ── -->
+    <div class="view" id="view-stats">
+      <!-- Hero numbers -->
+      <div class="stats-hero">
+        <div class="stat-card accent-card">
+          <div class="stat-card-label">총 단어</div>
+          <div class="stat-card-val" id="st-total">0</div>
+          <div class="stat-card-sub">단어장에 등록됨</div>
         </div>
+        <div class="stat-card green-card">
+          <div class="stat-card-label">오늘 학습</div>
+          <div class="stat-card-val" id="st-today">0</div>
+          <div class="stat-card-sub" id="st-today-sub">활동 없음</div>
+        </div>
+        <div class="stat-card red-card">
+          <div class="stat-card-label">오답 누적</div>
+          <div class="stat-card-val" id="st-wrong">0</div>
+          <div class="stat-card-sub">복습 필요</div>
+        </div>
+        <div class="stat-card amber-card">
+          <div class="stat-card-label">연속 학습</div>
+          <div class="stat-card-val" id="st-streak">0</div>
+          <div class="stat-card-sub">일째 🔥</div>
+        </div>
+      </div>
+
+      <!-- Activity chart (14 days bar) -->
+      <div class="chart-section">
+        <div class="chart-title">
+          <span>14일 학습량</span>
+          <div style="display:flex;gap:12px">
+            <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-3)">
+              <span style="width:8px;height:8px;border-radius:2px;background:var(--accent);display:inline-block"></span>추가
+            </span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-3)">
+              <span style="width:8px;height:8px;border-radius:2px;background:var(--green);display:inline-block"></span>플래시
+            </span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-3)">
+              <span style="width:8px;height:8px;border-radius:2px;background:var(--purple);display:inline-block"></span>퀴즈
+            </span>
+          </div>
+        </div>
+        <div class="bar-chart" id="bar-chart"></div>
+      </div>
+
+      <!-- Heatmap -->
+      <div class="chart-section">
+        <div class="chart-title">
+          <span>최근 70일 활동</span>
+          <span class="streak-badge" id="streak-badge">0일 연속</span>
+        </div>
+        <div class="grass-wrap">
+          <div class="grass-grid" id="grass-grid"></div>
+        </div>
+        <div class="grass-legend">
+          <span>적음</span>
+          <div class="grass-cell"></div>
+          <div class="grass-cell grass-1"></div>
+          <div class="grass-cell grass-2"></div>
+          <div class="grass-cell grass-3"></div>
+          <div class="grass-cell grass-4"></div>
+          <span>많음</span>
+        </div>
+      </div>
+
+      <!-- Accuracy rings -->
+      <div class="chart-section">
+        <div class="chart-title"><span>정확도 현황</span></div>
+        <div class="ring-wrap" id="ring-wrap"></div>
+      </div>
+
+      <!-- Top wrong words -->
+      <div class="chart-section">
+        <div class="chart-title"><span>오답 TOP 10</span></div>
+        <div id="top-wrong" style="display:flex;flex-direction:column;gap:6px;"></div>
       </div>
     </div>
-  </section>
-</div>
 
-<!-- Modals -->
-<div class="modal-bg" id="modal-edit">
+  </div><!-- /views -->
+</div><!-- /app -->
+
+<!-- MODALS -->
+<div class="overlay" id="delete-overlay">
   <div class="modal">
-    <h3>Edit word</h3>
-    <input id="edit-en" placeholder="English">
-    <input id="edit-ko" placeholder="Korean">
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-edit')">Cancel</button>
-      <button class="btn btn-primary" id="edit-save">Save</button>
+    <div class="modal-title">삭제할까요?</div>
+    <div style="font-size:13px;color:var(--text-2);margin-bottom:4px">이 작업은 되돌릴 수 없습니다.</div>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="closeModal('delete-overlay')">취소</button>
+      <button class="modal-btn danger-btn" onclick="executeDelete()">삭제</button>
     </div>
   </div>
 </div>
 
-<div class="modal-bg" id="modal-confirm">
+<div class="overlay" id="clear-overlay">
   <div class="modal">
-    <h3 id="cf-title">Confirm</h3>
-    <p id="cf-msg"></p>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-confirm')">Cancel</button>
-      <button class="btn btn-danger" id="cf-ok">Confirm</button>
+    <div class="modal-title">⚠ 전체 삭제</div>
+    <div style="font-size:13px;color:var(--text-2);margin-bottom:4px">모든 단어가 영구 삭제됩니다.</div>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="closeModal('clear-overlay')">취소</button>
+      <button class="modal-btn danger-btn" onclick="executeClearAll()">전체 삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="edit-overlay">
+  <div class="modal">
+    <div class="modal-title">단어 수정</div>
+    <input class="modal-input" id="edit-en-in" placeholder="영어 단어">
+    <input class="modal-input" id="edit-ko-in" placeholder="한국어 뜻" onkeypress="if(event.key==='Enter')saveEdit()">
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="closeModal('edit-overlay')">취소</button>
+      <button class="modal-btn primary-btn" onclick="saveEdit()">저장</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- SIM MATRIX (lightweight) -->
+<script>
+// ── HELPERS ──
+let words = [], activityLog = {}, simMatrix = {};
+let currentPage = 1;
+const IPP = 15;
+
+const KSC = [ // minimal semantic clusters for similarity
+  ['기쁨','행복','즐거움','유쾌','흡족'],['슬픔','우울','비통','서러움','애통'],
+  ['분노','화','분개','격분','짜증'],['두려움','공포','무섭','불안','초조'],
+  ['용감','대담','용기','씩씩'],['성실','근면','부지런','착실'],
+  ['영리','똑똑','현명','총명'],['논리','이성','합리','체계'],
+  ['증가','상승','확대','성장'],['감소','하락','축소','줄다'],
+  ['강화','보강','견고'],['약화','감퇴','쇠약'],['유지','보존','지속'],
+  ['협력','협동','공조'],['경쟁','대결','대립'],['성공','달성','성취'],
+  ['실패','좌절','좌절'],['거짓','위선','기만'],['정직','솔직','진실'],
+  ['빠른','신속','재빠른'],['느린','더딘','천천히'],
+];
+const KCM = new Map();
+KSC.forEach((c,i) => c.forEach(t => KCM.set(t,i)));
+
+function semSim(a, b) {
+  const tok = s => new Set(s.split(/[,\/\s]+/).map(t=>t.trim()).filter(Boolean));
+  const tA = tok(a), tB = tok(b);
+  let score = 0;
+  const cA = new Set(), cB = new Set();
+  tA.forEach(t => { if(KCM.has(t)) cA.add(KCM.get(t)); });
+  tB.forEach(t => { if(KCM.has(t)) cB.add(KCM.get(t)); });
+  let shared = 0; cA.forEach(c => { if(cB.has(c)) shared++; });
+  if(shared) score += Math.min(70, 45 + shared*10);
+  let ex = 0; tA.forEach(t => { if(tB.has(t)) ex++; });
+  score += Math.round(ex / Math.max(1, new Set([...tA,...tB]).size) * 20);
+  return Math.min(100, score);
+}
+function buildSim() {
+  simMatrix = {};
+  for(let i=0;i<words.length;i++) for(let j=i+1;j<words.length;j++) {
+    const a=words[i],b=words[j];
+    if(!simMatrix[a.id]) simMatrix[a.id]={};
+    if(!simMatrix[b.id]) simMatrix[b.id]={};
+    const s=semSim(a.ko,b.ko);
+    simMatrix[a.id][b.id]=s; simMatrix[b.id][a.id]=s;
+  }
+}
+
+// ── STORAGE ──
+let _lsTimer;
+function scheduleSave() { clearTimeout(_lsTimer); _lsTimer = setTimeout(()=>{ localStorage.setItem('vocab_words', JSON.stringify(words)); }, 300); }
+function saveActivity() { localStorage.setItem('vocab_activity', JSON.stringify(activityLog)); }
+function loadData() {
+  try { words = JSON.parse(localStorage.getItem('vocab_words')||'[]'); } catch { words=[]; }
+  try { activityLog = JSON.parse(localStorage.getItem('vocab_activity')||'{}'); } catch { activityLog={}; }
+}
+function saveData(skipRender=false) {
+  scheduleSave(); saveActivity();
+  if(!skipRender) renderWords();
+  if(window.triggerCloud) window.triggerCloud({words, activityLog});
+}
+window.updateFromCloud = data => {
+  words = data.words || data || [];
+  if(data.activityLog) activityLog = data.activityLog;
+  localStorage.setItem('vocab_words', JSON.stringify(words));
+  localStorage.setItem('vocab_activity', JSON.stringify(activityLog));
+  buildSim(); renderWords(); updateStudyDashboard(); updateSRSBadge();
+};
+function logAct(type) {
+  const d = todayStr();
+  if(!activityLog[d]) activityLog[d] = {added:0,tested:0,quizzed:0};
+  activityLog[d][type]++;
+  saveActivity();
+}
+
+// ── DATE ──
+function todayStr() {
+  return new Date().toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).replace(/\.\s*/g,'-').replace(/-$/,'').split('-').map((v,i)=>i>0?v.padStart(2,'0'):v).join('-');
+}
+function daysFromNow(n) {
+  const d=new Date(); d.setDate(d.getDate()+n);
+  return d.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).replace(/\.\s*/g,'-').replace(/-$/,'').split('-').map((v,i)=>i>0?v.padStart(2,'0'):v).join('-');
+}
+
+// ── WORDS ──
+function addWord() {
+  const en=document.getElementById('in-en').value.trim();
+  const ko=document.getElementById('in-ko').value.trim();
+  if(!en||!ko) return toast('영어 단어와 뜻을 입력하세요');
+  const w={id:Date.now(),en,ko,wrongCount:0,quizCount:0,srs:null};
+  words.push(w);
+  if(!simMatrix[w.id]) simMatrix[w.id]={};
+  words.forEach(x=>{ if(x.id!==w.id){ const s=semSim(w.ko,x.ko); simMatrix[w.id][x.id]=s; if(!simMatrix[x.id])simMatrix[x.id]={}; simMatrix[x.id][w.id]=s; } });
+  document.getElementById('in-en').value=''; document.getElementById('in-ko').value='';
+  document.getElementById('in-en').focus();
+  currentPage=1; logAct('added'); saveData(); updateStudyDashboard(); updateSRSBadge();
+  toast('단어 추가 완료 ✓');
+}
+
+let _deleteId=null;
+function confirmDelete(id) { _deleteId=id; openModal('delete-overlay'); }
+function executeDelete() {
+  words=words.filter(w=>w.id!==_deleteId);
+  delete simMatrix[_deleteId];
+  closeModal('delete-overlay'); saveData(); updateStudyDashboard(); toast('삭제됨');
+}
+function confirmClearAll() { if(!words.length) return toast('단어가 없습니다'); openModal('clear-overlay'); }
+function executeClearAll() { words=[]; simMatrix={}; closeModal('clear-overlay'); saveData(); updateStudyDashboard(); toast('전체 삭제됨'); }
+
+let _editId=null;
+function openEdit(id) {
+  const w=words.find(x=>x.id===id); if(!w) return;
+  _editId=id;
+  document.getElementById('edit-en-in').value=w.en;
+  document.getElementById('edit-ko-in').value=w.ko;
+  openModal('edit-overlay');
+}
+function saveEdit() {
+  const en=document.getElementById('edit-en-in').value.trim();
+  const ko=document.getElementById('edit-ko-in').value.trim();
+  if(!en||!ko) return;
+  const i=words.findIndex(w=>w.id===_editId);
+  if(i!==-1){ words[i].en=en; words[i].ko=ko; saveData(); closeModal('edit-overlay'); toast('수정됨'); }
+}
+
+function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
+
+// ── RENDER WORDS ──
+function renderWords() {
+  const q=document.getElementById('search-in').value.toLowerCase().trim();
+  const sort=document.getElementById('sort-sel').value;
+  let disp=[...words];
+  if(q) disp=disp.filter(w=>w.en.toLowerCase().includes(q)||w.ko.includes(q));
+  if(sort==='wrong') disp.sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0));
+  else disp.sort((a,b)=>b.id-a.id);
+  document.getElementById('word-count').textContent=disp.length;
+  const total=Math.max(1,Math.ceil(disp.length/IPP));
+  currentPage=Math.max(1,Math.min(currentPage,total));
+  const slice=disp.slice((currentPage-1)*IPP,currentPage*IPP);
+  const list=document.getElementById('word-list');
+  if(!slice.length){ list.innerHTML=`<div class="empty"><div class="empty-icon">◻</div><div class="empty-text">${q?'검색 결과 없음':'단어를 추가해보세요'}</div></div>`; }
+  else {
+    list.innerHTML=slice.map(w=>{
+      const dups=Object.values(simMatrix[w.id]||{}).some(s=>s>=75);
+      const tags=(w.wrongCount>0?`<span class="tag tag-wrong">오답 ${w.wrongCount}</span>`:'')+(dups?`<span class="tag tag-dup">유사 중복</span>`:'');
+      return `<div class="word-card">
+        <div class="wc-left">
+          <span class="wc-en">${w.en}</span>
+          <div class="wc-ko">${w.ko}</div>
+          ${tags?`<div class="wc-tags">${tags}</div>`:''}
+        </div>
+        <div class="wc-actions">
+          <button class="icon-btn analyse" onclick="toast('분석 기능 준비중')" title="분석">⊕</button>
+          <button class="icon-btn edit" onclick="openEdit(${w.id})" title="수정">✎</button>
+          <button class="icon-btn del" onclick="confirmDelete(${w.id})" title="삭제">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  // Pagination
+  const pg=document.getElementById('pagination');
+  if(total<=1){ pg.innerHTML=''; return; }
+  pg.innerHTML=`
+    <button class="page-btn" onclick="changePage(-1)" ${currentPage===1?'disabled':''}>‹</button>
+    <span class="page-info">${currentPage} / ${total}</span>
+    <button class="page-btn" onclick="changePage(1)" ${currentPage===total?'disabled':''}>›</button>`;
+}
+function changePage(d) { currentPage+=d; renderWords(); document.getElementById('word-list').scrollTop=0; }
+
+function exportData() {
+  if(!words.length) return toast('내보낼 단어가 없습니다');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(words,null,2)],{type:'application/json'}));
+  a.download='vocab.json'; document.body.appendChild(a); a.click(); a.remove();
+}
+function importData(e) {
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try {
+      const imp=JSON.parse(ev.target.result);
+      if(!Array.isArray(imp)) throw 0;
+      imp.forEach(w=>{ if(w.en&&w.ko) words.push({id:Date.now()+Math.random(),en:w.en,ko:w.ko,wrongCount:w.wrongCount||0,quizCount:0,srs:null}); });
+      buildSim(); saveData(); currentPage=1; toast(`${imp.length}개 단어 불러오기 완료`);
+    } catch { toast('파일 형식 오류'); }
+  };
+  r.readAsText(file); e.target.value='';
+}
+
+// ── TAB ──
+function switchTab(name) {
+  ['words','study','stats'].forEach(t=>{
+    document.getElementById(`view-${t}`).classList.toggle('active',t===name);
+    document.getElementById(`nav-${t}`).classList.toggle('active',t===name);
+  });
+  if(name==='stats') renderStats();
+  if(name==='study') updateStudyDashboard();
+}
+
+// ── MODALS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── TOAST ──
+let _toastTimer;
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_toastTimer); _toastTimer=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+// ── SRS ──
+const SRS_NEW_DAY=20, EASE_DEF=2.5, EASE_MIN=1.3;
+function srsDue() { const t=todayStr(); return words.filter(w=>w.srs&&w.srs.due&&w.srs.due<=t); }
+function srsNew()  { return words.filter(w=>!w.srs||!w.srs.due); }
+function sm2(srs,g) {
+  let {interval=0,ease=EASE_DEF,reps=0,lapses=0}=srs||{};
+  ease=Math.max(EASE_MIN,ease);
+  if(g===1) { lapses++; return {interval:0,ease:Math.max(EASE_MIN,ease-0.2),reps:0,lapses,due:daysFromNow(0),minutesDelay:10}; }
+  if(g===2) { return {interval:1,ease:Math.max(EASE_MIN,ease-0.15),reps:reps+1,lapses,due:daysFromNow(1)}; }
+  if(reps===0) interval=1; else if(reps===1) interval=6; else interval=Math.round(interval*ease);
+  ease=g===4?Math.min(3,ease+0.15):Math.max(EASE_MIN,ease-0.05);
+  return {interval,ease,reps:reps+1,lapses:lapses||0,due:daysFromNow(interval)};
+}
+function updateSRSBadge() {
+  const n=srsDue().length;
+  const b=document.getElementById('srs-badge');
+  b.style.display=n>0?'':'none'; b.textContent=n>99?'99+':n;
+}
+
+// ── STUDY DASHBOARD ──
+function updateStudyDashboard() {
+  document.getElementById('sc-due').textContent=srsDue().length;
+  document.getElementById('sc-new').textContent=Math.min(srsNew().length,SRS_NEW_DAY);
+  document.getElementById('sc-flash').textContent=words.length;
+  document.getElementById('sc-wrong').textContent=words.filter(w=>w.wrongCount>0).length;
+  // Schedule
+  const sch=document.getElementById('srs-schedule');
+  const items=[];
+  for(let i=0;i<=4;i++){
+    const d=daysFromNow(i);
+    const cnt=i===0?srsDue().length:words.filter(w=>w.srs&&w.srs.due===d).length;
+    items.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r);">
+      <span style="font-family:var(--mono);font-size:12px;color:var(--text-2)">${i===0?'오늘':i===1?'내일':`${i}일 후`}</span>
+      <span style="font-family:var(--mono);font-size:12px;color:${cnt>0?'var(--accent-hi)':'var(--text-3)'}">${cnt}개</span>
+    </div>`);
+  }
+  sch.innerHTML=items.join('');
+}
+
+// ── STUDY ENGINE ──
+let studyMode='', studyQ=[], studyIdx=0, studyCorrect=0, studyWrong=0;
+let quizWord=null, quizTimer=null, quizTimerInterval=null, quizTimeLeft=100;
+let quizCombo=0, quizBestCombo=0, quizScore=0, quizAnswered=0;
+
+function studyStart(mode) {
+  studyMode=mode;
+  document.getElementById('study-intro').style.display='none';
+  document.getElementById('result-screen').classList.remove('active');
+
+  if(mode==='flash-all'||mode==='flash-wrong') {
+    let pool=mode==='flash-all'?[...words]:words.filter(w=>w.wrongCount>0);
+    if(!pool.length) { toast('단어가 없습니다'); showIntro(); return; }
+    studyQ=shuffle(pool); studyIdx=0; studyCorrect=0; studyWrong=0;
+    showFlash();
+  } else if(mode==='srs-due'||mode==='srs-new') {
+    let pool=mode==='srs-due'?srsDue():srsNew().slice(0,SRS_NEW_DAY);
+    if(!pool.length) { toast(mode==='srs-due'?'복습할 단어 없음':'신규 단어 없음'); showIntro(); return; }
+    studyQ=shuffle(pool); studyIdx=0; studyCorrect=0; studyWrong=0;
+    showSRS();
+  } else if(mode==='quiz-all'||mode==='quiz-wrong') {
+    let pool=mode==='quiz-all'?[...words]:words.filter(w=>w.wrongCount>0);
+    if(pool.length<4) { toast('단어 4개 이상 필요'); showIntro(); return; }
+    studyQ=shuffle(pool); studyIdx=0; quizCombo=0; quizBestCombo=0; quizScore=0; quizAnswered=0;
+    showQuiz();
+  }
+}
+
+function showIntro() {
+  document.getElementById('study-intro').style.display='';
+  document.getElementById('flash-wrap').classList.remove('active');
+  document.getElementById('srs-wrap').classList.remove('active');
+  document.getElementById('quiz-wrap').classList.remove('active');
+  document.getElementById('result-screen').classList.remove('active');
+  updateStudyDashboard();
+}
+function exitStudy() { stopQuizTimer(); showIntro(); }
+
+// ─ FLASH ─
+function showFlash() {
+  document.getElementById('flash-wrap').classList.add('active');
+  loadFlashCard();
+}
+function loadFlashCard() {
+  if(studyIdx>=studyQ.length){ showStudyResult(); return; }
+  const w=studyQ[studyIdx];
+  document.getElementById('flash-progress-txt').textContent=`${studyIdx+1} / ${studyQ.length}`;
+  document.getElementById('flash-fill').style.width=`${(studyIdx/studyQ.length)*100}%`;
+  document.getElementById('flash-en').textContent=w.en;
+  document.getElementById('flash-ko').textContent=w.ko;
+  document.getElementById('flash-ko').style.display='none';
+  document.getElementById('flash-meta').textContent=`${studyMode==='flash-wrong'?'오답 '+w.wrongCount+'회':''}`;
+  document.getElementById('flash-reveal-btn').style.display='';
+  document.getElementById('flash-grade-btns').style.display='none';
+}
+function flashReveal() {
+  document.getElementById('flash-ko').style.display='';
+  document.getElementById('flash-reveal-btn').style.display='none';
+  document.getElementById('flash-grade-btns').style.display='flex';
+}
+function flashGrade(ok) {
+  const w=studyQ[studyIdx];
+  if(ok) { studyCorrect++; }
+  else {
+    studyWrong++;
+    const i=words.findIndex(x=>x.id===w.id);
+    if(i!==-1){ words[i].wrongCount=(words[i].wrongCount||0)+1; saveData(true); }
+  }
+  logAct('tested'); studyIdx++;
+  if(studyIdx>=studyQ.length) { document.getElementById('flash-fill').style.width='100%'; setTimeout(showStudyResult,200); }
+  else loadFlashCard();
+}
+
+// ─ SRS ─
+function showSRS() {
+  document.getElementById('srs-wrap').classList.add('active');
+  loadSRSCard();
+}
+function loadSRSCard() {
+  if(studyIdx>=studyQ.length){ showStudyResult(); return; }
+  const w=studyQ[studyIdx];
+  const srs=w.srs||{};
+  document.getElementById('srs-progress-txt').textContent=`${studyIdx+1} / ${studyQ.length}`;
+  document.getElementById('srs-fill').style.width=`${(studyIdx/studyQ.length)*100}%`;
+  document.getElementById('srs-en').textContent=w.en;
+  document.getElementById('srs-ko').textContent=w.ko;
+  document.getElementById('srs-ko').style.display='none';
+  document.getElementById('srs-meta').textContent=srs.reps>0?`간격 ${srs.interval||0}일 · ${srs.reps}회째`:'신규';
+  const g3=sm2(srs,3), g4=sm2(srs,4);
+  document.getElementById('srs-g3-lbl').textContent=`+${g3.interval||1}일`;
+  document.getElementById('srs-g4-lbl').textContent=`+${g4.interval||6}일`;
+  document.getElementById('srs-reveal-area').style.display='';
+  document.getElementById('srs-grade-area').style.display='none';
+}
+function srsReveal() {
+  document.getElementById('srs-ko').style.display='';
+  document.getElementById('srs-reveal-area').style.display='none';
+  document.getElementById('srs-grade-area').style.display='';
+}
+function srsGrade(g) {
+  const w=studyQ[studyIdx];
+  const i=words.findIndex(x=>x.id===w.id);
+  if(i!==-1){ words[i].srs=sm2(words[i].srs||{},g); saveData(true); }
+  if(g>=3) studyCorrect++; else studyWrong++;
+  logAct('tested'); studyIdx++;
+  setTimeout(loadSRSCard, 150);
+}
+
+// ─ QUIZ ─
+const QUIZ_TIME=15;
+function showQuiz() {
+  document.getElementById('quiz-wrap').classList.add('active');
+  nextQuiz();
+}
+function stopQuizTimer() { clearInterval(quizTimerInterval); quizTimerInterval=null; }
+function startQuizTimer() {
+  stopQuizTimer(); quizTimeLeft=100;
+  const fill=document.getElementById('quiz-timer-fill');
+  fill.style.width='100%'; fill.className='quiz-timer-fill';
+  const step=100/(QUIZ_TIME*10);
+  quizTimerInterval=setInterval(()=>{
+    quizTimeLeft=Math.max(0,quizTimeLeft-step);
+    fill.style.width=quizTimeLeft+'%';
+    if(quizTimeLeft<=20) fill.className='quiz-timer-fill danger';
+    else if(quizTimeLeft<=40) fill.className='quiz-timer-fill warn';
+    if(quizTimeLeft<=0){ stopQuizTimer(); quizTimeout(); }
+  },100);
+}
+function quizTimeout() {
+  document.querySelectorAll('.quiz-opt').forEach(b=>{ b.disabled=true; if(b.dataset.correct==='true') b.classList.add('reveal'); else b.classList.add('dimmed'); });
+  const i=words.findIndex(x=>x.id===quizWord.id);
+  if(i!==-1){ words[i].wrongCount=(words[i].wrongCount||0)+1; saveData(true); }
+  quizCombo=0; updateCombo(); quizAnswered++; logAct('quizzed');
+  setTimeout(nextQuiz,800);
+}
+function getDistractors(target) {
+  const sim=simMatrix[target.id]||{};
+  return words.filter(w=>w.id!==target.id).map(w=>({w,sc:(sim[w.id]||0)*2+Math.random()*5})).sort((a,b)=>b.sc-a.sc).slice(0,3).map(x=>x.w);
+}
+function nextQuiz() {
+  if(studyIdx>=studyQ.length){
+    if(studyMode==='quiz-all') { studyQ=shuffle([...words]); studyIdx=0; }
+    else { const p=words.filter(w=>w.wrongCount>0); if(!p.length){ showQuizResult(); return; } studyQ=shuffle(p); studyIdx=0; }
+  }
+  quizWord=studyQ[studyIdx++];
+  document.getElementById('quiz-word-en').textContent=quizWord.en;
+  const opts=shuffle([{w:quizWord,ok:true},...getDistractors(quizWord).map(w=>({w,ok:false}))]);
+  document.getElementById('quiz-opts').innerHTML=opts.map(o=>`<button class="quiz-opt" data-correct="${o.ok}" onclick="selectQuiz(this,${o.ok},${o.w.id})">${o.w.ko}</button>`).join('');
+  startQuizTimer();
+}
+function selectQuiz(btn,ok,selId) {
+  stopQuizTimer();
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  quizAnswered++;
+  if(ok){ btn.classList.add('correct'); document.querySelectorAll('.quiz-opt:not([data-correct=true])').forEach(b=>b.classList.add('dimmed')); quizScore++; quizCombo++; if(quizCombo>quizBestCombo)quizBestCombo=quizCombo; }
+  else { btn.classList.add('wrong'); document.querySelectorAll('.quiz-opt').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('reveal'); else if(b!==btn) b.classList.add('dimmed'); }); const i=words.findIndex(w=>w.id===quizWord.id); if(i!==-1){ words[i].wrongCount=(words[i].wrongCount||0)+1; saveData(true); } quizCombo=0; }
+  document.getElementById('quiz-score-pill').textContent=`${quizScore}점`;
+  updateCombo(); logAct('quizzed');
+  setTimeout(nextQuiz,ok?450:800);
+}
+function updateCombo() {
+  const p=document.getElementById('combo-pill');
+  if(quizCombo>=2){ p.style.display=''; p.textContent=`🔥 ${quizCombo} 콤보`; }
+  else p.style.display='none';
+}
+function showQuizResult() { stopQuizTimer(); const acc=quizAnswered>0?Math.round(quizScore/quizAnswered*100):0; showStudyResult(acc); }
+
+// ─ RESULTS ─
+function showStudyResult(quizAcc) {
+  document.getElementById('flash-wrap').classList.remove('active');
+  document.getElementById('srs-wrap').classList.remove('active');
+  document.getElementById('quiz-wrap').classList.remove('active');
+  const rs=document.getElementById('result-screen');
+  rs.classList.add('active');
+  const isQuiz=studyMode.startsWith('quiz');
+  const total=isQuiz?quizAnswered:studyCorrect+studyWrong;
+  const correct=isQuiz?quizScore:studyCorrect;
+  const acc=isQuiz?(quizAcc??0):total>0?Math.round(correct/total*100):0;
+  document.getElementById('result-emoji').textContent=acc>=90?'🏆':acc>=70?'🎉':acc>=50?'😊':'💪';
+  document.getElementById('result-title').textContent=acc>=80?'훌륭해요!':acc>=60?'잘했어요!':'계속 도전!';
+  document.getElementById('result-sub').textContent=`정확도 ${acc}%`;
+  document.getElementById('result-stats').innerHTML=`
+    <div class="result-stat"><div class="result-stat-n" style="color:var(--green)">${correct}</div><div class="result-stat-l">정답</div></div>
+    <div class="result-stat"><div class="result-stat-n" style="color:var(--red)">${total-correct}</div><div class="result-stat-l">오답</div></div>
+    ${isQuiz&&quizBestCombo>=3?`<div class="result-stat"><div class="result-stat-n" style="color:var(--amber)">${quizBestCombo}</div><div class="result-stat-l">최고 콤보</div></div>`:''}
+  `;
+  document.getElementById('result-retry-btn').onclick=()=>studyStart(studyMode);
+  updateSRSBadge(); renderWords();
+}
+
+// ── STATS ──
+function renderStats() {
+  const today=todayStr();
+  const todayData=activityLog[today]||{};
+  const todayTotal=(todayData.added||0)+(todayData.tested||0)+(todayData.quizzed||0);
+  document.getElementById('st-total').textContent=words.length;
+  document.getElementById('st-today').textContent=todayTotal;
+  document.getElementById('st-today-sub').textContent=todayTotal?`추가${todayData.added||0} 학습${todayData.tested||0} 퀴즈${todayData.quizzed||0}`:'오늘 활동 없음';
+  document.getElementById('st-wrong').textContent=words.reduce((s,w)=>s+(w.wrongCount||0),0);
+
+  // Streak
+  let streak=0, d=new Date();
+  while(true){
+    const s=d.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).replace(/\.\s*/g,'-').replace(/-$/,'').split('-').map((v,i)=>i>0?v.padStart(2,'0'):v).join('-');
+    const a=activityLog[s];
+    if(a&&((a.added||0)+(a.tested||0)+(a.quizzed||0))>0){ streak++; d.setDate(d.getDate()-1); }
+    else { if(streak===0){ d.setDate(d.getDate()-1); continue; } break; }
+    if(streak>365) break;
+  }
+  document.getElementById('st-streak').textContent=streak;
+  document.getElementById('streak-badge').textContent=`${streak}일 연속`;
+
+  // Bar chart (14 days)
+  const bars=document.getElementById('bar-chart'); bars.innerHTML='';
+  const maxAct=14;
+  let maxVal=1;
+  const days14=[];
+  for(let i=maxAct-1;i>=0;i--){
+    const dd=new Date(); dd.setDate(dd.getDate()-i);
+    const s=dd.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).replace(/\.\s*/g,'-').replace(/-$/,'').split('-').map((v,k)=>k>0?v.padStart(2,'0'):v).join('-');
+    const a=activityLog[s]||{};
+    const tot=(a.added||0)+(a.tested||0)+(a.quizzed||0);
+    if(tot>maxVal) maxVal=tot;
+    days14.push({s,a,dd});
+  }
+  days14.forEach(({s,a,dd})=>{
+    const add=a.added||0, test=a.tested||0, quiz=a.quizzed||0;
+    const total=add+test+quiz;
+    const h=80; const th=Math.round(total/maxVal*h);
+    const ah=total?Math.round(add/total*th):0;
+    const teh=total?Math.round(test/total*th):0;
+    const qh=th-ah-teh;
+    const label=dd.getDate()+'일';
+    bars.innerHTML+=`<div class="bar-wrap" title="${s}: 추가${add} 학습${test} 퀴즈${quiz}">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:${h}px;gap:1px">
+        ${total?`<div class="bar b-add" style="height:${ah}px;width:100%"></div><div class="bar b-test" style="height:${teh}px;width:100%"></div><div class="bar b-quiz" style="height:${Math.max(0,qh)}px;width:100%"></div>`:`<div style="height:2px;width:100%;background:var(--bg-3);border-radius:2px"></div>`}
+      </div>
+      <div class="bar-label">${label}</div>
+    </div>`;
+  });
+
+  // Heatmap 70 days
+  const grass=document.getElementById('grass-grid'); grass.innerHTML='';
+  const weeks=10;
+  for(let col=0;col<weeks;col++){
+    const colDiv=document.createElement('div'); colDiv.className='grass-col';
+    for(let row=0;row<7;row++){
+      const dd=new Date(); dd.setDate(dd.getDate()-(weeks*7-1)+(col*7+row));
+      const s=dd.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}).replace(/\.\s*/g,'-').replace(/-$/,'').split('-').map((v,i)=>i>0?v.padStart(2,'0'):v).join('-');
+      const a=activityLog[s]||{}; const tot=(a.added||0)+(a.tested||0)+(a.quizzed||0);
+      const cls=tot>=30?'grass-4':tot>=10?'grass-3':tot>=3?'grass-2':tot>=1?'grass-1':'';
+      const cell=document.createElement('div');
+      cell.className='grass-cell '+cls;
+      cell.title=`${s}: ${tot} 활동`;
+      colDiv.appendChild(cell);
+    }
+    grass.appendChild(colDiv);
+  }
+
+  // Accuracy rings
+  const totalWords=words.length||1;
+  const learnedWords=words.filter(w=>w.srs&&w.srs.reps>0).length;
+  const wrongWords=words.filter(w=>w.wrongCount>0).length;
+  const totalQuiz=words.reduce((s,w)=>s+(w.quizCount||0)+(w.wrongCount||0),0)||1;
+  const totalRight=words.reduce((s,w)=>s+(w.quizCount||0),0);
+  const overallAcc=Math.round(totalRight/totalQuiz*100);
+  const learnedPct=Math.round(learnedWords/totalWords*100);
+  const wrongPct=Math.round(wrongWords/totalWords*100);
+
+  function ring(pct, color, label, valTxt) {
+    const r=36, c=2*Math.PI*r, fill=c*(pct/100);
+    return `<div class="ring-item">
+      <svg class="ring-svg" width="90" height="90" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="${r}" fill="none" stroke="var(--bg-3)" stroke-width="8"/>
+        <circle cx="45" cy="45" r="${r}" fill="none" stroke="${color}" stroke-width="8"
+          stroke-dasharray="${fill} ${c}" stroke-linecap="round"/>
+        <text x="45" y="45" text-anchor="middle" dominant-baseline="central"
+          style="font-family:var(--mono);font-size:14px;font-weight:600;fill:var(--text-1);transform:rotate(90deg);transform-origin:45px 45px">${valTxt}</text>
+      </svg>
+      <div class="ring-label">${label}</div>
+    </div>`;
+  }
+  document.getElementById('ring-wrap').innerHTML=
+    ring(overallAcc,'var(--accent)',`퀴즈 정확도`,`${overallAcc}%`)+
+    ring(learnedPct,'var(--green)',`SRS 학습률`,`${learnedPct}%`)+
+    ring(wrongPct,'var(--red)',`오답 보유율`,`${wrongPct}%`);
+
+  // Top wrong
+  const topW=[...words].filter(w=>w.wrongCount>0).sort((a,b)=>b.wrongCount-a.wrongCount).slice(0,10);
+  const maxW=topW[0]?.wrongCount||1;
+  document.getElementById('top-wrong').innerHTML=topW.length?topW.map(w=>`
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="min-width:80px;font-size:12px;font-weight:600;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.en}</div>
+      <div style="flex:1;height:6px;background:var(--bg-3);border-radius:99px;overflow:hidden">
+        <div style="width:${Math.round(w.wrongCount/maxW*100)}%;height:100%;background:var(--red);border-radius:99px;transition:width 0.5s ease"></div>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--red);min-width:28px;text-align:right">${w.wrongCount}</div>
+    </div>`).join('')
+    :`<div style="font-size:12px;color:var(--text-3)">오답 없음 — 완벽합니다! 🎉</div>`;
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadData();
+  buildSim();
+  renderWords();
+  updateStudyDashboard();
+  updateSRSBadge();
+});
+</script>
+
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// ═════════ STATE ═════════
-const state = {
-  words: [],
-  activity: {},
-  filter: { sort: 'newest', filter: 'all', search: '' },
-  session: null,
+const cfg = {
+  apiKey:"AIzaSyDlMAr0qMwr3uRL_bodm8gkyewo85OlTlc",
+  authDomain:"myvocaapp-d418d.firebaseapp.com",
+  projectId:"myvocaapp-d418d",
+  storageBucket:"myvocaapp-d418d.firebasestorage.app",
+  messagingSenderId:"841954793233",
+  appId:"1:841954793233:web:2748be6eb03308e0895eb0"
 };
+const app=initializeApp(cfg);
+const auth=getAuth(app);
+const db=getFirestore(app);
+const dot=document.getElementById('cloud-dot');
+const txt=document.getElementById('cloud-txt');
+const setCloud=(c,t)=>{ dot.style.background=c; txt.textContent=t; };
 
-const SRS = { goal: 2000, days: 14, easeDefault: 2.5, easeMin: 1.3 };
-SRS.dailyNew = Math.ceil(SRS.goal / SRS.days);
-
-// ═════════ UTILS ═════════
-const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
-const today = () => new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
-const daysFromNow = n => { const d = new Date(); d.setDate(d.getDate()+n); return d.toLocaleDateString('sv-SE'); };
-const shuffle = a => { a = [...a]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
-const fmtDate = s => { const d = new Date(s); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); };
-
-function toast(msg, type='') {
-  const t = $('#toast');
-  t.textContent = msg;
-  t.className = 'toast ' + type + ' show';
-  clearTimeout(t._timer);
-  t._timer = setTimeout(()=> t.className='toast '+type, 2000);
-}
-
-function openModal(id){ $('#'+id).classList.add('open'); }
-function closeModal(id){ $('#'+id).classList.remove('open'); }
-window.closeModal = closeModal;
-
-// ═════════ STORAGE ═════════
-function load() {
-  try { state.words = JSON.parse(localStorage.getItem('vocab_words')||'[]'); } catch { state.words = []; }
-  try { state.activity = JSON.parse(localStorage.getItem('vocab_activity')||'{}'); } catch { state.activity = {}; }
-}
-
-let saveTimer, cloudTimer;
-function save({ skipCloud=false, urgent=false } = {}) {
-  clearTimeout(saveTimer);
-  const doSave = () => {
-    localStorage.setItem('vocab_words', JSON.stringify(state.words));
-    localStorage.setItem('vocab_activity', JSON.stringify(state.activity));
+let firstLoad=true;
+signInAnonymously(auth).catch(()=>setCloud('#555','오프라인'));
+onAuthStateChanged(auth,user=>{
+  if(!user) return;
+  setCloud('#e8a838','연결 중');
+  const ref=doc(db,'shared_wordbook','my_private_data');
+  let cloudDebounce;
+  window.triggerCloud=data=>{
+    clearTimeout(cloudDebounce);
+    cloudDebounce=setTimeout(()=>{
+      setCloud('#5c6bc0','저장 중...');
+      setDoc(ref,{wordsList:JSON.stringify(data)})
+        .then(()=>setCloud('#4caf7d','동기화 완료 ☁'))
+        .catch(()=>setCloud('#e05c5c','저장 실패'));
+    },2000);
   };
-  if (urgent) doSave();
-  else saveTimer = setTimeout(doSave, 200);
-  if (!skipCloud) {
-    clearTimeout(cloudTimer);
-    cloudTimer = setTimeout(()=> cloudSave(), 1500);
-  }
-}
-
-function logActivity(type) {
-  const d = today();
-  if (!state.activity[d]) state.activity[d] = { added:0, reviewed:0, quizzed:0, correct:0, wrong:0 };
-  state.activity[d][type] = (state.activity[d][type]||0) + 1;
-}
-
-// ═════════ FIREBASE ═════════
-const firebaseConfig = {
-  apiKey: "AIzaSyDlMAr0qMwr3uRL_bodm8gkyewo85OlTlc",
-  authDomain: "myvocaapp-d418d.firebaseapp.com",
-  projectId: "myvocaapp-d418d",
-  storageBucket: "myvocaapp-d418d.firebasestorage.app",
-  messagingSenderId: "841954793233",
-  appId: "1:841954793233:web:2748be6eb03308e0895eb0",
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-let cloudDocRef = null, isInitialLoad = true;
-
-function setSyncStatus(state, text) {
-  const dot = $('#sync-dot');
-  dot.className = 'sync-dot ' + state;
-  $('#sync-text').textContent = text;
-}
-
-signInAnonymously(auth).catch(e => setSyncStatus('error', 'offline'));
-onAuthStateChanged(auth, user => {
-  if (!user) return;
-  setSyncStatus('syncing', 'syncing…');
-  cloudDocRef = doc(db, 'shared_wordbook', 'my_private_data');
-  onSnapshot(cloudDocRef, snap => {
-    setSyncStatus('connected', 'synced');
-    if (snap.exists()) {
-      try {
-        const data = JSON.parse(snap.data().wordsList || '{}');
-        if (data.words) state.words = data.words;
-        else if (Array.isArray(data)) state.words = data;
-        if (data.activity) state.activity = data.activity;
-        save({ skipCloud:true, urgent:true });
-        renderAll();
-        if (isInitialLoad) toast('Cloud synced ☁️', 'success');
+  onSnapshot(ref,snap=>{
+    setCloud('#4caf7d','동기화 완료 ☁');
+    if(snap.exists()){
+      try{
+        const d=JSON.parse(snap.data().wordsList);
+        window.updateFromCloud(d);
+        if(firstLoad){ window.toast('☁ 클라우드 동기화 완료'); }
       } catch(e){ console.error(e); }
-    } else if (state.words.length > 0) {
-      cloudSave();
     }
-    isInitialLoad = false;
-  }, err => setSyncStatus('error', 'offline'));
+    firstLoad=false;
+  },()=>setCloud('#e05c5c','오프라인'));
 });
-
-function cloudSave() {
-  if (!cloudDocRef) return;
-  setSyncStatus('syncing', 'saving…');
-  setDoc(cloudDocRef, { wordsList: JSON.stringify({ words: state.words, activity: state.activity }) })
-    .then(()=> setSyncStatus('connected', 'synced'))
-    .catch(()=> setSyncStatus('error', 'save failed'));
-}
-
-// ═════════ SM-2 SRS ═════════
-function sm2Next(srs, grade) {
-  let { interval=0, ease=SRS.easeDefault, reps=0, lapses=0 } = srs||{};
-  ease = Math.max(SRS.easeMin, ease);
-  if (grade === 1) {
-    return { interval:0, ease:Math.max(SRS.easeMin, ease-0.2), reps:0, lapses:lapses+1, due:today() };
-  }
-  if (grade === 2) {
-    return { interval:1, ease:Math.max(SRS.easeMin, ease-0.15), reps:reps+1, lapses, due:daysFromNow(1) };
-  }
-  if (reps === 0) interval = 1;
-  else if (reps === 1) interval = grade === 4 ? 6 : 3;
-  else interval = Math.max(1, Math.round(interval * ease));
-  ease = grade === 4 ? Math.min(3, ease+0.15) : Math.max(SRS.easeMin, ease-0.05);
-  return { interval, ease, reps:reps+1, lapses, due:daysFromNow(interval) };
-}
-
-const getDue = () => state.words.filter(w => w.srs?.due && w.srs.due <= today());
-const getNew = () => state.words.filter(w => !w.srs?.reps);
-const getMastered = () => state.words.filter(w => w.srs?.reps >= 5 && w.srs?.interval >= 21);
-const getStruggling = () => state.words.filter(w => (w.wrongCount||0) >= 3);
-
-// ═════════ TAB SWITCH ═════════
-$$('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
-function switchTab(name) {
-  $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
-  if (name === 'learn') { exitSession(); renderLearnHub(); }
-  if (name === 'stats') renderStats();
-}
-
-// ═════════ WORDS VIEW ═════════
-function renderWords() {
-  const list = $('#words-list');
-  let words = [...state.words];
-  const { search, sort, filter } = state.filter;
-
-  // filter
-  if (filter === 'due') words = words.filter(w => w.srs?.due && w.srs.due <= today());
-  else if (filter === 'new') words = words.filter(w => !w.srs?.reps);
-  else if (filter === 'mastered') words = getMastered().filter(w => words.includes(w));
-  else if (filter === 'struggling') words = words.filter(w => (w.wrongCount||0) >= 3);
-
-  if (search) {
-    const q = search.toLowerCase();
-    words = words.filter(w => w.en.toLowerCase().includes(q) || w.ko.includes(search));
-  }
-
-  // sort
-  if (sort === 'newest') words.sort((a,b) => b.id - a.id);
-  else if (sort === 'oldest') words.sort((a,b) => a.id - b.id);
-  else if (sort === 'wrong') words.sort((a,b) => (b.wrongCount||0) - (a.wrongCount||0));
-  else if (sort === 'alpha') words.sort((a,b) => a.en.localeCompare(b.en));
-
-  if (!words.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No words match your filter.</div></div>`;
-  } else {
-    const frag = document.createDocumentFragment();
-    words.forEach(w => {
-      const row = document.createElement('div');
-      row.className = 'word-row';
-      const tags = [];
-      const isDue = w.srs?.due && w.srs.due <= today();
-      const isNew = !w.srs?.reps;
-      const isMastered = w.srs?.reps >= 5 && w.srs?.interval >= 21;
-      if (isDue) tags.push('<span class="tag tag-warn">due</span>');
-      else if (isNew) tags.push('<span class="tag tag-muted">new</span>');
-      else if (isMastered) tags.push('<span class="tag tag-success">mastered</span>');
-      if ((w.wrongCount||0) > 0) tags.push(`<span class="tag tag-danger">${w.wrongCount}✕</span>`);
-      const interval = w.srs?.interval ? `${w.srs.interval}d` : '';
-      row.innerHTML = `
-        <div class="word-en">${w.en}</div>
-        <div class="word-ko">${w.ko}</div>
-        <div class="word-meta">${tags.join('')}</div>
-        <div class="word-meta" style="min-width:40px;text-align:right;">${interval}</div>
-        <div class="word-actions">
-          <button title="Edit" onclick="editWord(${w.id})">${iconEdit()}</button>
-          <button class="del" title="Delete" onclick="deleteWord(${w.id})">${iconTrash()}</button>
-        </div>`;
-      frag.appendChild(row);
-    });
-    list.innerHTML = '';
-    list.appendChild(frag);
-  }
-  // top stats
-  $('#stat-total').textContent = state.words.length;
-  $('#stat-learning').textContent = state.words.length - getNew().length - getMastered().length;
-  $('#stat-mastered').textContent = getMastered().length;
-  $('#stat-due').textContent = getDue().length;
-  $('#word-count-top').textContent = state.words.length + ' words';
-  updateDueBadge();
-}
-
-function updateDueBadge() {
-  const due = getDue().length;
-  const badge = $('#due-badge');
-  if (due > 0) { badge.style.display = 'inline-block'; badge.textContent = due > 99 ? '99+' : due; }
-  else badge.style.display = 'none';
-}
-
-function iconEdit(){ return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>`; }
-function iconTrash(){ return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>`; }
-
-// add word
-$('#btn-add').addEventListener('click', addWord);
-$('#add-en').addEventListener('keypress', e => e.key === 'Enter' && $('#add-ko').focus());
-$('#add-ko').addEventListener('keypress', e => e.key === 'Enter' && addWord());
-function addWord() {
-  const en = $('#add-en').value.trim();
-  const ko = $('#add-ko').value.trim();
-  if (!en || !ko) return toast('Both fields required', 'error');
-  state.words.push({ id: Date.now(), en, ko, wrongCount:0, createdAt: today() });
-  logActivity('added');
-  save();
-  $('#add-en').value = ''; $('#add-ko').value = ''; $('#add-en').focus();
-  renderWords();
-  toast('Added ✓', 'success');
-}
-
-window.editWord = function(id) {
-  const w = state.words.find(x => x.id === id);
-  if (!w) return;
-  $('#edit-en').value = w.en;
-  $('#edit-ko').value = w.ko;
-  $('#edit-save').onclick = () => {
-    const en = $('#edit-en').value.trim();
-    const ko = $('#edit-ko').value.trim();
-    if (!en || !ko) return toast('Required', 'error');
-    w.en = en; w.ko = ko;
-    save(); renderWords(); closeModal('modal-edit');
-    toast('Updated ✓', 'success');
-  };
-  openModal('modal-edit');
-};
-
-window.deleteWord = function(id) {
-  showConfirm('Delete word?', 'This cannot be undone.', () => {
-    state.words = state.words.filter(w => w.id !== id);
-    save(); renderWords();
-    toast('Deleted');
-  });
-};
-
-function showConfirm(title, msg, cb) {
-  $('#cf-title').textContent = title;
-  $('#cf-msg').textContent = msg;
-  $('#cf-ok').onclick = () => { cb(); closeModal('modal-confirm'); };
-  openModal('modal-confirm');
-}
-
-// toolbar
-$('#search').addEventListener('input', e => { state.filter.search = e.target.value; renderWords(); });
-$('#sort').addEventListener('change', e => { state.filter.sort = e.target.value; renderWords(); });
-$('#filter').addEventListener('change', e => { state.filter.filter = e.target.value; renderWords(); });
-
-$('#btn-export').onclick = () => {
-  if (!state.words.length) return toast('Nothing to export', 'error');
-  const blob = new Blob([JSON.stringify({words:state.words, activity:state.activity}, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `vocab-${today()}.json`;
-  a.click();
-};
-
-$('#import-file').onchange = e => {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    try {
-      const d = JSON.parse(ev.target.result);
-      const incoming = Array.isArray(d) ? d : d.words;
-      if (!Array.isArray(incoming)) throw 0;
-      incoming.forEach(w => {
-        if (w.en && w.ko) state.words.push({ ...w, id: Date.now()+Math.random() });
-      });
-      if (d.activity) Object.assign(state.activity, d.activity);
-      save(); renderWords();
-      toast(`Imported ${incoming.length} words`, 'success');
-    } catch { toast('Invalid file', 'error'); }
-  };
-  r.readAsText(f);
-  e.target.value = '';
-};
-
-$('#btn-clear').onclick = () => {
-  if (!state.words.length) return toast('Already empty', 'error');
-  showConfirm('Delete all words?', 'This will permanently remove everything.', () => {
-    state.words = [];
-    save(); renderWords();
-    toast('Cleared');
-  });
-};
-
-// ═════════ LEARN HUB ═════════
-function renderLearnHub() {
-  $('#learn-hub').style.display = 'grid';
-  $('#session').style.display = 'none';
-  const due = getDue(), nw = getNew();
-  const learning = state.words.filter(w => w.srs?.reps);
-  $('#srs-due').textContent = due.length;
-  $('#srs-new').textContent = Math.min(nw.length, SRS.dailyNew);
-  $('#srs-total').textContent = learning.length;
-  const pct = Math.min(100, Math.round(learning.length / SRS.goal * 100));
-  $('#goal-pct').textContent = pct + '%';
-  $('#goal-bar').style.width = pct + '%';
-  $('#goal-info').innerHTML = `Target <strong style="color:var(--text)">${SRS.goal}</strong> · Daily new <strong style="color:var(--accent-2)">${SRS.dailyNew}</strong>`;
-  $('#btn-srs-due').disabled = !due.length;
-  $('#btn-srs-due').style.opacity = due.length ? 1 : 0.4;
-
-  const upcoming = $('#upcoming-list');
-  upcoming.innerHTML = '';
-  for (let i = 0; i <= 6; i++) {
-    const d = daysFromNow(i);
-    const cnt = i === 0 ? due.length : state.words.filter(w => w.srs?.due === d).length;
-    const row = document.createElement('div');
-    row.className = 'upcoming-row';
-    const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `+${i} days`;
-    row.innerHTML = `<span class="day">${label} <span style="color:var(--text-3)">${fmtDate(d)}</span></span><span class="cnt ${cnt>0?'active':''}">${cnt}</span>`;
-    upcoming.appendChild(row);
-  }
-}
-
-$('#btn-srs-due').onclick = () => startSession('srs-due');
-$('#btn-srs-new').onclick = () => startSession('srs-new');
-$$('.mode-btn').forEach(b => b.addEventListener('click', () => startSession(b.dataset.mode)));
-
-// ═════════ SESSION ENGINE ═════════
-function startSession(mode) {
-  let pool, modeName;
-  switch(mode) {
-    case 'srs-due': pool = shuffle(getDue()); modeName = 'SRS Review'; break;
-    case 'srs-new': pool = getNew().slice(0, SRS.dailyNew); modeName = 'New Words'; break;
-    case 'flash-all': pool = shuffle(state.words); modeName = 'Flashcards'; break;
-    case 'flash-wrong':
-      pool = [...state.words].filter(w=>(w.wrongCount||0)>0).sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0));
-      modeName = 'Weak Words'; break;
-    case 'quiz-random':
-      if (state.words.length < 4) return toast('Need 4+ words for quiz', 'error');
-      pool = shuffle(state.words); modeName = 'Quick Quiz'; break;
-    case 'quiz-wrong':
-      pool = state.words.filter(w=>(w.wrongCount||0)>0);
-      if (pool.length < 4) return toast('Need 4+ wrong words', 'error');
-      pool = shuffle(pool); modeName = 'Mistake Quiz'; break;
-  }
-  if (!pool || !pool.length) return toast('Nothing to study', 'error');
-
-  state.session = { mode, pool, idx: 0, correct: 0, wrong: 0, modeName };
-  $('#learn-hub').style.display = 'none';
-  $('#session').style.display = 'flex';
-  $('#sess-mode-name').textContent = modeName;
-  $('#sess-total').textContent = pool.length;
-  $('#timer-wrap').style.display = mode.startsWith('quiz') ? 'block' : 'none';
-  loadCard();
-}
-
-function loadCard() {
-  const s = state.session;
-  if (!s || s.idx >= s.pool.length) return finishSession();
-  const w = s.pool[s.idx];
-  $('#sess-idx').textContent = s.idx + 1;
-  $('#sess-progress').style.width = (s.idx / s.pool.length * 100) + '%';
-  $('#sess-score-text').textContent = `${s.correct} correct`;
-
-  if (s.mode.startsWith('quiz')) showQuizCard(w);
-  else showFlashCard(w);
-}
-
-function showFlashCard(w) {
-  $('#sess-card-srs').style.display = 'flex';
-  $('#sess-quiz').style.display = 'none';
-  $('#sess-grade').style.display = 'none';
-  $('#sess-flash-grade').style.display = 'none';
-  $('#sess-word').textContent = w.en;
-  $('#sess-meaning').textContent = w.ko;
-  $('#sess-reveal-area').style.display = 'none';
-  $('#sess-show-btn').style.display = 'inline-flex';
-
-  const isSRS = state.session.mode.startsWith('srs');
-  $('#sess-prompt').textContent = isSRS ? 'Do you remember this?' : 'What does this mean?';
-
-  if (isSRS) {
-    const g3 = sm2Next(w.srs, 3), g4 = sm2Next(w.srs, 4);
-    $('#g3-time').textContent = g3.interval + 'd';
-    $('#g4-time').textContent = g4.interval + 'd';
-  }
-}
-
-$('#sess-show-btn').onclick = () => {
-  $('#sess-reveal-area').style.display = 'flex';
-  $('#sess-show-btn').style.display = 'none';
-  const isSRS = state.session.mode.startsWith('srs');
-  if (isSRS) $('#sess-grade').style.display = 'grid';
-  else $('#sess-flash-grade').style.display = 'grid';
-};
-
-$$('#sess-grade .grade-btn').forEach(b => b.addEventListener('click', () => gradeCard(parseInt(b.dataset.grade))));
-$$('#sess-flash-grade .grade-btn').forEach(b => b.addEventListener('click', () => flashGrade(parseInt(b.dataset.flash))));
-
-function gradeCard(grade) {
-  const s = state.session;
-  const w = s.pool[s.idx];
-  const idx = state.words.findIndex(x => x.id === w.id);
-  if (idx !== -1) {
-    state.words[idx].srs = sm2Next(state.words[idx].srs, grade);
-    if (grade >= 3) s.correct++; else s.wrong++;
-    logActivity('reviewed');
-    if (grade >= 3) logActivity('correct'); else logActivity('wrong');
-  }
-  s.idx++;
-  save({ skipCloud: s.idx % 5 !== 0 });
-  setTimeout(loadCard, 150);
-}
-
-function flashGrade(knew) {
-  const s = state.session;
-  const w = s.pool[s.idx];
-  const idx = state.words.findIndex(x => x.id === w.id);
-  if (idx !== -1) {
-    if (knew) { s.correct++; logActivity('correct'); if (state.words[idx].wrongCount>0) state.words[idx].wrongCount--; }
-    else { s.wrong++; state.words[idx].wrongCount = (state.words[idx].wrongCount||0) + 1; logActivity('wrong'); }
-    logActivity('reviewed');
-  }
-  s.idx++;
-  save({ skipCloud: s.idx % 5 !== 0 });
-  setTimeout(loadCard, 150);
-}
-
-// ─── Quiz mode ───
-let quizTimerId = null;
-function showQuizCard(w) {
-  $('#sess-card-srs').style.display = 'none';
-  $('#sess-grade').style.display = 'none';
-  $('#sess-flash-grade').style.display = 'none';
-  $('#sess-quiz').style.display = 'grid';
-
-  const others = state.words.filter(x => x.id !== w.id).map(x => x.ko);
-  const distractors = shuffle(others).slice(0, 3);
-  const options = shuffle([w.ko, ...distractors]);
-
-  const quizEl = $('#sess-quiz');
-  quizEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:8px;">
-    <div class="session-prompt" style="margin-bottom:12px;">What does this mean?</div>
-    <div class="session-word">${w.en}</div>
-  </div>`;
-  options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'quiz-opt';
-    btn.textContent = opt;
-    btn.onclick = () => answerQuiz(btn, opt === w.ko, w);
-    quizEl.appendChild(btn);
-  });
-  startTimer();
-}
-
-function startTimer() {
-  clearInterval(quizTimerId);
-  let pct = 100;
-  const bar = $('#timer-bar');
-  bar.style.width = '100%';
-  bar.className = 'timer-bar-fill';
-  quizTimerId = setInterval(() => {
-    pct -= 100/150;
-    if (pct <= 0) {
-      clearInterval(quizTimerId);
-      const w = state.session.pool[state.session.idx];
-      answerQuiz(null, false, w);
-      return;
-    }
-    bar.style.width = pct + '%';
-    bar.className = 'timer-bar-fill' + (pct < 20 ? ' danger' : pct < 40 ? ' warn' : '');
-  }, 100);
-}
-
-function answerQuiz(btn, correct, w) {
-  clearInterval(quizTimerId);
-  const s = state.session;
-  $$('.quiz-opt').forEach(b => {
-    b.disabled = true;
-    if (b.textContent === w.ko) b.classList.add('correct');
-    else if (b === btn) b.classList.add('wrong');
-    else b.classList.add('dim');
-  });
-  const idx = state.words.findIndex(x => x.id === w.id);
-  if (correct) { s.correct++; logActivity('correct'); if (idx!==-1 && state.words[idx].wrongCount>0) state.words[idx].wrongCount--; }
-  else { s.wrong++; if (idx!==-1) state.words[idx].wrongCount = (state.words[idx].wrongCount||0)+1; logActivity('wrong'); }
-  logActivity('quizzed');
-  s.idx++;
-  save({ skipCloud: s.idx % 5 !== 0 });
-  setTimeout(loadCard, correct ? 500 : 900);
-}
-
-function finishSession() {
-  const s = state.session;
-  if (!s) return;
-  const total = s.correct + s.wrong;
-  const acc = total ? Math.round(s.correct/total*100) : 0;
-  toast(`Done! ${s.correct}/${total} · ${acc}% accuracy`, 'success');
-  exitSession();
-  save({ urgent: true });
-  renderWords();
-}
-
-function exitSession() {
-  clearInterval(quizTimerId);
-  state.session = null;
-  $('#session').style.display = 'none';
-  $('#learn-hub').style.display = 'grid';
-  renderLearnHub();
-}
-$('#sess-exit').onclick = exitSession;
-
-// keyboard shortcuts in session
-document.addEventListener('keydown', e => {
-  if (!state.session) return;
-  if (e.key === 'Escape') exitSession();
-  if (e.key === ' ' && $('#sess-show-btn').style.display !== 'none') {
-    e.preventDefault();
-    $('#sess-show-btn').click();
-  }
-  if ($('#sess-grade').style.display === 'grid') {
-    if (['1','2','3','4'].includes(e.key)) gradeCard(parseInt(e.key));
-  }
-  if ($('#sess-flash-grade').style.display === 'grid') {
-    if (e.key === '1') flashGrade(0);
-    if (e.key === '2') flashGrade(1);
-  }
-});
-
-// ═════════ STATS ═════════
-function renderStats() {
-  // KPIs
-  $('#kpi-total').textContent = state.words.length;
-  $('#kpi-mastered').textContent = getMastered().length;
-
-  // streak
-  let streak = 0;
-  for (let i = 0; i < 365; i++) {
-    const d = daysFromNow(-i);
-    const a = state.activity[d];
-    if (a && (a.reviewed || a.quizzed || a.added)) streak++;
-    else if (i > 0) break;
-  }
-  $('#kpi-streak').innerHTML = `${streak}<span style="font-size:14px;color:var(--text-3);font-weight:500;"> days</span>`;
-
-  // 7-day accuracy
-  let correct = 0, wrong = 0;
-  for (let i = 0; i < 7; i++) {
-    const a = state.activity[daysFromNow(-i)];
-    if (a) { correct += a.correct||0; wrong += a.wrong||0; }
-  }
-  const acc = (correct+wrong) > 0 ? Math.round(correct/(correct+wrong)*100) : null;
-  $('#kpi-accuracy').textContent = acc === null ? '—' : acc + '%';
-  $('#kpi-accuracy-delta').textContent = acc === null ? 'no data yet' : `${correct} of ${correct+wrong} correct`;
-
-  // new this week delta
-  const weekAdded = (function(){ let s=0; for(let i=0;i<7;i++) s += state.activity[daysFromNow(-i)]?.added||0; return s; })();
-  $('#kpi-total-delta').textContent = weekAdded > 0 ? `+${weekAdded} this week` : 'no new this week';
-  $('#kpi-total-delta').className = 'delta' + (weekAdded > 0 ? ' up' : '');
-  $('#kpi-mastered-delta').textContent = state.words.length > 0 ? `${Math.round(getMastered().length/state.words.length*100)}% of total` : '';
-
-  // heatmap — 12 weeks
-  const hm = $('#heatmap');
-  hm.innerHTML = '';
-  const weeks = 12;
-  const start = new Date();
-  start.setDate(start.getDate() - (weeks*7 - 1));
-  // align to monday
-  const firstDay = start.getDay() === 0 ? 6 : start.getDay() - 1;
-  start.setDate(start.getDate() - firstDay);
-  for (let i = 0; i < weeks*7 + firstDay; i++) {
-    const d = new Date(start); d.setDate(start.getDate()+i);
-    const ds = d.toLocaleDateString('sv-SE');
-    const a = state.activity[ds];
-    const total = a ? (a.added||0)+(a.reviewed||0)+(a.quizzed||0) : 0;
-    const cell = document.createElement('div');
-    cell.className = 'cell ' + (total >= 30 ? 'l4' : total >= 15 ? 'l3' : total >= 5 ? 'l2' : total >= 1 ? 'l1' : '');
-    cell.title = `${ds}: ${total} activities`;
-    hm.appendChild(cell);
-  }
-
-  // 14-day bars
-  const bars = $('#bars-14');
-  bars.innerHTML = '';
-  const vals = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = daysFromNow(-i);
-    const a = state.activity[d];
-    const v = a ? (a.reviewed||0)+(a.quizzed||0) : 0;
-    vals.push({d, v});
-  }
-  const maxV = Math.max(1, ...vals.map(x=>x.v));
-  vals.forEach(({d, v}) => {
-    const col = document.createElement('div');
-    col.className = 'bar-col';
-    const dd = new Date(d).getDate();
-    col.innerHTML = `<div class="bar" style="height:${(v/maxV*120)+2}px"><span class="bar-value">${v}</span></div><div class="bar-label">${dd}</div>`;
-    bars.appendChild(col);
-  });
-
-  // donut: mastery distribution
-  const nw = getNew().length;
-  const mast = getMastered().length;
-  const learning = state.words.length - nw - mast;
-  const segments = [
-    { name: 'New', val: nw, color: 'var(--text-3)' },
-    { name: 'Learning', val: learning, color: 'var(--accent)' },
-    { name: 'Mastered', val: mast, color: 'var(--success)' },
-  ];
-  const total = state.words.length || 1;
-  const svg = $('#donut-svg');
-  svg.innerHTML = '';
-  let offset = 0;
-  const C = 2 * Math.PI * 48;
-  segments.forEach(seg => {
-    if (seg.val === 0) return;
-    const len = seg.val / total * C;
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', '60'); circle.setAttribute('cy', '60');
-    circle.setAttribute('r', '48'); circle.setAttribute('fill', 'none');
-    circle.setAttribute('stroke', seg.color);
-    circle.setAttribute('stroke-width', '14');
-    circle.setAttribute('stroke-dasharray', `${len} ${C-len}`);
-    circle.setAttribute('stroke-dashoffset', -offset);
-    svg.appendChild(circle);
-    offset += len;
-  });
-  $('#donut-total').textContent = state.words.length;
-  $('#donut-legend').innerHTML = segments.map(s =>
-    `<div class="donut-legend-item"><div class="dot" style="background:${s.color}"></div><div class="nm">${s.name}</div><div class="vl">${s.val}</div></div>`
-  ).join('');
-
-  // most missed
-  const wrong = [...state.words].filter(w => (w.wrongCount||0)>0).sort((a,b)=>(b.wrongCount||0)-(a.wrongCount||0)).slice(0,5);
-  $('#top-wrong').innerHTML = wrong.length ? wrong.map(w =>
-    `<div class="insight-row"><div><div class="en">${w.en}</div><div class="ko">${w.ko}</div></div><div class="v">${w.wrongCount}✕</div></div>`
-  ).join('') : '<div style="color:var(--text-3);text-align:center;padding:20px;font-size:12px;">No mistakes yet 🎉</div>';
-
-  // velocity
-  let weekStudied = 0;
-  for (let i = 0; i < 7; i++) {
-    const a = state.activity[daysFromNow(-i)];
-    if (a) weekStudied += (a.reviewed||0)+(a.quizzed||0);
-  }
-  const avg = Math.round(weekStudied / 7);
-  const projDays = avg > 0 ? Math.ceil((SRS.goal - state.words.length) / Math.max(1, weekAdded/7)) : Infinity;
-  $('#velocity').innerHTML = `
-    <div class="insight-row"><div class="ko">Words / day (avg, 7d)</div><div class="en" style="color:var(--text)">${Math.round(weekAdded/7*10)/10}</div></div>
-    <div class="insight-row"><div class="ko">Reviews / day (avg, 7d)</div><div class="en" style="color:var(--text)">${avg}</div></div>
-    <div class="insight-row"><div class="ko">Days to ${SRS.goal} words</div><div class="en" style="color:var(--accent-2)">${projDays === Infinity || projDays > 9999 ? '—' : projDays + 'd'}</div></div>
-  `;
-}
-
-// ═════════ INIT ═════════
-function renderAll() { renderWords(); }
-
-load();
-renderAll();
-renderLearnHub();
-
-// expose for window for cleanup
-window.state = state;
 </script>
-
 </body>
 </html>
