@@ -1,1795 +1,1235 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VocaMaster Pro: 스마트 영단어장</title>
+    <title>DAON'S VOCABULARY // SPACED REPETITION ENGINE</title>
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <!-- Editorial Typography: Plus Jakarta Sans (Headings) + JetBrains Mono (Codes/Metrics) + Pretendard (Korean definitions) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,500;0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
     <style>
         :root {
-            --bg-base: #030712; /* gray-950 */
-            --bg-panel: #111827; /* gray-900 */
-            --bg-card: rgba(31, 41, 55, 0.7); /* gray-800 with opacity */
-            --primary: #818cf8; /* indigo-400 */
-            --primary-hover: #6366f1; /* indigo-500 */
-            --font-en: 'Inter', sans-serif;
+            --bg-canvas: #F4F4EE;
+            --card-bg: #FFFFFF;
+            --border-ink: #000000;
+            --font-ui: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
             --font-ko: 'Pretendard', sans-serif;
         }
 
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
         body {
-            font-family: var(--font-ko);
-            background-color: var(--bg-base);
-            color: #f3f4f6;
-            overflow: hidden;
+            font-family: var(--font-ui);
+            background-color: var(--bg-canvas);
+            color: #000000;
+            letter-spacing: -0.025em;
             -webkit-tap-highlight-color: transparent;
         }
-        
-        .font-en { font-family: var(--font-en); }
 
-        /* Scrollbar Formatting */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Render Optimization */
-        [id^="view-"]:not(.hidden) { content-visibility: auto; }
-
-        /* Animations */
-        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        .font-mono-code {
+            font-family: var(--font-mono);
+            letter-spacing: -0.03em;
         }
 
-        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-        
-        .pulse-glow { animation: pulseGlow 2s infinite; }
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(129, 140, 248, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0); }
+        .font-korean {
+            font-family: var(--font-ko);
         }
 
-        /* Glassmorphism Cards */
-        .glass-card {
-            background-color: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-        .glass-card:hover {
-            border-color: rgba(129, 140, 248, 0.3);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(129, 140, 248, 0.05);
+        /* 1:1 Neo-Brutalist Panel System */
+        .brutal-panel {
+            background-color: var(--card-bg);
+            border: 2.5px solid var(--border-ink);
+            border-radius: 20px;
         }
 
-        /* Buttons */
-        .btn-press {
-            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s, background-color 0.2s;
-            will-change: transform;
-        }
-        .btn-press:active:not(:disabled) {
-            transform: scale(0.96);
-            filter: brightness(1.2);
+        .brutal-panel-heavy {
+            background-color: var(--card-bg);
+            border: 2.5px solid var(--border-ink);
+            border-radius: 24px;
         }
 
-        /* Nav Tabs */
-        .nav-tab {
-            position: relative;
-            transition: color 0.3s ease;
+        /* Brutalist Pill Controls */
+        .brutal-pill {
+            border: 2.5px solid var(--border-ink);
+            border-radius: 9999px;
+            background-color: #FFFFFF;
+            font-weight: 800;
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.08s ease, background-color 0.12s ease;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
         }
-        .nav-tab::after {
-            content: ''; position: absolute; bottom: 0; left: 50%;
-            width: 0; height: 3px; background-color: var(--primary);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(-50%);
-            border-radius: 3px 3px 0 0;
-            box-shadow: 0 -2px 10px rgba(129, 140, 248, 0.5);
+        .brutal-pill:hover {
+            background-color: #ECECE4;
         }
-        .nav-tab.active::after { width: 80%; }
-        .nav-tab.active { color: #c7d2fe; font-weight: 800; background: rgba(255, 255, 255, 0.03); }
+        .brutal-pill:active {
+            transform: scale(0.97);
+        }
 
-        /* 3D Flashcard */
+        .brutal-pill-black {
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 2.5px solid #000000;
+            border-radius: 9999px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.08s ease, opacity 0.12s ease;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .brutal-pill-black:hover {
+            opacity: 0.88;
+        }
+        .brutal-pill-black:active {
+            transform: scale(0.97);
+        }
+
+        /* Brutalist Tab Buttons matching reference: [01] Tab, [02] Tab, [03] Tab */
+        .brutal-tab {
+            border: 2.5px solid var(--border-ink);
+            border-radius: 14px;
+            background-color: #FFFFFF;
+            color: #000000;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            transition: all 0.12s ease;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .brutal-tab:hover {
+            background-color: #EBEBE2;
+        }
+        .brutal-tab.active {
+            background-color: #000000;
+            color: #FFFFFF;
+            border-color: #000000;
+        }
+
+        /* 3D Flashcard Transitions */
         .perspective-1000 { perspective: 1000px; }
         .transform-style-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
 
-        /* Chips & Badges */
-        .chip { 
-            display: inline-flex; align-items: center; gap: 4px; 
-            padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; 
-            font-weight: 700; cursor: pointer; transition: all 0.2s; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            background: rgba(17, 24, 39, 0.8);
-        }
-        .chip:hover { transform: translateY(-2px); border-color: var(--primary); background: rgba(49, 46, 129, 0.5); }
-        
-        /* Stats Grass */
-        .grass-0 { background-color: rgba(31, 41, 55, 0.5); border: 1px solid rgba(55, 65, 81, 0.3); } 
-        .grass-1 { background-color: #064e3b; border: 1px solid #065f46; } 
-        .grass-2 { background-color: #047857; border: 1px solid #059669; } 
-        .grass-3 { background-color: #10b981; border: 1px solid #34d399; box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); } 
-        .grass-4 { background-color: #34d399; border: 1px solid #6ee7b7; box-shadow: 0 0 12px rgba(52, 211, 153, 0.5); }
-
-        /* Toast */
-        .toast-enter { opacity: 0; transform: translate(-50%, 20px) scale(0.9); }
-        .toast-enter-active { opacity: 1; transform: translate(-50%, 0) scale(1); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        /* Pagination */
-        .page-btn { transition: all 0.2s; }
-        .page-btn.active { background-color: var(--primary-hover); color: white; border-color: var(--primary-hover); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
-<body class="h-screen w-screen flex flex-col items-center justify-center p-0 sm:p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-950 to-black relative">
-    
-    <!-- Background Accents -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div class="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-900/20 blur-[120px]"></div>
-        <div class="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-900/10 blur-[120px]"></div>
-    </div>
+<body class="min-h-screen flex flex-col p-3 sm:p-6 selection:bg-black selection:text-white">
 
-    <!-- Main App Container -->
-    <div id="app-container" class="w-full h-full sm:max-w-6xl sm:h-[95vh] sm:max-h-[920px] flex flex-col bg-gray-950/80 sm:backdrop-blur-2xl sm:border border-gray-800/80 sm:rounded-3xl shadow-2xl overflow-hidden z-10 relative">
-        
-        <!-- Header -->
-        <header class="flex justify-between items-center px-6 py-4 border-b border-gray-800/60 shrink-0 bg-gray-900/50 z-20">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i class="fa-solid fa-graduation-cap text-white text-xl"></i>
+    <!-- Top Master Header Panel -->
+    <header class="w-full max-w-5xl mx-auto brutal-panel-heavy p-4 sm:p-6 mb-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <!-- Status Tags -->
+                <div class="flex items-center gap-2 mb-2 flex-wrap font-mono-code">
+                    <span class="px-3 py-0.5 rounded-full bg-black text-white text-[11px] font-black uppercase tracking-wider">
+                        MOVEMENT // BRUTALISM
+                    </span>
+                    <span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border-2 border-black bg-white text-[11px] font-black uppercase">
+                        <span id="cloud-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span id="cloud-status">ONLINE</span>
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-full border-2 border-black bg-neutral-100 text-[11px] font-bold text-neutral-600 uppercase">
+                        SM-2 SPACED REPETITION
+                    </span>
                 </div>
-                <div>
-                    <h1 class="text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-indigo-400 font-en">VocaMaster <span class="text-xs text-indigo-400 bg-indigo-900/40 px-1.5 py-0.5 rounded ml-1 font-ko">PRO</span></h1>
-                    <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 mt-0.5" id="cloud-status" title="클라우드 동기화 상태">
-                        <span id="cloud-dot" class="w-2 h-2 rounded-full bg-gray-600"></span>
-                        <span id="cloud-text">로컬 오프라인 모드</span>
-                    </div>
-                </div>
+                <!-- Main Header Title -->
+                <h1 class="text-2xl sm:text-4xl font-black uppercase tracking-tight text-black flex items-center gap-3">
+                    <span>DAON'S VOCABULARY</span>
+                    <span class="text-xs font-bold text-neutral-400 font-mono-code tracking-widest">PRO V2.4</span>
+                </h1>
             </div>
-            <div class="flex gap-2">
-                <button onclick="UI.openModal('settings-modal')" class="btn-press w-10 h-10 rounded-full bg-gray-800 border border-gray-700 text-gray-400 hover:text-white flex items-center justify-center" title="환경설정">
-                    <i class="fa-solid fa-sliders"></i>
+
+            <!-- Header Action Controls -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="App.openAddModal()" class="brutal-pill px-4 py-2">
+                    <i class="fa-solid fa-plus mr-1.5 text-xs"></i> ADD WORD
+                </button>
+                <button onclick="App.refreshData()" class="brutal-pill px-4 py-2">
+                    <i class="fa-solid fa-rotate-right mr-1.5 text-xs"></i> REFRESH
+                </button>
+                <button onclick="document.getElementById('import-file').click()" class="brutal-pill px-4 py-2">
+                    RESTORE
+                </button>
+                <input type="file" id="import-file" class="hidden" accept=".json" onchange="Data.import(event)">
+                <button onclick="Data.export()" class="brutal-pill-black px-4 py-2">
+                    BACKUP JSON
+                </button>
+                <button onclick="UI.openModal('settings-modal')" class="brutal-pill w-9 h-9 p-0 text-sm" title="Settings">
+                    <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- Navigation -->
-        <nav class="flex overflow-x-auto no-scrollbar border-b border-gray-800/60 shrink-0 bg-gray-900/30" id="main-nav">
-            <button onclick="App.switchTab('manage')" class="nav-tab active flex-1 min-w-[72px] py-3.5 text-[13px] font-bold text-gray-400 hover:text-gray-200 flex flex-col items-center gap-1" data-tab="manage">
-                <i class="fa-solid fa-book-bookmark text-lg"></i>단어장
+    <!-- Navigation Tabs: [01] FLASHCARDS, [02] SPEED QUIZ, [03] VOCAB LEDGER -->
+    <nav class="w-full max-w-5xl mx-auto mb-4 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-2.5 min-w-max">
+            <button onclick="App.switchTab('flashcard')" class="brutal-tab active px-5 py-2.5 text-xs sm:text-sm" data-tab="flashcard">
+                [01] FLASHCARDS
             </button>
-            <button onclick="App.switchTab('srs')" class="nav-tab flex-1 min-w-[72px] py-3.5 text-[13px] font-bold text-gray-400 hover:text-gray-200 flex flex-col items-center gap-1 relative" data-tab="srs">
-                <i class="fa-solid fa-brain text-lg"></i>SRS학습
-                <span id="badge-srs" class="absolute top-2 right-2 bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full hidden shadow-lg shadow-rose-500/50">0</span>
+            <button onclick="App.switchTab('quiz')" class="brutal-tab px-5 py-2.5 text-xs sm:text-sm" data-tab="quiz">
+                [02] SPEED QUIZ
             </button>
-            <button onclick="App.switchTab('flashcard')" class="nav-tab flex-1 min-w-[72px] py-3.5 text-[13px] font-bold text-gray-400 hover:text-gray-200 flex flex-col items-center gap-1" data-tab="flashcard">
-                <i class="fa-regular fa-clone text-lg"></i>플래시
+            <button onclick="App.switchTab('ledger')" class="brutal-tab px-5 py-2.5 text-xs sm:text-sm" data-tab="ledger">
+                [03] VOCAB LEDGER DB (<span id="tab-word-count" class="font-mono-code font-bold">0</span>)
             </button>
-            <button onclick="App.switchTab('quiz')" class="nav-tab flex-1 min-w-[72px] py-3.5 text-[13px] font-bold text-gray-400 hover:text-gray-200 flex flex-col items-center gap-1" data-tab="quiz">
-                <i class="fa-solid fa-bolt text-lg"></i>퀴즈
-            </button>
-            <button onclick="App.switchTab('analysis')" class="nav-tab flex-1 min-w-[72px] py-3.5 text-[13px] font-bold text-gray-400 hover:text-gray-200 flex flex-col items-center gap-1" data-tab="analysis">
-                <i class="fa-solid fa-microscope text-lg"></i>심층분석
-            </button>
-            <button onclick="App.switchTab('group')" class="nav-tab flex-1 min-w-[72px] py-3.5 text-[13px] font-bold text-gray-400 hover:text-gray-200 flex flex-col items-center gap-1" data-tab="group">
-                <i class="fa-solid fa-diagram-project text-lg"></i>그룹핑
-            </button>
-            <button onclick="App.switchTab('stats')" class="nav-tab flex-1 min-w-[72px] py-3.5 text-[13px] font-bold text-gray-400 hover:text-gray-200 flex flex-col items-center gap-1" data-tab="stats">
-                <i class="fa-solid fa-chart-pie text-lg"></i>통계
-            </button>
-        </nav>
+        </div>
+    </nav>
 
-        <!-- Main Content Area -->
-        <main class="flex-1 relative overflow-hidden bg-transparent z-10">
+    <!-- Metrics & Cadence Strip (Matches reference middle bar) -->
+    <div class="w-full max-w-5xl mx-auto brutal-panel p-4 mb-4 bg-white">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-4 font-bold font-mono-code">
+                <span class="text-[11px] font-black text-neutral-400 tracking-wider">RETENTION RADAR //</span>
+                <span>DUE: <strong id="metric-due" class="font-black text-black text-sm">0</strong></span>
+                <span class="text-neutral-300">/</span>
+                <span>MASTERED: <strong id="metric-master" class="font-black text-black text-sm">0</strong></span>
+                <span class="text-neutral-300">/</span>
+                <span>CRITICAL: <strong id="metric-hard" class="font-black text-rose-600 text-sm">0</strong></span>
+                <span class="text-neutral-300">/</span>
+                <span class="px-2.5 py-1 rounded-full border-2 border-black bg-neutral-100 text-[11px] font-black">
+                    🔥 STREAK: <span id="metric-streak">0</span>D
+                </span>
+            </div>
+
+            <!-- Filter Selection -->
+            <div class="flex items-center gap-2 font-mono-code">
+                <span class="text-xs font-bold text-neutral-500 hidden sm:inline uppercase">REVIEW POOL:</span>
+                <select id="srs-pool-filter" onchange="App.onPoolFilterChange()" class="bg-neutral-50 border-2 border-black rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none cursor-pointer uppercase">
+                    <option value="due">SCHEDULED TODAY (DUE)</option>
+                    <option value="hard">CRITICAL WEAK WORDS</option>
+                    <option value="all">ENTIRE REPOSITORY</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <main class="w-full max-w-5xl mx-auto flex-1 flex flex-col">
+
+        <!-- TAB 1: FLASHCARDS (Active Spaced Repetition) -->
+        <section id="view-flashcard" class="flex-1 flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
+            <div class="w-full brutal-panel-heavy p-6 sm:p-8 flex flex-col justify-between bg-white min-h-[520px]">
+                
+                <!-- Deck Top Status -->
+                <div>
+                    <div class="flex items-center justify-between pb-3 border-b-2 border-black text-xs font-mono-code font-bold">
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-0.5 rounded-full border-2 border-black bg-neutral-100 text-[11px] font-black uppercase" id="deck-mode-pill">
+                                QUEUE: DUE TODAY
+                            </span>
+                            <span id="fc-weak-badge" class="hidden px-2.5 py-0.5 rounded-full border-2 border-black bg-rose-100 text-rose-800 text-[10px] font-extrabold uppercase">
+                                ✕ FREQUENT FAIL
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-black text-sm text-black">
+                                <span id="fc-index">1</span> / <span id="fc-total">10</span>
+                            </span>
+                            <button onclick="Flashcard.pronounceCurrent()" class="w-8 h-8 rounded-full border-2 border-black bg-white hover:bg-neutral-100 flex items-center justify-center transition-colors" title="Listen Audio [R]">
+                                <i class="fa-solid fa-volume-high text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full h-2 rounded-full border-2 border-black bg-neutral-100 overflow-hidden mt-3">
+                        <div id="fc-progress-fill" class="h-full bg-black transition-all duration-200" style="width: 10%;"></div>
+                    </div>
+                </div>
+
+                <!-- 3D Flippable Card -->
+                <div class="perspective-1000 my-6 flex-1 flex items-center justify-center min-h-[270px] cursor-pointer select-none" onclick="Flashcard.flip()">
+                    <div id="fc-flip-card" class="w-full h-full relative transform-style-3d transition-transform duration-300">
+                        
+                        <!-- Front Face: English Headword -->
+                        <div class="absolute inset-0 backface-hidden brutal-panel p-8 flex flex-col items-center justify-center text-center bg-[#FCFCF9]">
+                            <span class="text-[11px] font-bold text-neutral-400 mb-4 tracking-wider uppercase font-mono-code">
+                                [ CLICK OR PRESS SPACE TO REVEAL ]
+                            </span>
+                            <h2 id="fc-front-word" class="text-4xl sm:text-6xl font-black tracking-tight text-black break-all font-mono-code">
+                                meticulous
+                            </h2>
+                            <span id="fc-interval-preview" class="mt-4 text-[11px] font-bold text-neutral-400 font-mono-code uppercase">
+                                REPS: 0  |  INTERVAL: 0D
+                            </span>
+                        </div>
+
+                        <!-- Back Face: Korean Definition & Context -->
+                        <div class="absolute inset-0 backface-hidden brutal-panel p-8 flex flex-col items-center justify-center text-center rotate-y-180 bg-white">
+                            <span class="text-[11px] font-black text-neutral-400 mb-2 tracking-wider uppercase font-mono-code">
+                                [ DEFINITION ]
+                            </span>
+                            <h3 id="fc-back-meaning" class="text-3xl sm:text-4xl font-extrabold text-black mb-3 font-korean">
+                                꼼꼼한, 세심한
+                            </h3>
+                            <p id="fc-back-sentence" class="text-xs sm:text-sm text-neutral-700 bg-neutral-50 p-3 rounded-xl border-2 border-black max-w-md hidden leading-relaxed font-mono-code italic">
+                                <!-- Example inserted here -->
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3-Tier Spaced Repetition Grading -->
+                <div class="pt-3 border-t-2 border-black flex flex-col gap-2">
+                    <div class="grid grid-cols-3 gap-2 font-mono-code">
+                        <button onclick="Flashcard.grade(1); event.stopPropagation();" class="brutal-panel py-3 px-2 bg-white hover:bg-neutral-100 flex flex-col items-center justify-center transition-colors">
+                            <span class="text-xs font-black text-rose-600 uppercase">✕ AGAIN [1]</span>
+                            <span class="text-[10px] text-neutral-500 mt-0.5">RESET INTERVAL</span>
+                        </button>
+                        <button onclick="Flashcard.grade(2); event.stopPropagation();" class="brutal-panel py-3 px-2 bg-white hover:bg-neutral-100 flex flex-col items-center justify-center transition-colors">
+                            <span class="text-xs font-black text-amber-600 uppercase">△ HARD [2]</span>
+                            <span class="text-[10px] text-neutral-500 mt-0.5">+1 DAY</span>
+                        </button>
+                        <button onclick="Flashcard.grade(3); event.stopPropagation();" class="brutal-panel py-3 px-2 bg-white hover:bg-neutral-100 flex flex-col items-center justify-center transition-colors">
+                            <span class="text-xs font-black text-black uppercase">✓ GOOD [3]</span>
+                            <span class="text-[10px] text-neutral-500 mt-0.5" id="fc-btn-good-interval">+3 DAYS</span>
+                        </button>
+                    </div>
+                    <div class="text-center text-[10px] font-bold text-neutral-400 uppercase font-mono-code">
+                        SHORTCUTS: [SPACE] FLIP &nbsp;|&nbsp; [1, 2, 3] GRADE &nbsp;|&nbsp; [R] AUDIO
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 2: SPEED QUIZ (Rapid 4-Choice Recall) -->
+        <section id="view-quiz" class="hidden flex-1 flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
+            <div class="w-full brutal-panel-heavy p-6 sm:p-8 flex flex-col justify-between bg-white min-h-[520px]">
+                
+                <!-- Quiz Status Bar -->
+                <div>
+                    <div class="flex items-center justify-between pb-3 border-b-2 border-black text-xs font-mono-code font-bold">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full border-2 border-black bg-neutral-100 text-[10px] uppercase font-black">
+                                RAPID QUIZ
+                            </span>
+                            <span id="quiz-combo-badge" class="px-2.5 py-0.5 rounded-full border-2 border-black bg-black text-white text-[11px] font-black hidden">
+                                🔥 <span id="quiz-combo-count">0</span>X COMBO
+                            </span>
+                        </div>
+                        <div class="text-sm font-black uppercase">
+                            SCORE: <span id="quiz-score-num" class="text-black font-mono-code text-base">0</span> PTS
+                        </div>
+                    </div>
+
+                    <!-- Countdown Bar -->
+                    <div class="w-full h-2 rounded-full border-2 border-black bg-neutral-100 overflow-hidden mt-3">
+                        <div id="quiz-timer-fill" class="h-full bg-black transition-all duration-100" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- Target Word Prompt -->
+                <div class="py-10 text-center">
+                    <span class="text-xs font-bold text-neutral-400 block mb-2 tracking-wider uppercase font-mono-code">
+                        SELECT MATCHING DEFINITION
+                    </span>
+                    <h2 id="quiz-question-word" class="text-4xl sm:text-6xl font-black tracking-tight text-black break-all font-mono-code">
+                        resilient
+                    </h2>
+                </div>
+
+                <!-- 4 Choices Grid -->
+                <div id="quiz-choices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-4 border-t-2 border-black">
+                    <!-- Dynamic option buttons -->
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 3: VOCAB LEDGER DB (Record Master & Ledger) -->
+        <section id="view-ledger" class="hidden flex-1 flex flex-col gap-4 w-full">
             
-            <!-- 1. MANAGE TAB (페이지네이션 적용) -->
-            <section id="view-manage" class="absolute inset-0 flex flex-col p-4 sm:p-6 overflow-hidden fade-in">
-                <!-- Input Area -->
-                <div class="glass-card rounded-[1.5rem] p-4 mb-4 shrink-0 flex flex-col lg:flex-row gap-3">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-spell-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                        <input type="text" id="input-en" placeholder="영어 단어 입력" class="font-en w-full bg-gray-900/50 border border-gray-700 rounded-2xl py-3.5 pl-11 pr-4 text-white focus:outline-none focus:border-indigo-500 focus:bg-gray-800 font-bold text-lg transition-colors" autocomplete="off">
-                    </div>
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-language absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                        <input type="text" id="input-ko" placeholder="한국어 뜻 입력" class="w-full bg-gray-900/50 border border-gray-700 rounded-2xl py-3.5 pl-11 pr-4 text-white focus:outline-none focus:border-indigo-500 focus:bg-gray-800 font-bold text-lg transition-colors" onkeypress="if(event.key==='Enter') Manage.add()">
-                    </div>
-                    <button onclick="Manage.add()" class="btn-press bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3.5 px-8 rounded-2xl shadow-lg shadow-indigo-600/20 whitespace-nowrap border border-indigo-500">
-                        <i class="fa-solid fa-plus mr-2"></i>단어 추가
+            <!-- Controls Bar -->
+            <div class="brutal-panel p-4 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="relative w-full sm:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-xs"></i>
+                    <input type="text" id="ledger-query" oninput="Ledger.filter()" placeholder="SEARCH WORDS OR MEANINGS..." class="w-full bg-neutral-50 border-2 border-black rounded-xl py-2 pl-9 pr-3 text-xs sm:text-sm font-bold uppercase focus:outline-none focus:bg-white font-mono-code">
+                </div>
+
+                <!-- Status Filter Pills -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto font-mono-code">
+                    <button onclick="Ledger.setStatus('all')" class="ledger-pill active px-3.5 py-1.5 rounded-full border-2 border-black text-xs font-black bg-black text-white" data-status="all">ALL</button>
+                    <button onclick="Ledger.setStatus('due')" class="ledger-pill px-3.5 py-1.5 rounded-full border-2 border-black text-xs font-black bg-white text-black" data-status="due">DUE</button>
+                    <button onclick="Ledger.setStatus('hard')" class="ledger-pill px-3.5 py-1.5 rounded-full border-2 border-black text-xs font-black bg-white text-black" data-status="hard">CRITICAL</button>
+                    <button onclick="Ledger.setStatus('master')" class="ledger-pill px-3.5 py-1.5 rounded-full border-2 border-black text-xs font-black bg-white text-black" data-status="master">MASTERED</button>
+                </div>
+
+                <button onclick="App.openAddModal()" class="brutal-pill-black px-4 py-2 text-xs w-full sm:w-auto shrink-0 font-mono-code">
+                    <i class="fa-solid fa-plus mr-1.5"></i> NEW ENTRY
+                </button>
+            </div>
+
+            <!-- Ledger Table -->
+            <div class="brutal-panel p-0 bg-white overflow-hidden flex-1 flex flex-col">
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead class="bg-neutral-100 border-b-2 border-black text-[11px] font-black uppercase text-black font-mono-code">
+                            <tr>
+                                <th class="p-3.5 border-r-2 border-black w-24">STATUS</th>
+                                <th class="p-3.5 border-r-2 border-black">HEADWORD</th>
+                                <th class="p-3.5 border-r-2 border-black">DEFINITION</th>
+                                <th class="p-3.5 border-r-2 border-black hidden md:table-cell w-36">CADENCE</th>
+                                <th class="p-3.5 border-r-2 border-black hidden sm:table-cell w-20 text-center">FAILS</th>
+                                <th class="p-3.5 text-center w-28">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-rows" class="divide-y-2 divide-black">
+                            <!-- Ledger rows dynamic injection -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Footer -->
+                <div id="ledger-pagination-bar" class="p-3 border-t-2 border-black bg-neutral-50 flex items-center justify-between text-xs font-mono-code">
+                    <!-- Pagination injected dynamically -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL: Add Word Entry -->
+    <div id="modal-add" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="brutal-panel-heavy p-6 sm:p-8 max-w-md w-full bg-white">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b-2 border-black">
+                <h3 class="text-base font-black uppercase tracking-wider font-mono-code">[ NEW VOCABULARY ENTRY ]</h3>
+                <button onclick="UI.closeModal('modal-add')" class="text-black hover:opacity-60 font-black text-base">✕</button>
+            </div>
+            <form onsubmit="Ledger.submitNewWord(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-neutral-600 mb-1 font-mono-code">HEADWORD (EN)</label>
+                    <input type="text" id="add-word-en" required placeholder="e.g. vulnerable" class="w-full bg-neutral-50 border-2 border-black rounded-xl p-3 text-sm font-bold focus:bg-white focus:outline-none font-mono-code">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-neutral-600 mb-1 font-mono-code">DEFINITION (KO)</label>
+                    <input type="text" id="add-word-ko" required placeholder="예: 취약한, 연약한" class="w-full bg-neutral-50 border-2 border-black rounded-xl p-3 text-sm font-bold focus:bg-white focus:outline-none font-korean">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-neutral-600 mb-1 font-mono-code">CONTEXT SENTENCE (OPTIONAL)</label>
+                    <input type="text" id="add-word-ex" placeholder="e.g. Small businesses are vulnerable." class="w-full bg-neutral-50 border-2 border-black rounded-xl p-3 text-sm focus:bg-white focus:outline-none font-mono-code">
+                </div>
+                <div class="flex gap-2.5 pt-2 font-mono-code">
+                    <button type="button" onclick="UI.closeModal('modal-add')" class="brutal-pill flex-1 py-3">CANCEL</button>
+                    <button type="submit" class="brutal-pill-black flex-1 py-3">SAVE ENTRY</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Edit Word Entry -->
+    <div id="modal-edit" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="brutal-panel-heavy p-6 sm:p-8 max-w-md w-full bg-white">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b-2 border-black">
+                <h3 class="text-base font-black uppercase tracking-wider font-mono-code">[ EDIT VOCABULARY ENTRY ]</h3>
+                <button onclick="UI.closeModal('modal-edit')" class="text-black hover:opacity-60 font-black text-base">✕</button>
+            </div>
+            <input type="hidden" id="edit-word-id">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-neutral-600 mb-1 font-mono-code">HEADWORD (EN)</label>
+                    <input type="text" id="edit-word-en" class="w-full bg-neutral-50 border-2 border-black rounded-xl p-3 text-sm font-bold focus:bg-white focus:outline-none font-mono-code">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-neutral-600 mb-1 font-mono-code">DEFINITION (KO)</label>
+                    <input type="text" id="edit-word-ko" class="w-full bg-neutral-50 border-2 border-black rounded-xl p-3 text-sm font-bold focus:bg-white focus:outline-none font-korean">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-neutral-600 mb-1 font-mono-code">CONTEXT SENTENCE</label>
+                    <input type="text" id="edit-word-ex" class="w-full bg-neutral-50 border-2 border-black rounded-xl p-3 text-sm focus:bg-white focus:outline-none font-mono-code">
+                </div>
+                <div class="flex gap-2 pt-2 font-mono-code">
+                    <button onclick="Ledger.deleteFromModal()" class="brutal-pill px-4 py-3 bg-neutral-100 hover:bg-rose-100 hover:text-rose-700" title="Delete">
+                        <i class="fa-solid fa-trash-can mr-1"></i> DELETE
+                    </button>
+                    <button onclick="Ledger.saveWordEdit()" class="brutal-pill-black flex-1 py-3">
+                        SAVE CHANGES
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Filters & Controls -->
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4 shrink-0 px-1">
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <div class="bg-gray-800/80 border border-gray-700 px-4 py-2 rounded-xl text-sm font-bold text-gray-300">
-                            총 <span id="manage-count" class="text-indigo-400 font-black text-base">0</span>단어
-                        </div>
-                        <select id="manage-sort" onchange="Manage.setPage(1); Manage.render()" class="bg-gray-800/80 border border-gray-700 text-gray-300 py-2 px-3 rounded-xl focus:outline-none focus:border-indigo-500 font-bold text-sm cursor-pointer">
-                            <option value="new">최신 추가순</option>
-                            <option value="hard">오답 많은순</option>
-                            <option value="alpha">알파벳순 (A-Z)</option>
-                        </select>
-                    </div>
-                    <div class="relative w-full sm:w-64">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                        <input type="text" id="manage-search" oninput="Manage.setPage(1); Manage.render()" placeholder="검색..." class="w-full bg-gray-800/80 border border-gray-700 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold transition-colors">
-                    </div>
+    <!-- MODAL: Settings & Data Control -->
+    <div id="settings-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="brutal-panel-heavy p-6 sm:p-8 max-w-md w-full bg-white">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b-2 border-black">
+                <h3 class="text-base font-black uppercase tracking-wider font-mono-code">[ SYSTEM PREFERENCES ]</h3>
+                <button onclick="UI.closeModal('settings-modal')" class="text-black hover:opacity-60 font-black text-base">✕</button>
+            </div>
+            <div class="space-y-4 text-xs">
+                <div class="p-4 border-2 border-black rounded-2xl bg-neutral-50">
+                    <span class="font-black block mb-1 text-sm uppercase font-mono-code">CLOUD REPLICATION</span>
+                    <p class="text-neutral-600 leading-relaxed">
+                        Data is synced seamlessly with the cloud database and your local browser storage.
+                    </p>
                 </div>
-
-                <!-- Word List -->
-                <div class="flex-1 overflow-y-auto no-scrollbar relative rounded-2xl border border-gray-800/30 bg-black/20 p-2">
-                    <div id="manage-empty" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 hidden">
-                        <i class="fa-solid fa-inbox text-5xl mb-4 opacity-30"></i>
-                        <p class="font-bold">단어장이 비어있거나 검색 결과가 없습니다.</p>
-                    </div>
-                    <ul id="manage-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-max"></ul>
-                </div>
-
-                <!-- Pagination -->
-                <div id="manage-pagination" class="flex justify-center items-center gap-2 mt-4 shrink-0">
-                    <!-- Pagination buttons injected here -->
-                </div>
-            </section>
-
-            <!-- 2. SRS TAB (알고리즘 업그레이드) -->
-            <section id="view-srs" class="absolute inset-0 flex flex-col p-4 sm:p-6 overflow-hidden hidden fade-in">
-                <!-- Dashboard -->
-                <div id="srs-dashboard" class="flex-1 flex flex-col max-w-4xl mx-auto w-full overflow-y-auto no-scrollbar">
-                    <div class="text-center mb-8 mt-4">
-                        <span class="inline-block px-3 py-1 bg-indigo-900/50 text-indigo-300 text-xs font-black rounded-full border border-indigo-500/30 mb-3">인지 과학 기반 암기</span>
-                        <h2 class="text-3xl font-black text-white">에빙하우스 SRS 복습</h2>
-                        <p class="text-sm text-gray-400 font-bold mt-2">최적의 타이밍에 복습하여 장기 기억으로 전환하세요.</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="glass-card p-6 rounded-3xl border-t-4 border-t-rose-500 flex flex-col items-center justify-center text-center">
-                            <h3 class="text-gray-400 font-bold text-xs uppercase mb-2">오늘 복습 (Due)</h3>
-                            <div class="text-5xl font-black text-rose-400 mb-4" id="srs-due-count">0</div>
-                            <button class="btn-press w-full bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 font-bold py-3.5 rounded-xl border border-rose-500/50 transition-colors" onclick="SRS.start('due')">복습 시작 🔥</button>
-                        </div>
-                        <div class="glass-card p-6 rounded-3xl border-t-4 border-t-emerald-500 flex flex-col items-center justify-center text-center">
-                            <h3 class="text-gray-400 font-bold text-xs uppercase mb-2">새단어 암기 (New)</h3>
-                            <div class="text-5xl font-black text-emerald-400 mb-4" id="srs-new-count">0</div>
-                            <button class="btn-press w-full bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 font-bold py-3.5 rounded-xl border border-emerald-500/50 transition-colors" onclick="SRS.start('new')">신규 학습 ✨</button>
-                        </div>
-                        <div class="glass-card p-6 rounded-3xl border-t-4 border-t-indigo-500 flex flex-col items-center justify-center text-center">
-                            <h3 class="text-gray-400 font-bold text-xs uppercase mb-2">어려운 단어 (Hard)</h3>
-                            <div class="text-5xl font-black text-indigo-400 mb-4" id="srs-hard-count">0</div>
-                            <button class="btn-press w-full bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 font-bold py-3.5 rounded-xl border border-indigo-500/50 transition-colors" onclick="SRS.start('hard')">집중 훈련 🎯</button>
-                        </div>
-                    </div>
-                    <div class="glass-card p-6 rounded-3xl">
-                        <div class="flex justify-between items-end mb-3">
-                            <h3 class="text-sm font-black text-gray-300">전체 장기기억 전환율</h3>
-                            <span class="text-xl font-black text-indigo-400" id="srs-mastery-pct">0%</span>
-                        </div>
-                        <div class="h-4 w-full bg-gray-800 rounded-full overflow-hidden border border-gray-700/50">
-                            <div id="srs-mastery-bar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-1000 ease-out" style="width: 0%"></div>
-                        </div>
-                        <div class="flex justify-between mt-3 text-[11px] font-bold uppercase tracking-wider">
-                            <span class="text-gray-500">학습 전: <span id="srs-stat-new">0</span></span>
-                            <span class="text-amber-500">학습 중: <span id="srs-stat-learn">0</span></span>
-                            <span class="text-emerald-500">완벽 암기 (21일+): <span id="srs-stat-master">0</span></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SRS Session -->
-                <div id="srs-session" class="flex-1 flex flex-col max-w-2xl mx-auto w-full hidden fade-in relative">
-                    <div class="flex justify-between items-center mb-6 shrink-0 bg-gray-900/50 p-3 rounded-2xl border border-gray-800">
-                        <button onclick="SRS.end()" class="text-gray-400 hover:text-white font-bold text-sm px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i>중단</button>
-                        <div class="text-sm font-black text-gray-300"><span id="srs-idx" class="text-indigo-400">1</span> / <span id="srs-total">10</span></div>
-                    </div>
-                    
-                    <!-- Card -->
-                    <div class="flex-1 glass-card rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-center relative min-h-[350px] mb-6">
-                        <div class="absolute top-5 right-5 flex gap-2">
-                            <span id="srs-streak" class="text-[10px] font-black bg-amber-900/30 text-amber-400 px-2.5 py-1 rounded border border-amber-700/50 hidden">🔥 연속</span>
-                            <span id="srs-badge" class="text-[10px] font-black bg-gray-800 text-gray-400 px-2.5 py-1 rounded border border-gray-700"></span>
-                        </div>
-                        <p class="text-xs font-black text-gray-500 uppercase tracking-widest mb-6" id="srs-question-label">이 단어의 뜻은?</p>
-                        <h2 id="srs-en" class="font-en text-5xl sm:text-6xl font-black text-white mb-8 break-all tracking-tight"></h2>
-                        
-                        <div id="srs-answer" class="hidden w-full fade-in flex flex-col items-center border-t border-gray-700/50 pt-8 mt-2">
-                            <h2 id="srs-ko" class="text-3xl font-black text-indigo-300 mb-2 break-words"></h2>
-                            <button onclick="Analysis.openFromApp(document.getElementById('srs-en').textContent)" class="mt-4 text-xs font-bold text-gray-400 hover:text-indigo-400 border border-gray-700 hover:border-indigo-500 rounded-lg px-3 py-1.5 transition-colors"><i class="fa-solid fa-microscope mr-1"></i>심층 분석 보기</button>
-                        </div>
-                        
-                        <button id="srs-btn-reveal" onclick="SRS.reveal()" class="absolute bottom-10 btn-press bg-indigo-600 hover:bg-indigo-500 text-white font-black px-12 py-4 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-indigo-400 text-lg">정답 확인 👀</button>
-                    </div>
-
-                    <!-- Grade Buttons -->
-                    <div id="srs-controls" class="hidden grid grid-cols-4 gap-3 shrink-0 pb-4 fade-in">
-                        <button onclick="SRS.grade(1)" class="btn-press flex flex-col items-center p-4 rounded-2xl bg-gray-800/80 border border-gray-700 hover:border-rose-500 hover:bg-rose-900/30">
-                            <span class="text-2xl mb-2">😵</span><span class="text-xs font-black text-rose-400">모름</span><span class="text-[10px] text-gray-500 mt-1">&lt; 10분</span>
-                        </button>
-                        <button onclick="SRS.grade(2)" class="btn-press flex flex-col items-center p-4 rounded-2xl bg-gray-800/80 border border-gray-700 hover:border-amber-500 hover:bg-amber-900/30">
-                            <span class="text-2xl mb-2">😕</span><span class="text-xs font-black text-amber-400">어려움</span><span id="srs-t-2" class="text-[10px] text-gray-500 mt-1"></span>
-                        </button>
-                        <button onclick="SRS.grade(3)" class="btn-press flex flex-col items-center p-4 rounded-2xl bg-gray-800/80 border border-gray-700 hover:border-emerald-500 hover:bg-emerald-900/30">
-                            <span class="text-2xl mb-2">🙂</span><span class="text-xs font-black text-emerald-400">보통</span><span id="srs-t-3" class="text-[10px] text-gray-500 mt-1"></span>
-                        </button>
-                        <button onclick="SRS.grade(4)" class="btn-press flex flex-col items-center p-4 rounded-2xl bg-gray-800/80 border border-gray-700 hover:border-sky-500 hover:bg-sky-900/30">
-                            <span class="text-2xl mb-2">😄</span><span class="text-xs font-black text-sky-400">쉬움</span><span id="srs-t-4" class="text-[10px] text-gray-500 mt-1"></span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Session Result -->
-                <div id="srs-result" class="hidden flex-1 flex items-center justify-center fade-in">
-                    <div class="glass-card p-10 rounded-[3rem] text-center w-full max-w-md border-t-4 border-t-indigo-500">
-                        <div class="text-7xl mb-6">🎉</div>
-                        <h2 class="text-3xl font-black text-white mb-2">학습 세션 완료!</h2>
-                        <p class="text-gray-400 font-bold mb-8">기억이 한층 더 단단해졌습니다.</p>
-                        <div class="grid grid-cols-2 gap-4 mb-8">
-                            <div class="bg-gray-900/50 p-4 rounded-2xl border border-gray-800"><p class="text-sm text-gray-500 font-bold mb-1">정답/쉬움</p><p class="text-4xl font-black text-emerald-400" id="srs-res-ok">0</p></div>
-                            <div class="bg-gray-900/50 p-4 rounded-2xl border border-gray-800"><p class="text-sm text-gray-500 font-bold mb-1">오답/어려움</p><p class="text-4xl font-black text-rose-400" id="srs-res-ng">0</p></div>
-                        </div>
-                        <button onclick="SRS.end()" class="btn-press w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl border border-indigo-500 shadow-lg text-lg">대시보드로 돌아가기</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 3. FLASHCARD TAB (라이트너 시스템 적용) -->
-            <section id="view-flashcard" class="absolute inset-0 flex flex-col p-4 sm:p-6 overflow-hidden hidden fade-in">
-                <div id="fc-intro" class="flex-1 flex flex-col items-center justify-center w-full max-w-lg mx-auto text-center">
-                    <span class="inline-block px-3 py-1 bg-blue-900/50 text-blue-300 text-xs font-black rounded-full border border-blue-500/30 mb-4">라이트너 박스 알고리즘</span>
-                    <div class="text-7xl mb-6">📇</div>
-                    <h2 class="text-3xl font-black text-white mb-3">스마트 플래시카드</h2>
-                    <p class="text-gray-400 font-bold mb-10">알면 다음 박스로, 모르면 1번 박스로.<br>자주 틀리는 단어를 더 자주 보여줍니다.</p>
-                    
-                    <div class="w-full bg-gray-900/50 border border-gray-800 rounded-3xl p-6 mb-8 flex justify-between items-end">
-                        <div class="flex flex-col items-center"><div class="w-8 h-10 bg-rose-900/50 border border-rose-500 rounded flex items-center justify-center text-xs font-bold text-rose-300 mb-2" id="fc-box1">0</div><span class="text-[10px] text-gray-500 font-black">BOX 1<br>(매일)</span></div>
-                        <div class="flex flex-col items-center"><div class="w-8 h-12 bg-orange-900/50 border border-orange-500 rounded flex items-center justify-center text-xs font-bold text-orange-300 mb-2" id="fc-box2">0</div><span class="text-[10px] text-gray-500 font-black">BOX 2<br>(3일)</span></div>
-                        <div class="flex flex-col items-center"><div class="w-8 h-14 bg-amber-900/50 border border-amber-500 rounded flex items-center justify-center text-xs font-bold text-amber-300 mb-2" id="fc-box3">0</div><span class="text-[10px] text-gray-500 font-black">BOX 3<br>(7일)</span></div>
-                        <div class="flex flex-col items-center"><div class="w-8 h-16 bg-lime-900/50 border border-lime-500 rounded flex items-center justify-center text-xs font-bold text-lime-300 mb-2" id="fc-box4">0</div><span class="text-[10px] text-gray-500 font-black">BOX 4<br>(14일)</span></div>
-                        <div class="flex flex-col items-center"><div class="w-8 h-20 bg-emerald-900/50 border border-emerald-500 rounded flex items-center justify-center text-xs font-bold text-emerald-300 mb-2" id="fc-box5">0</div><span class="text-[10px] text-gray-500 font-black">BOX 5<br>(30일)</span></div>
-                    </div>
-
-                    <button onclick="Flashcard.start('due')" class="btn-press w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 text-lg rounded-2xl mb-3 shadow-[0_0_20px_rgba(37,99,235,0.3)] border border-blue-500">오늘의 플래시카드 학습 🚀</button>
-                    <button onclick="Flashcard.start('all')" class="btn-press w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-black py-4 rounded-2xl border border-gray-600">전체 랜덤 훑어보기</button>
-                </div>
-                
-                <div id="fc-active" class="hidden flex-1 flex flex-col w-full max-w-2xl mx-auto h-full">
-                    <div class="flex justify-between items-center mb-6 shrink-0">
-                        <button onclick="Flashcard.end()" class="text-gray-400 hover:text-white font-bold text-sm bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">종료</button>
-                        <div class="h-2 flex-1 mx-6 bg-gray-800 rounded-full overflow-hidden"><div id="fc-bar" class="h-full bg-blue-500 transition-all duration-300" style="width:0%"></div></div>
-                        <div class="text-sm font-black text-gray-400 w-12 text-right"><span id="fc-idx" class="text-blue-400">0</span> / <span id="fc-total">0</span></div>
-                    </div>
-
-                    <div class="flex-1 perspective-1000 flex items-center justify-center pb-8" onclick="Flashcard.flip()">
-                        <div id="fc-card" class="w-full h-full max-h-[450px] relative transition-transform duration-500 transform-style-3d cursor-pointer shadow-2xl">
-                            <!-- Front -->
-                            <div class="absolute inset-0 backface-hidden glass-card rounded-[3rem] flex flex-col items-center justify-center p-8 text-center border-t-4 border-t-blue-500">
-                                <span class="absolute top-6 left-6 text-gray-500 text-2xl animate-pulse"><i class="fa-solid fa-hand-pointer"></i></span>
-                                <span id="fc-box-badge" class="absolute top-6 right-6 text-[10px] font-black bg-gray-800 text-gray-400 px-3 py-1 rounded-full border border-gray-700">BOX 1</span>
-                                <h2 id="fc-en" class="font-en text-6xl sm:text-7xl font-black text-white break-all tracking-tight"></h2>
-                            </div>
-                            <!-- Back -->
-                            <div class="absolute inset-0 backface-hidden glass-card rounded-[3rem] flex flex-col items-center justify-center p-8 text-center rotate-y-180 border-t-4 border-t-indigo-500 bg-indigo-900/10">
-                                <h2 id="fc-ko" class="text-5xl sm:text-6xl font-black text-indigo-300 break-words leading-tight"></h2>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="fc-controls" class="flex gap-4 shrink-0 h-20 mb-4 hidden fade-in">
-                        <button onclick="Flashcard.mark(false); event.stopPropagation();" class="btn-press flex-1 bg-gray-800/80 border border-rose-500/50 hover:border-rose-500 hover:bg-rose-900/30 text-rose-400 rounded-3xl font-black text-xl flex items-center justify-center gap-2"><i class="fa-solid fa-xmark text-2xl"></i> 몰라요</button>
-                        <button onclick="Flashcard.mark(true); event.stopPropagation();" class="btn-press flex-1 bg-gray-800/80 border border-emerald-500/50 hover:border-emerald-500 hover:bg-emerald-900/30 text-emerald-400 rounded-3xl font-black text-xl flex items-center justify-center gap-2"><i class="fa-solid fa-check text-2xl"></i> 알아요</button>
-                    </div>
-                </div>
-
-                <div id="fc-result" class="hidden flex-1 flex items-center justify-center fade-in">
-                    <div class="glass-card p-10 rounded-[3rem] text-center w-full max-w-sm">
-                        <div class="text-7xl mb-6">🏁</div>
-                        <h2 class="text-3xl font-black text-white mb-8">세트 완료!</h2>
-                        <button onclick="Flashcard.end()" class="btn-press w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl border border-blue-500 text-lg">돌아가기</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 4. QUIZ TAB (적응형 오답 생성 알고리즘) -->
-            <section id="view-quiz" class="absolute inset-0 flex flex-col p-4 sm:p-6 overflow-hidden hidden fade-in">
-                <div id="quiz-intro" class="flex-1 flex flex-col items-center justify-center w-full max-w-lg mx-auto text-center">
-                    <span class="inline-block px-3 py-1 bg-amber-900/50 text-amber-300 text-xs font-black rounded-full border border-amber-500/30 mb-4">적응형 AI 선지 생성</span>
-                    <div class="text-7xl mb-6 drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]">🎮</div>
-                    <h2 class="text-3xl font-black text-white mb-3">스피드 서바이벌 퀴즈</h2>
-                    <p class="text-gray-400 font-bold mb-10">정답률이 높을수록 선지가 교묘해집니다!<br>제한 시간 안에 정답을 맞혀 콤보를 쌓으세요.</p>
-                    <button onclick="Quiz.start()" class="btn-press w-full bg-amber-500 hover:bg-amber-400 text-gray-900 font-black py-4 text-xl rounded-2xl mb-3 shadow-[0_0_20px_rgba(245,158,11,0.3)] border border-amber-400">게임 스타트 🚀</button>
-                </div>
-                
-                <div id="quiz-active" class="hidden flex-1 flex flex-col w-full max-w-3xl mx-auto h-full">
-                    <div class="flex justify-between items-center mb-4 shrink-0">
-                        <button onclick="Quiz.end()" class="text-gray-500 hover:text-white bg-gray-800 p-2 rounded-lg"><i class="fa-solid fa-xmark text-xl"></i></button>
-                        <div class="flex items-center gap-4">
-                            <div id="quiz-combo-wrap" class="hidden bg-gradient-to-r from-orange-600 to-amber-500 px-4 py-1.5 rounded-full text-white font-black text-sm shadow-[0_0_15px_rgba(245,158,11,0.4)] transform scale-100 transition-transform">🔥 <span id="quiz-combo">0</span> 콤보</div>
-                            <div class="bg-gray-800 border border-gray-700 px-5 py-2 rounded-full text-base font-black text-emerald-400 shadow-sm">SCORE: <span id="quiz-score" class="text-white text-xl">0</span></div>
-                        </div>
-                    </div>
-                    
-                    <div class="h-2 w-full bg-gray-800 rounded-full overflow-hidden mb-6 shrink-0 border border-gray-700/50">
-                        <div id="quiz-timer-bar" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 w-full transition-all duration-100 linear"></div>
-                    </div>
-                    
-                    <div class="flex-1 glass-card rounded-[3rem] flex flex-col items-center justify-center p-8 mb-6 max-h-[35vh] relative">
-                        <span id="quiz-diff-badge" class="absolute top-5 left-5 text-[10px] font-black px-2 py-1 rounded bg-gray-800 border border-gray-700 text-gray-400">난이도: 보통</span>
-                        <h2 id="quiz-en" class="font-en text-6xl sm:text-7xl font-black text-white text-center break-all tracking-tight"></h2>
-                    </div>
-                    
-                    <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 shrink-0 pb-4">
-                        <!-- Options injected here -->
-                    </div>
-                </div>
-
-                <div id="quiz-result" class="hidden flex-1 flex items-center justify-center fade-in">
-                    <div class="glass-card p-10 rounded-[3rem] text-center w-full max-w-md border-t-4 border-t-amber-500">
-                        <div class="text-7xl mb-4">🏆</div>
-                        <h2 class="text-3xl font-black text-white mb-2">게임 오버</h2>
-                        <p class="text-gray-400 font-bold mb-6" id="quiz-result-msg"></p>
-                        <div class="bg-gray-900/80 p-6 rounded-3xl border border-gray-700 my-6 shadow-inner">
-                            <p class="text-sm text-gray-500 font-bold mb-2 uppercase tracking-widest">최종 점수</p>
-                            <p class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500" id="quiz-res-score">0</p>
-                            <div class="mt-4 pt-4 border-t border-gray-800 flex justify-between text-sm font-bold">
-                                <span class="text-gray-400">정답: <span id="quiz-res-correct" class="text-emerald-400">0</span></span>
-                                <span class="text-gray-400">최대 콤보: <span id="quiz-res-maxcombo" class="text-amber-400">0</span></span>
-                            </div>
-                        </div>
-                        <button onclick="Quiz.end()" class="btn-press w-full bg-gray-800 hover:bg-gray-700 text-white font-black py-4 rounded-xl border border-gray-600 text-lg">메인으로</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 5. ANALYSIS TAB (고급 API 연동 및 심층 분석) -->
-            <section id="view-analysis" class="absolute inset-0 flex flex-col overflow-hidden hidden fade-in">
-                <div class="p-4 sm:p-6 border-b border-gray-800/60 shrink-0 bg-gray-900/80 z-20 backdrop-blur-xl">
-                    <div class="max-w-4xl mx-auto relative">
-                        <i class="fa-solid fa-microscope absolute left-5 top-1/2 -translate-y-1/2 text-indigo-400 text-lg"></i>
-                        <input type="text" id="an-search" oninput="Analysis.search()" placeholder="심층 분석할 단어 검색 (English Only)..." class="font-en w-full bg-gray-950/80 border border-gray-700 rounded-2xl py-4 pl-14 pr-4 text-white font-black text-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner">
-                        <div id="an-dropdown" class="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl overflow-hidden hidden z-50 max-h-60 overflow-y-auto no-scrollbar"></div>
-                    </div>
-                </div>
-                
-                <div class="flex-1 overflow-y-auto no-scrollbar p-4 sm:p-6 relative bg-black/20">
-                    <div id="an-empty" class="flex flex-col items-center justify-center h-full text-gray-500">
-                        <i class="fa-solid fa-chart-network text-7xl mb-6 opacity-30 text-indigo-500"></i>
-                        <h3 class="font-black text-2xl text-gray-300 mb-2">단어장 심층 분석 시스템</h3>
-                        <p class="font-bold text-center leading-relaxed">사전 검색, 발음기호, 유의어, 반의어, 연관어, 예문을<br>Datamuse API와 Dictionary API를 융합하여 입체적으로 제공합니다.</p>
-                    </div>
-                    
-                    <div id="an-loading" class="hidden flex flex-col items-center justify-center h-full text-indigo-400">
-                        <div class="relative w-20 h-20 mb-4">
-                            <div class="absolute inset-0 border-4 border-gray-800 rounded-full"></div>
-                            <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
-                            <i class="fa-solid fa-microscope absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-500"></i>
-                        </div>
-                        <p class="font-black text-lg animate-pulse">API 통합 분석 중...</p>
-                        <p class="text-xs text-gray-500 font-bold mt-2">FreeDictionary & Datamuse NLP</p>
-                    </div>
-                    
-                    <div id="an-result" class="hidden max-w-5xl mx-auto w-full pb-10 space-y-6 fade-in">
-                        <!-- Head Info -->
-                        <div class="glass-card p-6 sm:p-10 rounded-[3rem] relative overflow-hidden border-t-4 border-t-indigo-500">
-                            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none"></div>
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 relative z-10">
-                                <div>
-                                    <h2 id="an-word" class="font-en text-5xl sm:text-6xl font-black text-white break-all tracking-tight"></h2>
-                                    <div class="flex items-center gap-3 mt-2">
-                                        <p class="text-xl text-indigo-300 font-mono font-bold bg-gray-900 px-3 py-1 rounded-lg border border-gray-700" id="an-phonetic"></p>
-                                        <div id="an-pos" class="flex gap-2"></div>
-                                    </div>
-                                </div>
-                                <button onclick="Analysis.playAudio()" id="an-audio" class="btn-press w-14 h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(79,70,229,0.5)] shrink-0"><i class="fa-solid fa-volume-high"></i></button>
-                            </div>
-                            <div class="bg-gray-900/80 p-6 rounded-2xl border border-gray-700 shadow-inner relative z-10">
-                                <p class="text-xs font-black text-gray-500 uppercase tracking-widest mb-2"><i class="fa-solid fa-book text-indigo-400 mr-1"></i> 영영 사전 정의</p>
-                                <p id="an-def" class="text-gray-200 font-bold leading-relaxed text-lg font-en"></p>
-                            </div>
-                        </div>
-
-                        <!-- Semantic Relations (Datamuse API) -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="glass-card p-6 rounded-3xl border-t-2 border-t-purple-500">
-                                <div class="flex items-center gap-2 mb-4"><i class="fa-solid fa-link text-purple-400"></i><h3 class="text-sm font-black text-gray-300">유의어 (Synonyms)</h3></div>
-                                <div id="an-syn" class="flex flex-wrap gap-2"></div>
-                            </div>
-                            <div class="glass-card p-6 rounded-3xl border-t-2 border-t-rose-500">
-                                <div class="flex items-center gap-2 mb-4"><i class="fa-solid fa-link-slash text-rose-400"></i><h3 class="text-sm font-black text-gray-300">반의어 (Antonyms)</h3></div>
-                                <div id="an-ant" class="flex flex-wrap gap-2"></div>
-                            </div>
-                            <div class="glass-card p-6 rounded-3xl border-t-2 border-t-emerald-500 md:col-span-2">
-                                <div class="flex items-center gap-2 mb-4"><i class="fa-solid fa-network-wired text-emerald-400"></i><h3 class="text-sm font-black text-gray-300">연관어 및 문맥 (Related Words)</h3></div>
-                                <div id="an-rel" class="flex flex-wrap gap-2"></div>
-                            </div>
-                        </div>
-
-                        <!-- Examples -->
-                        <div class="glass-card p-6 sm:p-8 rounded-[3rem]">
-                            <div class="flex items-center gap-2 mb-6"><i class="fa-solid fa-quote-left text-amber-400 text-xl"></i><h3 class="text-base font-black text-gray-300">실사용 예문</h3></div>
-                            <div id="an-ex" class="space-y-4"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 6. GROUPING TAB (하이브리드 NLP 분석) -->
-            <section id="view-group" class="absolute inset-0 flex flex-col p-4 sm:p-6 overflow-hidden hidden fade-in">
-                <div class="glass-card p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 shrink-0 border-t-4 border-t-blue-500">
+                <div class="p-4 border-2 border-black rounded-2xl bg-neutral-50 flex items-center justify-between">
                     <div>
-                        <h2 class="text-2xl font-black text-white flex items-center gap-2"><i class="fa-solid fa-diagram-project text-blue-400"></i> AI 의미/구조 그룹핑</h2>
-                        <p class="text-xs text-gray-400 font-bold mt-2">형태소 분석(접두사/접미사) 및 의미 기반 클러스터링으로 단어를 묶어 암기 효율을 높입니다.</p>
+                        <span class="font-black block text-sm uppercase font-mono-code">SEED WORD PACK</span>
+                        <p class="text-[11px] text-neutral-500">Inject 7 essential curated vocabulary items.</p>
                     </div>
-                    <button onclick="Grouping.run()" class="btn-press w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black py-3 px-8 rounded-xl shadow-lg shadow-blue-600/30 whitespace-nowrap">
-                        분석 알고리즘 가동 🚀
+                    <button onclick="Data.loadSamples(); UI.closeModal('settings-modal');" class="brutal-pill px-3 py-1.5 font-mono-code">
+                        INJECT PACK
                     </button>
                 </div>
-                
-                <div id="group-loading" class="hidden flex-col items-center justify-center flex-1 text-center">
-                    <div class="relative w-24 h-24 mb-6">
-                        <div class="absolute inset-0 border-4 border-gray-800 rounded-full"></div>
-                        <div class="absolute inset-0 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
-                        <i class="fa-solid fa-brain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-400 text-2xl pulse-glow rounded-full"></i>
-                    </div>
-                    <h3 class="text-xl font-black text-white mb-2">단어 관계망을 분석하고 있습니다...</h3>
-                    <p class="text-sm text-gray-400 font-bold" id="group-status-msg">구조 형태소 분석 중</p>
-                    <div class="w-64 h-2 bg-gray-800 rounded-full mt-4 overflow-hidden">
-                        <div id="group-progress" class="h-full bg-blue-500 transition-all duration-300" style="width:0%"></div>
-                    </div>
-                </div>
-                
-                <div id="group-content" class="flex-1 overflow-y-auto no-scrollbar pb-10 space-y-8">
-                    <div id="group-empty" class="flex flex-col items-center justify-center h-40 text-gray-500 bg-gray-900/30 rounded-3xl border border-gray-800 border-dashed">
-                        <p class="font-bold">상단의 '분석 알고리즘 가동' 버튼을 클릭하세요.</p>
-                    </div>
-                    
-                    <!-- Structural Groups -->
-                    <div id="group-structural-wrap" class="hidden">
-                        <h3 class="text-lg font-black text-indigo-300 mb-4 px-2 border-l-4 border-indigo-500 ml-1">🧩 접두사/형태소 공유 그룹</h3>
-                        <div id="group-structural" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                    </div>
-
-                    <!-- Semantic Groups -->
-                    <div id="group-semantic-wrap" class="hidden">
-                        <h3 class="text-lg font-black text-emerald-300 mb-4 px-2 border-l-4 border-emerald-500 ml-1 mt-8">🧠 의미론적 클러스터</h3>
-                        <div id="group-semantic" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 7. STATS TAB (기록 및 통계 시각화) -->
-            <section id="view-stats" class="absolute inset-0 flex flex-col p-4 sm:p-6 overflow-y-auto no-scrollbar hidden fade-in">
-                <div class="max-w-5xl mx-auto w-full space-y-6 pb-10">
-                    <div class="flex items-center gap-3 mb-2 mt-2 px-2">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center"><i class="fa-solid fa-chart-pie text-white"></i></div>
-                        <div>
-                            <h2 class="text-2xl font-black text-white">학습 통계 리포트</h2>
-                            <p class="text-xs text-gray-400 font-bold">꾸준함이 실력을 만듭니다.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- KPI Cards -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="glass-card p-6 rounded-3xl text-center flex flex-col items-center justify-center">
-                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">총 등록 단어</p>
-                            <p class="text-4xl font-black text-white" id="st-total">0</p>
-                        </div>
-                        <div class="glass-card p-6 rounded-3xl text-center border-t-2 border-t-emerald-500 flex flex-col items-center justify-center">
-                            <p class="text-[10px] font-black text-emerald-500/70 uppercase tracking-widest mb-2">마스터 (SRS 21일+)</p>
-                            <p class="text-4xl font-black text-emerald-400" id="st-master">0</p>
-                        </div>
-                        <div class="glass-card p-6 rounded-3xl text-center border-t-2 border-t-rose-500 flex flex-col items-center justify-center">
-                            <p class="text-[10px] font-black text-rose-500/70 uppercase tracking-widest mb-2">취약 (오답 다수)</p>
-                            <p class="text-4xl font-black text-rose-400" id="st-hard">0</p>
-                        </div>
-                        <div class="glass-card p-6 rounded-3xl text-center border-t-2 border-t-amber-500 flex flex-col items-center justify-center bg-amber-900/10">
-                            <p class="text-[10px] font-black text-amber-500/70 uppercase tracking-widest mb-2">현재 연속 학습</p>
-                            <p class="text-4xl font-black text-amber-400" id="st-streak">0<span class="text-lg">일</span></p>
-                        </div>
-                    </div>
-                    
-                    <!-- Top Hard Words -->
-                    <div class="glass-card p-6 sm:p-8 rounded-[2rem] border border-rose-900/30">
-                        <h3 class="text-sm font-black text-rose-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> 집중 관리가 필요한 단어 TOP 5</h3>
-                        <div id="st-top-hard" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
-                            <p class="text-gray-500 font-bold text-sm col-span-full">취약한 단어가 없습니다. 완벽합니다!</p>
-                        </div>
-                    </div>
-
-                    <!-- Activity Grass Graph -->
-                    <div class="glass-card p-6 sm:p-8 rounded-[3rem]">
-                        <div class="flex justify-between items-end mb-6">
-                            <div>
-                                <h3 class="text-base font-black text-white">최근 35일 학습 활동</h3>
-                                <p class="text-xs font-bold text-gray-400 mt-1">단어 추가, 퀴즈, 플래시카드, SRS 활동 종합</p>
-                            </div>
-                            <div class="flex gap-1.5 items-center text-[10px] font-black text-gray-500">
-                                <span>Less</span>
-                                <div class="w-3 h-3 rounded-sm grass-0"></div><div class="w-3 h-3 rounded-sm grass-1"></div>
-                                <div class="w-3 h-3 rounded-sm grass-2"></div><div class="w-3 h-3 rounded-sm grass-3"></div><div class="w-3 h-3 rounded-sm grass-4"></div>
-                                <span>More</span>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto pb-4 no-scrollbar">
-                            <div id="st-grass-grid" class="flex gap-2 min-w-max"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Modals -->
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="glass-card w-full max-w-sm mx-4 rounded-[2rem] p-8 transform scale-95 transition-transform duration-300 border-t-4 border-t-indigo-500" id="edit-modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-black text-white">단어 수정 <i class="fa-solid fa-pen-to-square text-indigo-400 text-lg"></i></h3>
-                <button onclick="UI.closeModal('edit-modal')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <input type="hidden" id="edit-id">
-            <div class="space-y-4 mb-8">
-                <div>
-                    <label class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">영어</label>
-                    <input type="text" id="edit-en" class="font-en w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500 font-black text-lg">
-                </div>
-                <div>
-                    <label class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">한국어 뜻</label>
-                    <input type="text" id="edit-ko" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500 font-bold text-lg" onkeypress="if(event.key==='Enter') Manage.saveEdit()">
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="Manage.delete()" class="btn-press bg-gray-800 text-rose-400 px-5 rounded-xl border border-gray-700 hover:border-rose-500 hover:bg-rose-900/30 font-black"><i class="fa-regular fa-trash-can"></i></button>
-                <button onclick="Manage.saveEdit()" class="btn-press flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl border border-indigo-500 shadow-lg shadow-indigo-600/20 text-lg">저장하기</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="glass-card w-full max-w-sm mx-4 rounded-[2rem] p-8 transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh] border-t-4 border-t-gray-500" id="settings-modal-content">
-            <div class="flex justify-between items-center mb-6 shrink-0">
-                <h3 class="text-2xl font-black text-white">환경설정 <i class="fa-solid fa-gear text-gray-400 text-lg"></i></h3>
-                <button onclick="UI.closeModal('settings-modal')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-8 overflow-y-auto no-scrollbar flex-1 pr-2">
-                <div>
-                    <h4 class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-3 border-b border-gray-800 pb-2">데이터 백업 및 복원</h4>
-                    <div class="space-y-3">
-                        <button onclick="Data.export()" class="btn-press w-full text-left px-5 py-3.5 bg-gray-800/80 rounded-xl text-sm font-bold text-gray-200 border border-gray-700 hover:border-indigo-500 flex items-center"><i class="fa-solid fa-download w-6 text-indigo-400"></i> 단어장 파일로 내보내기 (JSON)</button>
-                        <button onclick="document.getElementById('file-upload').click()" class="btn-press w-full text-left px-5 py-3.5 bg-gray-800/80 rounded-xl text-sm font-bold text-gray-200 border border-gray-700 hover:border-emerald-500 flex items-center"><i class="fa-solid fa-upload w-6 text-emerald-400"></i> 단어장 파일 불러오기 (JSON)</button>
-                        <input type="file" id="file-upload" class="hidden" accept=".json" onchange="Data.import(event)">
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-xs font-black text-rose-400 uppercase tracking-widest mb-3 border-b border-gray-800 pb-2">위험 구역</h4>
-                    <button onclick="Data.clearAll()" class="btn-press w-full text-left px-5 py-3.5 bg-rose-900/20 text-rose-400 rounded-xl text-sm font-black border border-rose-900/50 hover:bg-rose-900/40 hover:border-rose-500 flex items-center"><i class="fa-solid fa-triangle-exclamation w-6"></i> 모든 데이터 영구 초기화</button>
-                </div>
-                <div>
-                    <h4 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-800 pb-2">클라우드 계정 정보</h4>
-                    <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 shadow-inner">
-                        <p class="text-xs font-mono text-gray-500 break-all" id="setting-uid">클라우드 연결 확인 중...</p>
-                    </div>
+                <div class="p-4 border-2 border-black rounded-2xl bg-rose-50 text-rose-950">
+                    <span class="font-black block mb-1 text-sm text-rose-900 uppercase font-mono-code">DANGER ZONE</span>
+                    <p class="text-[11px] mb-3 text-rose-800">Permanently erase all vocabulary records and SRS history.</p>
+                    <button onclick="UI.confirmModal('Permanently wipe all vocabulary entries and review history?', () => Data.reset())" class="brutal-pill w-full py-2 bg-rose-600 text-white hover:bg-rose-700 font-mono-code">
+                        WIPE REPOSITORY
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4 items-center"></div>
+    <!-- Custom Modal Confirmation Dialog (Replaces native alert & confirm) -->
+    <div id="modal-dialog" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="brutal-panel-heavy p-6 max-w-xs w-full bg-white text-center">
+            <div class="w-10 h-10 rounded-full border-2 border-black bg-neutral-100 mx-auto flex items-center justify-center text-sm font-black mb-3 font-mono-code">
+                !
+            </div>
+            <p id="dialog-prompt" class="text-xs font-bold text-black mb-5 leading-relaxed font-mono-code uppercase">ARE YOU SURE?</p>
+            <div class="flex gap-2 font-mono-code">
+                <button onclick="UI.handleDialog(false)" class="brutal-pill flex-1 py-2">CANCEL</button>
+                <button onclick="UI.handleDialog(true)" class="brutal-pill-black flex-1 py-2">CONFIRM</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Center Toast Notifications -->
+    <div id="toast-shelf" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col gap-2 items-center w-full max-w-sm px-4 font-mono-code"></div>
 
     <script>
-        // --- Core Application State ---
-        let words = []; 
-        let activityLog = {};
-        let currentTab = 'manage';
+        let words = [];
+        let currentTab = 'flashcard';
 
-        // --- Utility Functions & UI Controls ---
-        const UI = {
-            openModal(id) {
-                const m = document.getElementById(id), c = document.getElementById(id + '-content');
-                if(!m || !c) return;
-                m.classList.remove('hidden');
-                requestAnimationFrame(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); });
+        const TimeUtil = {
+            today() {
+                return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
             },
-            closeModal(id) {
-                const m = document.getElementById(id), c = document.getElementById(id + '-content');
-                if(!m || !c) return;
-                m.classList.add('opacity-0'); c.classList.add('scale-95');
-                setTimeout(() => m.classList.add('hidden'), 300);
-            },
-            toast(msg, type = 'info') {
-                const container = document.getElementById('toast-container');
-                const t = document.createElement('div');
-                let style = type === 'error' ? 'bg-rose-900/90 border-rose-500 text-rose-100 shadow-[0_4px_20px_rgba(225,29,72,0.4)]' : 
-                            (type === 'success' ? 'bg-emerald-900/90 border-emerald-500 text-emerald-100 shadow-[0_4px_20px_rgba(16,185,129,0.4)]' : 
-                            'bg-gray-800 border-indigo-500 text-indigo-100 shadow-[0_4px_20px_rgba(99,102,241,0.4)]');
-                let icon = type === 'error' ? '<i class="fa-solid fa-circle-exclamation mr-2"></i>' :
-                           (type === 'success' ? '<i class="fa-solid fa-circle-check mr-2"></i>' : '<i class="fa-solid fa-info-circle mr-2"></i>');
-                
-                t.className = `flex items-center justify-center ${style} border px-6 py-3.5 rounded-full text-sm font-black toast-enter backdrop-blur-md`;
-                t.innerHTML = `${icon}${msg}`;
-                container.appendChild(t);
-                
-                requestAnimationFrame(() => { t.classList.remove('toast-enter'); t.classList.add('toast-enter-active'); });
-                setTimeout(() => { 
-                    t.classList.remove('toast-enter-active'); 
-                    t.style.opacity = 0; t.style.transform = 'translate(-50%, -20px)'; 
-                    setTimeout(() => t.remove(), 400); 
-                }, 2500);
-            },
-            shuffleArray(array) {
-                const newArr = [...array];
-                for (let i = newArr.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-                }
-                return newArr;
+            addDays(days) {
+                const d = new Date();
+                d.setDate(d.getDate() + days);
+                return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
             }
         };
 
-        // --- Data Persistence (Local + Cloud Sync Trigger) ---
+        const UI = {
+            dialogCallback: null,
+            openModal(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('hidden');
+                    el.classList.add('flex');
+                }
+            },
+            closeModal(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex');
+                }
+            },
+            confirmModal(msg, onConfirm) {
+                document.getElementById('dialog-prompt').textContent = msg;
+                this.dialogCallback = onConfirm;
+                this.openModal('modal-dialog');
+            },
+            handleDialog(confirmed) {
+                this.closeModal('modal-dialog');
+                if (confirmed && typeof this.dialogCallback === 'function') {
+                    this.dialogCallback();
+                }
+                this.dialogCallback = null;
+            },
+            toast(message, type = 'info') {
+                const shelf = document.getElementById('toast-shelf');
+                const t = document.createElement('div');
+                const themeClass = type === 'success' ? 'bg-black text-white' : (type === 'error' ? 'bg-rose-100 text-rose-900' : 'bg-white text-black');
+                t.className = `px-4 py-2 rounded-full border-2 border-black ${themeClass} text-xs font-bold pointer-events-auto flex items-center gap-2 transition-all duration-150 shadow-md uppercase font-mono-code`;
+                t.innerHTML = `${type === 'success' ? '✓' : (type === 'error' ? '✕' : 'ℹ')} ${message}`;
+                shelf.appendChild(t);
+                setTimeout(() => {
+                    t.style.opacity = '0';
+                    t.style.transform = 'translateY(8px)';
+                    setTimeout(() => t.remove(), 200);
+                }, 2200);
+            },
+            pronounce(text) {
+                if (!window.speechSynthesis || !text) return;
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US';
+                u.rate = 0.95;
+                window.speechSynthesis.speak(u);
+            }
+        };
+
         const Data = {
             load() {
                 try {
-                    const w = localStorage.getItem('vocaPro_words'), a = localStorage.getItem('vocaPro_activity');
-                    if (w) words = JSON.parse(w);
-                    if (a) activityLog = JSON.parse(a);
-                    
-                    // Structure validation/migration for new features
-                    words.forEach(wd => {
-                        if(!wd.id) wd.id = Date.now() + Math.random();
-                        if(!wd.srs) wd.srs = { interval: 0, ease: 2.5, reps: 0, due: null }; // Ebbinghaus SM-2
-                        if(!wd.fc) wd.fc = { box: 1 }; // Leitner Box System (1-5)
-                        if(!wd.quiz) wd.quiz = { score: 0, attempts: 0 }; // Quiz weight
-                        if(typeof wd.wrongCount === 'undefined') wd.wrongCount = 0;
-                    });
-                } catch(e) { words = []; activityLog = {}; }
-                Manage.render();
-                App.updateBadges();
-            },
-            save(triggerCloud = true) {
-                localStorage.setItem('vocaPro_words', JSON.stringify(words));
-                localStorage.setItem('vocaPro_activity', JSON.stringify(activityLog));
-                if (triggerCloud && typeof window.triggerCloudSave === 'function') {
-                    window.triggerCloudSave({ words, activityLog });
+                    const raw = localStorage.getItem('daon_words_db');
+                    if (raw) words = JSON.parse(raw);
+                    else words = this.samplePack();
+                    this.sanitize();
+                } catch(e) {
+                    words = this.samplePack();
                 }
-                App.updateBadges();
+                this.save(false);
             },
-            log(type) {
-                const d = new Date().toLocaleDateString('en-CA', {timeZone: 'Asia/Seoul'});
-                if(!activityLog[d]) activityLog[d] = { added:0, tested:0, quizzed:0, reviewed:0 };
-                activityLog[d][type] = (activityLog[d][type] || 0) + 1;
-                this.save();
-                if(currentTab === 'stats') Stats.render();
+            sanitize() {
+                const today = TimeUtil.today();
+                words.forEach(w => {
+                    if (!w.id) w.id = Date.now() + Math.random();
+                    if (!w.srs) w.srs = { interval: 0, ease: 2.5, reps: 0, due: today };
+                    if (typeof w.wrongCount === 'undefined') w.wrongCount = 0;
+                });
+            },
+            save(broadcast = true) {
+                try {
+                    localStorage.setItem('daon_words_db', JSON.stringify(words));
+                } catch(e){}
+
+                if (broadcast && typeof window.cloudSaveTrigger === 'function') {
+                    window.cloudSaveTrigger({ words });
+                }
+                App.updateMetrics();
             },
             export() {
-                if(!words.length) return UI.toast('내보낼 데이터가 없습니다.', 'error');
+                const blob = new Blob([JSON.stringify(words, null, 2)], { type: 'application/json' });
                 const a = document.createElement('a');
-                a.href = URL.createObjectURL(new Blob([JSON.stringify(words, null, 2)], {type: 'application/json'}));
-                a.download = `VocaMaster_Backup_${new Date().toISOString().split('T')[0]}.json`;
-                a.click(); UI.closeModal('settings-modal'); UI.toast('내보내기 완료', 'success');
+                a.href = URL.createObjectURL(blob);
+                a.download = `DAON_VOCAB_BACKUP_${TimeUtil.today()}.json`;
+                a.click();
+                UI.toast('VOCABULARY EXPORTED TO JSON', 'success');
             },
             import(e) {
-                const file = e.target.files[0]; if(!file) return;
+                const file = e.target.files[0];
+                if (!file) return;
                 const reader = new FileReader();
                 reader.onload = ev => {
                     try {
-                        const arr = JSON.parse(ev.target.result);
-                        if(!Array.isArray(arr)) throw new Error();
+                        const parsed = JSON.parse(ev.target.result);
+                        if (!Array.isArray(parsed)) throw new Error();
                         let count = 0;
-                        arr.forEach(w => {
-                            if(w.en && w.ko && !words.find(x => x.en.toLowerCase() === w.en.toLowerCase())) {
-                                if(!w.id) w.id = Date.now() + Math.random();
-                                if(!w.srs) w.srs = { interval:0, ease:2.5, reps:0, due:null };
-                                if(!w.fc) w.fc = { box: 1 };
-                                if(!w.quiz) w.quiz = { score: 0, attempts: 0 };
-                                words.push(w); count++;
+                        parsed.forEach(nw => {
+                            if (nw.en && nw.ko && !words.some(x => x.en.toLowerCase() === nw.en.toLowerCase())) {
+                                nw.id = Date.now() + Math.random();
+                                nw.srs = nw.srs || { interval: 0, ease: 2.5, reps: 0, due: TimeUtil.today() };
+                                nw.wrongCount = nw.wrongCount || 0;
+                                words.unshift(nw);
+                                count++;
                             }
                         });
-                        Data.save(); Manage.setPage(1); Manage.render(); UI.closeModal('settings-modal'); 
-                        UI.toast(`${count}개 단어 불러오기 완료!`, 'success');
-                    } catch(err) { UI.toast('지원하지 않는 파일 형식입니다.', 'error'); }
+                        Data.save();
+                        UI.toast(`${count} ENTRIES RESTORED`, 'success');
+                    } catch(err) {
+                        UI.toast('INVALID JSON FORMAT', 'error');
+                    }
                 };
-                reader.readAsText(file); e.target.value = '';
+                reader.readAsText(file);
+                e.target.value = '';
             },
-            clearAll() {
-                // UI를 사용하여 Confirm 창 대체 권장되나, 현재는 빠른 개발 위해 confirm 사용
-                const confirmed = confirm("⚠️ 모든 단어와 학습 기록을 영구적으로 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.");
-                if(confirmed) {
-                    words = []; activityLog = {}; Data.save(); Manage.render(); 
-                    UI.closeModal('settings-modal'); UI.toast('초기화 되었습니다.', 'success');
-                }
+            reset() {
+                words = [];
+                this.save();
+                UI.closeModal('settings-modal');
+                UI.toast('REPOSITORY WIPED', 'info');
+                if (currentTab === 'flashcard') Flashcard.start();
+                if (currentTab === 'quiz') Quiz.start();
+                if (currentTab === 'ledger') Ledger.render();
+            },
+            loadSamples() {
+                const samples = this.samplePack();
+                let added = 0;
+                samples.forEach(s => {
+                    if (!words.some(w => w.en.toLowerCase() === s.en.toLowerCase())) {
+                        words.push({ ...s, id: Date.now() + Math.random() });
+                        added++;
+                    }
+                });
+                this.save();
+                UI.toast(`${added} CURATED WORDS INJECTED`, 'success');
+                if (currentTab === 'flashcard') Flashcard.start();
+                if (currentTab === 'ledger') Ledger.render();
+            },
+            samplePack() {
+                const today = TimeUtil.today();
+                return [
+                    { id: 1, en: "meticulous", ko: "꼼꼼한, 세심한", ex: "He was meticulous about every single detail.", srs: { interval: 0, reps: 0, ease: 2.5, due: today }, wrongCount: 0 },
+                    { id: 2, en: "resilient", ko: "회복력 있는, 탄력적인", ex: "She is remarkably resilient in hardships.", srs: { interval: 0, reps: 0, ease: 2.5, due: today }, wrongCount: 2 },
+                    { id: 3, en: "ubiquitous", ko: "어디에나 존재하는", ex: "Smartphones have become ubiquitous.", srs: { interval: 1, reps: 1, ease: 2.5, due: today }, wrongCount: 0 },
+                    { id: 4, en: "lucid", ko: "명료한, 명쾌한", ex: "He gave a lucid and convincing speech.", srs: { interval: 3, reps: 2, ease: 2.6, due: today }, wrongCount: 1 },
+                    { id: 5, en: "pragmatic", ko: "실용적인, 실무적인", ex: "We chose a pragmatic approach to the problem.", srs: { interval: 0, reps: 0, ease: 2.5, due: today }, wrongCount: 0 },
+                    { id: 6, en: "ephemeral", ko: "덧없는, 순식간의", ex: "Fame can often be ephemeral.", srs: { interval: 0, reps: 0, ease: 2.5, due: today }, wrongCount: 3 },
+                    { id: 7, en: "tenacious", ko: "끈기 있는, 완강한", ex: "A tenacious investigator solved the cold case.", srs: { interval: 21, reps: 5, ease: 2.7, due: today }, wrongCount: 0 }
+                ];
             }
         };
 
-        // --- Tab & Navigation Management ---
         const App = {
+            poolFilter: 'due',
             init() {
                 Data.load();
-                this.switchTab('manage');
-                
-                // Expose to Cloud Sync handler
-                window.updateFromCloud = (data) => {
-                    if(data && data.words) words = data.words;
-                    if(data.activityLog) activityLog = data.activityLog;
-                    Data.save(false); // Don't trigger cloud save back
-                    if(currentTab === 'manage') Manage.render();
-                    if(currentTab === 'srs') SRS.renderDash();
-                    if(currentTab === 'stats') Stats.render();
-                    this.updateBadges();
-                };
-            },
-            switchTab(tab) {
-                document.querySelectorAll('section[id^="view-"]').forEach(el => el.classList.add('hidden'));
-                document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-                
-                document.getElementById(`view-${tab}`).classList.remove('hidden');
-                document.querySelector(`.nav-tab[data-tab="${tab}"]`).classList.add('active');
-                currentTab = tab;
+                this.updateStreak();
+                this.switchTab('flashcard');
 
-                // Tab specific init
-                if(tab === 'manage') Manage.render();
-                if(tab === 'srs') SRS.renderDash();
-                if(tab === 'flashcard') Flashcard.renderDash();
-                if(tab === 'stats') Stats.render();
-                
-                // Clean up active sessions if switching away
-                if(tab !== 'srs' && SRS.active) SRS.end();
-                if(tab !== 'flashcard' && Flashcard.active) Flashcard.end();
-                if(tab !== 'quiz' && Quiz.active) Quiz.end();
-            },
-            updateBadges() {
-                const today = new Date().toLocaleDateString('en-CA', {timeZone: 'Asia/Seoul'});
-                const dueCount = words.filter(w => w.srs.due && w.srs.due <= today).length;
-                const b = document.getElementById('badge-srs');
-                if(dueCount > 0) { 
-                    b.textContent = dueCount > 99 ? '99+' : dueCount; 
-                    b.classList.remove('hidden'); 
-                } else b.classList.add('hidden');
-            }
-        };
+                // Global Shortcuts: [SPACE] to flip, [1, 2, 3] to grade, [R] to pronounce
+                window.addEventListener('keydown', (e) => {
+                    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
 
-        // --- Manage Tab Logic (Pagination Included) ---
-        const Manage = {
-            currentPage: 1,
-            itemsPerPage: 15,
-            setPage(page) { this.currentPage = page; },
-            add() {
-                const enEl = document.getElementById('input-en');
-                const koEl = document.getElementById('input-ko');
-                const en = enEl.value.trim(), ko = koEl.value.trim();
-                
-                if(!en || !ko) return UI.toast('영어 단어와 한국어 뜻을 모두 입력하세요.', 'error');
-                if(words.some(w => w.en.toLowerCase() === en.toLowerCase())) return UI.toast('이미 등록된 단어입니다.', 'error');
-                
-                words.unshift({ 
-                    id: Date.now(), en, ko, wrongCount: 0, 
-                    srs: { interval:0, ease:2.5, reps:0, due:null },
-                    fc: { box: 1 }, quiz: { score: 0, attempts: 0 }
-                });
-                
-                Data.log('added');
-                enEl.value = ''; koEl.value = ''; enEl.focus();
-                this.currentPage = 1; // Go to first page to see new word
-                this.render(); 
-                UI.toast('단어가 추가되었습니다.', 'success');
-            },
-            render() {
-                const list = document.getElementById('manage-list');
-                const empty = document.getElementById('manage-empty');
-                const pagination = document.getElementById('manage-pagination');
-                const q = document.getElementById('manage-search').value.toLowerCase();
-                const sort = document.getElementById('manage-sort').value;
-
-                // 1. Filter
-                let disp = words.filter(w => w.en.toLowerCase().includes(q) || w.ko.includes(q));
-                document.getElementById('manage-count').textContent = disp.length;
-
-                if(!disp.length) { 
-                    list.innerHTML=''; pagination.innerHTML=''; empty.classList.remove('hidden'); 
-                    return; 
-                }
-                empty.classList.add('hidden');
-
-                // 2. Sort
-                disp.sort((a,b) => {
-                    if(sort === 'new') return b.id - a.id;
-                    if(sort === 'hard') return (b.wrongCount||0) - (a.wrongCount||0);
-                    if(sort === 'alpha') return a.en.localeCompare(b.en);
-                    return 0;
-                });
-
-                // 3. Pagination Logic
-                const totalPages = Math.ceil(disp.length / this.itemsPerPage);
-                if (this.currentPage > totalPages) this.currentPage = totalPages;
-                if (this.currentPage < 1) this.currentPage = 1;
-                
-                const startIdx = (this.currentPage - 1) * this.itemsPerPage;
-                const paginatedItems = disp.slice(startIdx, startIdx + this.itemsPerPage);
-
-                // 4. Render Items
-                const frag = document.createDocumentFragment();
-                paginatedItems.forEach(w => {
-                    const li = document.createElement('li');
-                    li.className = 'glass-card p-4 rounded-2xl flex justify-between items-center group';
-                    li.innerHTML = `
-                        <div class="flex-1 min-w-0 pr-3 cursor-pointer" onclick="Manage.openEdit(${w.id})">
-                            <div class="flex items-center gap-2 mb-1">
-                                <h3 class="font-en font-black text-lg text-white truncate group-hover:text-indigo-300 transition-colors">${w.en}</h3>
-                                ${w.wrongCount > 2 ? `<span class="shrink-0 text-[9px] bg-rose-900/50 text-rose-400 border border-rose-700/50 px-1.5 py-0.5 rounded uppercase font-black">취약</span>` : ''}
-                                ${w.srs.reps > 5 ? `<span class="shrink-0 text-[9px] bg-emerald-900/50 text-emerald-400 border border-emerald-700/50 px-1.5 py-0.5 rounded uppercase font-black">마스터</span>` : ''}
-                            </div>
-                            <p class="text-sm font-bold text-gray-400 truncate">${w.ko}</p>
-                        </div>
-                        <button onclick="Analysis.openFromApp('${w.en.replace(/'/g, "\\'")}')" class="shrink-0 w-10 h-10 bg-gray-800/80 text-indigo-400 rounded-xl hover:bg-indigo-600 hover:text-white transition-all border border-gray-700 shadow-sm" title="심층 분석">
-                            <i class="fa-solid fa-microscope"></i>
-                        </button>
-                    `;
-                    frag.appendChild(li);
-                });
-                list.innerHTML=''; list.appendChild(frag);
-
-                // 5. Render Pagination Controls
-                this.renderPagination(totalPages);
-            },
-            renderPagination(totalPages) {
-                const container = document.getElementById('manage-pagination');
-                container.innerHTML = '';
-                if(totalPages <= 1) return;
-
-                // Prev Button
-                const btnPrev = document.createElement('button');
-                btnPrev.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
-                btnPrev.className = `w-9 h-9 rounded-lg border flex items-center justify-center font-bold text-sm ${this.currentPage === 1 ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 page-btn'}`;
-                btnPrev.disabled = this.currentPage === 1;
-                btnPrev.onclick = () => { this.setPage(this.currentPage - 1); this.render(); };
-                container.appendChild(btnPrev);
-
-                // Page Numbers (Show window of 5 pages max)
-                let startPage = Math.max(1, this.currentPage - 2);
-                let endPage = Math.min(totalPages, startPage + 4);
-                if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-
-                for(let i = startPage; i <= endPage; i++) {
-                    const pBtn = document.createElement('button');
-                    pBtn.textContent = i;
-                    pBtn.className = `w-9 h-9 rounded-lg border flex items-center justify-center font-bold text-sm page-btn ${i === this.currentPage ? 'active shadow-lg shadow-indigo-500/30' : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700'}`;
-                    pBtn.onclick = () => { this.setPage(i); this.render(); };
-                    container.appendChild(pBtn);
-                }
-
-                // Next Button
-                const btnNext = document.createElement('button');
-                btnNext.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
-                btnNext.className = `w-9 h-9 rounded-lg border flex items-center justify-center font-bold text-sm ${this.currentPage === totalPages ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 page-btn'}`;
-                btnNext.disabled = this.currentPage === totalPages;
-                btnNext.onclick = () => { this.setPage(this.currentPage + 1); this.render(); };
-                container.appendChild(btnNext);
-            },
-            openEdit(id) {
-                const w = words.find(x => x.id === id); if(!w) return;
-                document.getElementById('edit-id').value = id;
-                document.getElementById('edit-en').value = w.en;
-                document.getElementById('edit-ko').value = w.ko;
-                UI.openModal('edit-modal');
-            },
-            saveEdit() {
-                const id = Number(document.getElementById('edit-id').value);
-                const en = document.getElementById('edit-en').value.trim();
-                const ko = document.getElementById('edit-ko').value.trim();
-                if(!en || !ko) return UI.toast('올바른 값을 입력하세요.', 'error');
-                const w = words.find(x => x.id === id);
-                if(w) { 
-                    w.en = en; w.ko = ko; Data.save(); this.render(); 
-                    UI.closeModal('edit-modal'); UI.toast('수정되었습니다.', 'success'); 
-                }
-            },
-            delete() {
-                const id = Number(document.getElementById('edit-id').value);
-                words = words.filter(x => x.id !== id);
-                Data.save(); 
-                
-                // Adjust pagination if deleted last item on page
-                const totalPages = Math.ceil(words.length / this.itemsPerPage);
-                if(this.currentPage > totalPages) this.currentPage = Math.max(1, totalPages);
-                
-                this.render(); UI.closeModal('edit-modal'); UI.toast('단어가 삭제되었습니다.', 'info');
-            }
-        };
-
-        // --- SRS Tab Logic (Enhanced Ebbinghaus SM-2) ---
-        const SRS = {
-            queue: [], idx: 0, active: false, correct: 0, wrong: 0, streak: 0,
-            
-            getToday() { return new Date().toLocaleDateString('en-CA', {timeZone: 'Asia/Seoul'}); },
-            calcDue(days) { const d = new Date(); d.setDate(d.getDate() + Math.max(0,days)); return d.toLocaleDateString('en-CA', {timeZone:'Asia/Seoul'}); },
-            
-            renderDash() {
-                const today = this.getToday();
-                const due = words.filter(w => w.srs.due && w.srs.due <= today);
-                const nw = words.filter(w => !w.srs.due);
-                const hard = words.filter(w => w.wrongCount > 2 || (w.srs.reps > 0 && w.srs.interval < 3));
-                const learning = words.length - nw.length;
-                const mastered = words.filter(w => w.srs.interval >= 21).length;
-
-                document.getElementById('srs-due-count').textContent = due.length;
-                document.getElementById('srs-new-count').textContent = nw.length;
-                document.getElementById('srs-hard-count').textContent = hard.length;
-                
-                document.getElementById('srs-stat-new').textContent = nw.length;
-                document.getElementById('srs-stat-learn').textContent = learning - mastered;
-                document.getElementById('srs-stat-master').textContent = mastered;
-
-                const pct = words.length ? Math.round((mastered + (learning - mastered)*0.5) / words.length * 100) : 0;
-                document.getElementById('srs-mastery-pct').textContent = pct + '%';
-                document.getElementById('srs-mastery-bar').style.width = pct + '%';
-            },
-            
-            start(mode) {
-                const today = this.getToday();
-                let pool = [];
-                if(mode === 'due') pool = words.filter(w => w.srs.due && w.srs.due <= today);
-                else if(mode === 'new') pool = words.filter(w => !w.srs.due).slice(0, 20); // Limit new words per session
-                else if(mode === 'hard') pool = words.filter(w => w.wrongCount > 2 || (w.srs.reps > 0 && w.srs.interval < 3)).slice(0, 30);
-                
-                if(!pool.length) return UI.toast('해당 조건의 단어가 없습니다.', 'info');
-                
-                this.queue = UI.shuffleArray(pool);
-                this.idx = 0; this.correct = 0; this.wrong = 0; this.streak = 0; this.active = true;
-                
-                document.getElementById('srs-dashboard').classList.add('hidden');
-                document.getElementById('srs-session').classList.remove('hidden');
-                document.getElementById('srs-total').textContent = this.queue.length;
-                this.load();
-            },
-            
-            load() {
-                if(this.idx >= this.queue.length) { this.finish(); return; }
-                const w = this.queue[this.idx];
-                document.getElementById('srs-idx').textContent = this.idx + 1;
-                document.getElementById('srs-en').textContent = w.en;
-                document.getElementById('srs-ko').textContent = w.ko;
-                
-                const badge = document.getElementById('srs-badge');
-                if(!w.srs.due) { badge.textContent = '🆕 신규'; badge.className = "text-[10px] font-black bg-blue-900/50 text-blue-400 px-2.5 py-1 rounded border border-blue-700/50"; }
-                else { badge.textContent = `🔁 복습 ${w.srs.reps}회`; badge.className = "text-[10px] font-black bg-gray-800 text-gray-400 px-2.5 py-1 rounded border border-gray-700"; }
-                
-                const streakBadge = document.getElementById('srs-streak');
-                if(this.streak >= 3) { streakBadge.classList.remove('hidden'); streakBadge.textContent = `🔥 ${this.streak}연속`; }
-                else { streakBadge.classList.add('hidden'); }
-
-                // Calculate next interval previews for UI
-                const sm2 = (g) => {
-                    let { interval=0, ease=2.5, reps=0 } = w.srs;
-                    if(g===1) return 0;
-                    if(g===2) return 1;
-                    if(reps===0) return 1; if(reps===1) return 6;
-                    let i = Math.round(interval * ease);
-                    if(g===4) return Math.round(i * 1.2);
-                    return i;
-                };
-                
-                document.getElementById('srs-t-2').textContent = '+1일';
-                document.getElementById('srs-t-3').textContent = `+${sm2(3) || 1}일`;
-                document.getElementById('srs-t-4').textContent = `+${sm2(4) || 2}일`;
-
-                document.getElementById('srs-answer').classList.add('hidden');
-                document.getElementById('srs-btn-reveal').classList.remove('hidden');
-                document.getElementById('srs-controls').classList.add('hidden');
-            },
-            
-            reveal() {
-                document.getElementById('srs-answer').classList.remove('hidden');
-                document.getElementById('srs-btn-reveal').classList.add('hidden');
-                document.getElementById('srs-controls').classList.remove('hidden');
-            },
-            
-            grade(g) {
-                const w = this.queue[this.idx];
-                const realW = words.find(x => x.id === w.id);
-                if(realW) {
-                    let { interval=0, ease=2.5, reps=0 } = realW.srs;
-                    
-                    // SM-2 Algorithm Updates
-                    if(g===1) { // Blackout
-                        interval=0; ease=Math.max(1.3, ease-0.2); reps=0; 
-                    } else if(g===2) { // Hard
-                        interval=1; ease=Math.max(1.3, ease-0.15); reps++; 
-                    } else { // Normal/Easy
-                        if(reps===0) interval=1; else if(reps===1) interval=6; else interval=Math.round(interval*ease);
-                        if(g===4) ease+=0.15; // Easy bonus
-                        reps++;
-                    }
-                    
-                    realW.srs = { interval, ease, reps, due: this.calcDue(interval) };
-                    
-                    if(g <= 2) { 
-                        realW.wrongCount++; this.wrong++; this.streak = 0;
-                        if(g===1) this.queue.push(w); // Re-queue if complete blackout
-                    } else { 
-                        this.correct++; this.streak++; 
-                    }
-                    Data.log('reviewed');
-                }
-                
-                document.getElementById('srs-total').textContent = this.queue.length;
-                this.idx++; this.load();
-            },
-            
-            finish() {
-                this.active = false; Data.save();
-                document.getElementById('srs-session').classList.add('hidden');
-                document.getElementById('srs-result').classList.remove('hidden');
-                document.getElementById('srs-res-ok').textContent = this.correct;
-                document.getElementById('srs-res-ng').textContent = this.wrong;
-            },
-            
-            end() {
-                this.active = false;
-                document.getElementById('srs-session').classList.add('hidden');
-                document.getElementById('srs-result').classList.add('hidden');
-                document.getElementById('srs-dashboard').classList.remove('hidden');
-                this.renderDash();
-            }
-        };
-
-        // --- Flashcard Tab Logic (Leitner System) ---
-        const Flashcard = {
-            queue: [], idx: 0, active: false, boxIntervals: [0, 1, 3, 7, 14, 30], // Box 1 to 5 intervals
-            
-            renderDash() {
-                // Count words in boxes
-                const counts = [0,0,0,0,0,0];
-                words.forEach(w => counts[w.fc.box || 1]++);
-                for(let i=1; i<=5; i++) {
-                    const el = document.getElementById(`fc-box${i}`);
-                    if(el) el.textContent = counts[i];
-                }
-            },
-
-            start(mode) {
-                const today = SRS.getToday(); // Use same date logic
-                let pool = [];
-                
-                if (mode === 'due') {
-                    // Logic: Box 1 daily. Box N every Nth day interval.
-                    // For simplicity in UI without adding another DB field, we check if they are "hard" or just sample based on box.
-                    // A proper Leitner checks a specific date. Let's create a dynamic pool favoring lower boxes.
-                    pool = words.filter(w => {
-                        const box = w.fc.box || 1;
-                        if (box === 1) return true; // Always review Box 1
-                        if (box === 2 && Math.random() < 0.5) return true; // Approx every 2-3 days
-                        if (box === 3 && Math.random() < 0.2) return true; // Approx weekly
-                        if (box === 4 && Math.random() < 0.1) return true; // Approx bi-weekly
-                        if (box === 5 && Math.random() < 0.03) return true; // Approx monthly
-                        return false;
-                    });
-                    if(pool.length > 50) pool = pool.slice(0, 50); // Cap it
-                } else {
-                    pool = [...words]; // All random
-                }
-
-                if(!pool.length) return UI.toast('학습할 플래시카드가 없습니다.', 'info');
-                
-                this.queue = UI.shuffleArray(pool); 
-                this.idx = 0; this.active = true;
-                
-                document.getElementById('fc-intro').classList.add('hidden');
-                document.getElementById('fc-active').classList.remove('hidden');
-                document.getElementById('fc-total').textContent = this.queue.length;
-                this.load();
-            },
-            
-            load() {
-                if(this.idx >= this.queue.length) { this.finish(); return; }
-                const w = this.queue[this.idx];
-                const boxNum = w.fc?.box || 1;
-                
-                document.getElementById('fc-idx').textContent = this.idx + 1;
-                document.getElementById('fc-bar').style.width = `${(this.idx / this.queue.length)*100}%`;
-                document.getElementById('fc-en').textContent = w.en;
-                document.getElementById('fc-ko').textContent = w.ko;
-                document.getElementById('fc-box-badge').textContent = `BOX ${boxNum}`;
-                
-                document.getElementById('fc-card').style.transform = 'rotateY(0deg)';
-                document.getElementById('fc-controls').classList.add('hidden');
-            },
-            
-            flip() {
-                if(!this.active) return;
-                const card = document.getElementById('fc-card');
-                const isFlipped = card.style.transform === 'rotateY(180deg)';
-                card.style.transform = isFlipped ? 'rotateY(0deg)' : 'rotateY(180deg)';
-                if(!isFlipped) document.getElementById('fc-controls').classList.remove('hidden');
-            },
-            
-            mark(knew) {
-                const w = this.queue[this.idx];
-                const realW = words.find(x => x.id === w.id);
-                
-                if(realW) {
-                    let currentBox = realW.fc?.box || 1;
-                    if(knew) {
-                        currentBox = Math.min(5, currentBox + 1); // Move up
-                    } else {
-                        currentBox = 1; // Drop to box 1
-                        realW.wrongCount++;
-                    }
-                    realW.fc = { box: currentBox };
-                    Data.log('tested');
-                }
-                
-                const card = document.getElementById('fc-card');
-                card.style.transform = 'scale(0.95)'; card.style.opacity = '0';
-                
-                setTimeout(() => { 
-                    card.style.transform = 'rotateY(0deg) scale(1)'; card.style.opacity = '1';
-                    this.idx++; this.load(); 
-                }, 200);
-            },
-            
-            finish() {
-                this.active = false; Data.save();
-                document.getElementById('fc-active').classList.add('hidden');
-                document.getElementById('fc-result').classList.remove('hidden');
-            },
-            
-            end() {
-                this.active = false;
-                document.getElementById('fc-active').classList.add('hidden');
-                document.getElementById('fc-result').classList.add('hidden');
-                document.getElementById('fc-intro').classList.remove('hidden');
-                this.renderDash();
-            }
-        };
-
-        // --- Quiz Tab Logic (Adaptive Distractors) ---
-        const Quiz = {
-            queue: [], idx: 0, score: 0, combo: 0, maxCombo: 0, active: false, 
-            timer: null, timeLeft: 100, curr: null, correctCount: 0,
-            
-            start() {
-                if(words.length < 4) return UI.toast('퀴즈를 위해 최소 4개의 단어가 필요합니다.', 'error');
-                
-                // Weight random selection based on past quiz score/wrongCount
-                // Lower quiz.score and higher wrongCount -> higher chance to appear
-                const weightedPool = words.map(w => {
-                    const weight = 10 + (w.wrongCount * 2) - (w.quiz?.score || 0);
-                    return { word: w, weight: Math.max(1, weight) };
-                });
-                
-                // Select 20 words for the quiz based on weight
-                let selected = [];
-                for(let i=0; i<20 && weightedPool.length > 0; i++) {
-                    const totalWeight = weightedPool.reduce((sum, item) => sum + item.weight, 0);
-                    let rand = Math.random() * totalWeight;
-                    for(let j=0; j<weightedPool.length; j++) {
-                        rand -= weightedPool[j].weight;
-                        if(rand <= 0) {
-                            selected.push(weightedPool[j].word);
-                            weightedPool.splice(j, 1);
-                            break;
+                    if (currentTab === 'flashcard' && Flashcard.active) {
+                        if (e.code === 'Space') {
+                            e.preventDefault();
+                            Flashcard.flip();
+                        } else if (e.key === '1') {
+                            Flashcard.grade(1);
+                        } else if (e.key === '2') {
+                            Flashcard.grade(2);
+                        } else if (e.key === '3') {
+                            Flashcard.grade(3);
+                        } else if (e.key.toLowerCase() === 'r') {
+                            Flashcard.pronounceCurrent();
                         }
                     }
-                }
-                
-                this.queue = UI.shuffleArray(selected); 
-                this.idx=0; this.score=0; this.combo=0; this.maxCombo=0; this.correctCount=0; this.active=true;
-                
-                document.getElementById('quiz-intro').classList.add('hidden');
-                document.getElementById('quiz-active').classList.remove('hidden');
-                this.load();
-            },
-            
-            load() {
-                if(this.idx >= this.queue.length) { this.end(true); return; }
-                this.curr = this.queue[this.idx];
-                
-                document.getElementById('quiz-score').textContent = this.score;
-                document.getElementById('quiz-en').textContent = this.curr.en;
-                
-                // Update Combo
-                const cb = document.getElementById('quiz-combo-wrap');
-                if(this.combo >= 2) { 
-                    cb.classList.remove('hidden'); 
-                    document.getElementById('quiz-combo').textContent = this.combo; 
-                    cb.style.transform = 'scale(1.1)';
-                    setTimeout(() => cb.style.transform = 'scale(1)', 150);
-                } else { cb.classList.add('hidden'); }
-
-                // Adaptive Distractors (If high combo, pick words with similar length)
-                let pool = words.filter(w => w.id !== this.curr.id);
-                let distractors = [];
-                
-                const badge = document.getElementById('quiz-diff-badge');
-                if(this.combo > 5) {
-                    badge.textContent = "난이도: 🔥 극악"; badge.className = "absolute top-5 left-5 text-[10px] font-black px-2 py-1 rounded bg-rose-900/50 border border-rose-700 text-rose-300";
-                    // Same length KO
-                    pool.sort((a,b) => Math.abs(a.ko.length - this.curr.ko.length) - Math.abs(b.ko.length - this.curr.ko.length));
-                } else if(this.combo > 2) {
-                    badge.textContent = "난이도: ⚡ 어려움"; badge.className = "absolute top-5 left-5 text-[10px] font-black px-2 py-1 rounded bg-amber-900/50 border border-amber-700 text-amber-300";
-                    pool = UI.shuffleArray(pool); // mix
-                } else {
-                    badge.textContent = "난이도: 🟢 보통"; badge.className = "absolute top-5 left-5 text-[10px] font-black px-2 py-1 rounded bg-gray-800 border border-gray-700 text-gray-400";
-                    pool = UI.shuffleArray(pool);
-                }
-                
-                distractors = pool.slice(0,3);
-                let opts = [this.curr, ...distractors];
-                opts = UI.shuffleArray(opts);
-                
-                const cont = document.getElementById('quiz-options'); 
-                cont.innerHTML = '';
-                
-                opts.forEach(o => {
-                    const b = document.createElement('button');
-                    b.className = 'btn-press glass-card font-black py-6 px-4 rounded-[2rem] text-xl relative overflow-hidden text-center text-white border-t-2 border-t-gray-600 hover:border-t-indigo-500';
-                    b.textContent = o.ko;
-                    b.onclick = () => this.select(o.id, b);
-                    cont.appendChild(b);
                 });
-                
-                // Speed decreases as combo goes up
-                const timeFactor = Math.max(0.5, 1 - (this.combo * 0.05));
-                this.startTimer(timeFactor);
             },
-            
-            startTimer(factor) {
-                clearInterval(this.timer); this.timeLeft = 100;
-                const bar = document.getElementById('quiz-timer-bar');
-                bar.style.width = '100%'; bar.className = 'h-full bg-gradient-to-r from-emerald-400 to-emerald-500 w-full transition-all duration-100 linear';
-                
-                this.timer = setInterval(() => {
-                    this.timeLeft -= (0.8 / factor); 
-                    bar.style.width = `${Math.max(0, this.timeLeft)}%`;
-                    
-                    if(this.timeLeft <= 40 && this.timeLeft > 15) bar.classList.replace('from-emerald-400', 'from-amber-400');
-                    if(this.timeLeft <= 15) bar.classList.replace('from-amber-400', 'from-rose-500');
-                    if(this.timeLeft <= 0) this.timeout();
-                }, 100);
-            },
-            
-            select(id, btn) {
-                if(!this.active) return; 
-                clearInterval(this.timer);
-                
-                const btns = document.getElementById('quiz-options').children;
-                for(let b of btns) b.disabled = true;
+            switchTab(tabKey) {
+                currentTab = tabKey;
+                document.querySelectorAll('section[id^="view-"]').forEach(sec => sec.classList.add('hidden'));
+                document.querySelectorAll('.brutal-tab').forEach(tab => tab.classList.remove('active'));
 
-                const isOk = id === this.curr.id;
-                const rw = words.find(w => w.id === this.curr.id);
-                
-                if(isOk) {
-                    btn.classList.add('bg-emerald-600', 'border-emerald-400', 'shadow-[0_0_20px_rgba(16,185,129,0.5)]');
-                    const timeBonus = Math.round(this.timeLeft / 10);
-                    this.score += (10 + (this.combo * 5) + timeBonus); 
-                    this.combo++; this.correctCount++;
-                    if(this.combo > this.maxCombo) this.maxCombo = this.combo;
-                    if(rw) { rw.quiz = { score: (rw.quiz?.score || 0) + 1, attempts: (rw.quiz?.attempts || 0) + 1}; }
-                } else {
-                    btn.classList.add('bg-rose-600', 'border-rose-400', 'shake');
-                    this.combo = 0;
-                    for(let b of btns) {
-                        if(b.textContent === this.curr.ko) b.classList.add('bg-emerald-900/50', 'text-emerald-400', 'border-emerald-500/50');
-                    }
-                    if(rw) { 
-                        rw.wrongCount++; 
-                        rw.quiz = { score: Math.max(0, (rw.quiz?.score || 0) - 1), attempts: (rw.quiz?.attempts || 0) + 1}; 
-                    }
-                }
-                
-                Data.log('quizzed');
-                setTimeout(() => { this.idx++; this.load(); }, isOk ? 400 : 1200);
+                const targetSec = document.getElementById(`view-${tabKey}`);
+                const targetTab = document.querySelector(`.brutal-tab[data-tab="${tabKey}"]`);
+                if (targetSec) targetSec.classList.remove('hidden');
+                if (targetTab) targetTab.classList.add('active');
+
+                if (tabKey === 'flashcard') Flashcard.start();
+                if (tabKey === 'quiz') Quiz.start();
+                if (tabKey === 'ledger') Ledger.render();
+
+                this.updateMetrics();
             },
-            
-            timeout() {
-                clearInterval(this.timer); this.combo = 0;
-                const btns = document.getElementById('quiz-options').children;
-                for(let b of btns) {
-                    b.disabled=true;
-                    if(b.textContent === this.curr.ko) b.classList.add('bg-emerald-900/50', 'text-emerald-400', 'border-emerald-500/50');
-                }
-                const rw = words.find(w => w.id === this.curr.id); 
-                if(rw) { rw.wrongCount++; rw.quiz = { score: Math.max(0, (rw.quiz?.score || 0) - 1), attempts: (rw.quiz?.attempts || 0) + 1}; }
-                
-                Data.log('quizzed');
-                setTimeout(() => { this.idx++; this.load(); }, 1200);
+            onPoolFilterChange() {
+                this.poolFilter = document.getElementById('srs-pool-filter').value;
+                if (currentTab === 'flashcard') Flashcard.start();
+                if (currentTab === 'quiz') Quiz.start();
             },
-            
-            end(completed = false) {
-                this.active=false; clearInterval(this.timer); Data.save();
-                document.getElementById('quiz-active').classList.add('hidden');
-                
-                if(completed || this.idx > 0) {
-                    document.getElementById('quiz-result').classList.remove('hidden');
-                    document.getElementById('quiz-res-score').textContent = this.score;
-                    document.getElementById('quiz-res-correct').textContent = `${this.correctCount} / ${this.idx}`;
-                    document.getElementById('quiz-res-maxcombo').textContent = this.maxCombo;
-                    document.getElementById('quiz-result-msg').textContent = this.score > 500 ? "당신은 어휘의 신입니다! 👑" : "놀라운 집중력입니다! 👏";
-                } else {
-                    document.getElementById('quiz-intro').classList.remove('hidden');
+            getActivePool() {
+                const today = TimeUtil.today();
+                if (this.poolFilter === 'due') {
+                    return words.filter(w => !w.srs?.due || w.srs.due <= today);
+                } else if (this.poolFilter === 'hard') {
+                    return words.filter(w => (w.wrongCount || 0) > 0).sort((a,b) => b.wrongCount - a.wrongCount);
                 }
+                return [...words];
+            },
+            openAddModal() {
+                document.getElementById('add-word-en').value = '';
+                document.getElementById('add-word-ko').value = '';
+                document.getElementById('add-word-ex').value = '';
+                UI.openModal('modal-add');
+                setTimeout(() => document.getElementById('add-word-en').focus(), 80);
+            },
+            refreshData() {
+                Data.load();
+                if (currentTab === 'flashcard') Flashcard.start();
+                if (currentTab === 'quiz') Quiz.start();
+                if (currentTab === 'ledger') Ledger.render();
+                UI.toast('DATA REFRESHED', 'info');
+            },
+            updateStreak() {
+                const today = TimeUtil.today();
+                let lastDate = localStorage.getItem('daon_last_active');
+                let streak = parseInt(localStorage.getItem('daon_streak_days') || '0', 10);
+                if (lastDate) {
+                    const diff = Math.round((new Date(today) - new Date(lastDate)) / (1000 * 60 * 60 * 24));
+                    if (diff > 1) streak = 0;
+                }
+                document.getElementById('metric-streak').textContent = streak;
+            },
+            markDayActive() {
+                const today = TimeUtil.today();
+                let lastDate = localStorage.getItem('daon_last_active');
+                let streak = parseInt(localStorage.getItem('daon_streak_days') || '0', 10);
+                if (lastDate !== today) {
+                    streak++;
+                    localStorage.setItem('daon_streak_days', streak.toString());
+                    localStorage.setItem('daon_last_active', today);
+                    this.updateStreak();
+                }
+            },
+            updateMetrics() {
+                const today = TimeUtil.today();
+                const dueCount = words.filter(w => !w.srs?.due || w.srs.due <= today).length;
+                const masterCount = words.filter(w => (w.srs?.interval || 0) >= 21).length;
+                const hardCount = words.filter(w => (w.wrongCount || 0) > 0).length;
+
+                document.getElementById('tab-word-count').textContent = words.length;
+                document.getElementById('metric-due').textContent = dueCount;
+                document.getElementById('metric-master').textContent = masterCount;
+                document.getElementById('metric-hard').textContent = hardCount;
             }
         };
 
-        // --- Analysis Tab Logic (Dictionary API + Datamuse API) ---
-        const Analysis = {
-            cache: new Map(), // Prevent duplicate API calls
-            
-            openFromApp(en) { 
-                App.switchTab('analysis'); 
-                document.getElementById('an-search').value = en; 
-                this.search(en); 
-            },
-            
-            async search(forceQuery) {
-                const q = (forceQuery || document.getElementById('an-search').value).trim().toLowerCase();
-                const dd = document.getElementById('an-dropdown');
-                if(!q) { dd.classList.add('hidden'); return; }
-                
-                // Show matching from DB first, then allow raw search
-                const res = words.filter(w => w.en.toLowerCase().startsWith(q)).slice(0,5);
-                
-                if(forceQuery) { 
-                    this.fetchAndRender(q); 
-                } else {
-                    let html = res.map(w => `<button class="w-full text-left p-4 hover:bg-gray-700 transition-colors border-b border-gray-700/50" onclick="Analysis.fetchAndRender('${w.en}')"><span class="font-black text-white text-lg font-en">${w.en}</span> <span class="text-indigo-400 text-sm ml-2">${w.ko}</span></button>`).join('');
-                    html += `<button class="w-full text-left p-4 hover:bg-indigo-900/50 transition-colors" onclick="Analysis.fetchAndRender('${q}')"><span class="font-bold text-gray-300">🔍 API 사전에서 '<span class="text-white">${q}</span>' 분석하기</span></button>`;
-                    dd.innerHTML = html;
-                    dd.classList.remove('hidden');
-                }
-            },
-            
-            async fetchAndRender(wordEn) {
-                document.getElementById('an-dropdown').classList.add('hidden');
-                document.getElementById('an-search').value = wordEn;
-                document.getElementById('an-empty').classList.add('hidden');
-                document.getElementById('an-result').classList.add('hidden');
-                document.getElementById('an-loading').classList.remove('hidden');
-
-                document.getElementById('an-word').textContent = wordEn;
-                
-                if(this.cache.has(wordEn)) {
-                    this.render(this.cache.get(wordEn));
+        const Flashcard = {
+            queue: [],
+            idx: 0,
+            active: false,
+            flipped: false,
+            start() {
+                const pool = App.getActivePool();
+                if (pool.length === 0) {
+                    this.active = false;
+                    document.getElementById('fc-front-word').textContent = "ALL COMPLETE";
+                    document.getElementById('fc-back-meaning').textContent = "No review items in this pool.";
+                    document.getElementById('fc-index').textContent = "0";
+                    document.getElementById('fc-total').textContent = "0";
+                    document.getElementById('fc-progress-fill').style.width = "100%";
                     return;
                 }
 
-                try {
-                    // Fetch from Free Dictionary API (Defs, Phonics, Examples)
-                    const dictRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(wordEn)}`).catch(()=>null);
-                    const dictData = dictRes && dictRes.ok ? await dictRes.json() : null;
-                    
-                    // Fetch from Datamuse API (Synonyms, Antonyms, Related)
-                    const [synRes, antRes, relRes] = await Promise.all([
-                        fetch(`https://api.datamuse.com/words?rel_syn=${wordEn}&max=15`).catch(()=>null),
-                        fetch(`https://api.datamuse.com/words?rel_ant=${wordEn}&max=10`).catch(()=>null),
-                        fetch(`https://api.datamuse.com/words?rel_trg=${wordEn}&max=15`).catch(()=>null)
-                    ]);
-                    
-                    const dmSyn = synRes && synRes.ok ? await synRes.json() : [];
-                    const dmAnt = antRes && antRes.ok ? await antRes.json() : [];
-                    const dmRel = relRes && relRes.ok ? await relRes.json() : [];
+                this.queue = [...pool].sort(() => Math.random() - 0.5);
+                this.idx = 0;
+                this.active = true;
+                this.flipped = false;
 
-                    const resultData = { wordEn, dictData, dmSyn, dmAnt, dmRel };
-                    this.cache.set(wordEn, resultData);
-                    this.render(resultData);
+                const titles = { due: "QUEUE: DUE TODAY", hard: "QUEUE: CRITICAL WEAK", all: "QUEUE: ENTIRE SET" };
+                document.getElementById('deck-mode-pill').textContent = titles[App.poolFilter] || "FLASHCARDS";
+                document.getElementById('fc-total').textContent = this.queue.length;
 
-                } catch(e) {
-                    console.error(e);
-                    UI.toast('분석 데이터를 가져오는데 실패했습니다.', 'error');
-                    document.getElementById('an-loading').classList.add('hidden');
-                    document.getElementById('an-empty').classList.remove('hidden');
-                }
+                this.display();
             },
-            
-            render(data) {
-                document.getElementById('an-loading').classList.add('hidden');
-                document.getElementById('an-result').classList.remove('hidden');
-                
-                const { dictData, dmSyn, dmAnt, dmRel } = data;
-                
-                // 1. Phonics & Audio
-                let phonetic = '', audioUrl = null, def = '정의를 찾을 수 없습니다.', posSet = new Set(), exList = [];
-                let dictSyns = [], dictAnts = [];
-
-                if(dictData && dictData[0]) {
-                    const d = dictData[0];
-                    phonetic = d.phonetic || d.phonetics?.find(p=>p.text)?.text || '';
-                    audioUrl = d.phonetics?.find(p=>p.audio)?.audio || null;
-                    def = d.meanings?.[0]?.definitions?.[0]?.definition || def;
-                    
-                    d.meanings?.forEach(m => {
-                        posSet.add(m.partOfSpeech);
-                        if(m.synonyms) dictSyns.push(...m.synonyms);
-                        if(m.antonyms) dictAnts.push(...m.antonyms);
-                        m.definitions?.forEach(df => { 
-                            if(df.example) exList.push(df.example); 
-                            if(df.synonyms) dictSyns.push(...df.synonyms);
-                        });
-                    });
+            display() {
+                if (this.idx >= this.queue.length) {
+                    this.finish();
+                    return;
                 }
-                
-                document.getElementById('an-phonetic').textContent = phonetic || '[-_ -]';
-                this.audioUrl = audioUrl;
-                this.currentWordEn = data.wordEn; // for TTS fallback
-                
-                document.getElementById('an-pos').innerHTML = [...posSet].map(p=>`<span class="bg-indigo-600/30 border border-indigo-500/50 text-indigo-300 px-2 py-0.5 rounded text-[10px] uppercase font-black">${p}</span>`).join('');
-                document.getElementById('an-def').textContent = def;
-                
-                // Helper to render chips
-                const renderChips = (id, items1, items2, max) => {
-                    const el = document.getElementById(id);
-                    // Merge and deduplicate
-                    const merged = [...new Set([...items1.map(w=>typeof w==='string'?w:w.word), ...items2.map(w=>typeof w==='string'?w:w.word)])].slice(0, max);
-                    
-                    if(!merged.length) { el.innerHTML = '<span class="text-gray-500 text-sm font-bold">데이터 없음</span>'; return; }
-                    
-                    el.innerHTML = merged.map(w => {
-                        const isSaved = words.some(xw => xw.en.toLowerCase() === w.toLowerCase());
-                        const borderCls = isSaved ? 'border-emerald-500 text-emerald-300 bg-emerald-900/30' : 'border-gray-600 text-gray-300 bg-gray-800/50 hover:bg-indigo-900/50 hover:border-indigo-500';
-                        const icon = isSaved ? '<i class="fa-solid fa-bookmark mr-1"></i>' : '';
-                        return `<span class="chip font-en ${borderCls}" onclick="Analysis.openFromApp('${w}')">${icon}${w}</span>`;
-                    }).join('');
-                };
+                const w = this.queue[this.idx];
+                this.flipped = false;
 
-                renderChips('an-syn', dictSyns, dmSyn, 15);
-                renderChips('an-ant', dictAnts, dmAnt, 10);
-                renderChips('an-rel', [], dmRel, 20);
-                
-                // Examples
-                const exEl = document.getElementById('an-ex');
-                if(exList.length) {
-                    exEl.innerHTML = exList.slice(0,4).map((e,i) => `<div class="bg-gray-800/50 p-4 rounded-2xl border border-gray-700/50"><span class="text-indigo-400 font-black mr-2">${i+1}.</span><span class="font-en text-gray-300 italic font-bold">${e}</span></div>`).join('');
+                const card = document.getElementById('fc-flip-card');
+                card.classList.remove('rotate-y-180');
+
+                document.getElementById('fc-index').textContent = this.idx + 1;
+                document.getElementById('fc-progress-fill').style.width = `${Math.round(((this.idx + 1) / this.queue.length) * 100)}%`;
+
+                document.getElementById('fc-front-word').textContent = w.en;
+                document.getElementById('fc-back-meaning').textContent = w.ko;
+                document.getElementById('fc-interval-preview').textContent = `REPS: ${w.srs?.reps || 0}  |  INTERVAL: ${w.srs?.interval || 0}D`;
+
+                const weakBadge = document.getElementById('fc-weak-badge');
+                if ((w.wrongCount || 0) > 0) {
+                    weakBadge.classList.remove('hidden');
+                    weakBadge.textContent = `✕ FAILS: ${w.wrongCount}`;
                 } else {
-                    exEl.innerHTML = '<p class="text-gray-500 font-bold">예문을 찾을 수 없습니다.</p>';
+                    weakBadge.classList.add('hidden');
                 }
+
+                const ex = document.getElementById('fc-back-sentence');
+                if (w.ex && w.ex.trim().length > 0) {
+                    ex.classList.remove('hidden');
+                    ex.textContent = `"${w.ex}"`;
+                } else {
+                    ex.classList.add('hidden');
+                }
+
+                const currInt = w.srs?.interval || 0;
+                const nextVal = currInt === 0 ? 1 : Math.round(currInt * (w.srs?.ease || 2.5));
+                document.getElementById('fc-btn-good-interval').textContent = `+${Math.max(3, nextVal)}D`;
+
+                UI.pronounce(w.en);
             },
-            
-            playAudio() {
-                if(this.audioUrl) {
-                    new Audio(this.audioUrl).play();
-                } else if(this.currentWordEn) {
-                    // Fallback to Web Speech API
-                    const u = new SpeechSynthesisUtterance(this.currentWordEn); 
-                    u.lang='en-US'; 
-                    window.speechSynthesis.speak(u);
+            flip() {
+                if (!this.active) return;
+                this.flipped = !this.flipped;
+                const card = document.getElementById('fc-flip-card');
+                if (this.flipped) card.classList.add('rotate-y-180');
+                else card.classList.remove('rotate-y-180');
+            },
+            grade(rating) {
+                if (!this.active) return;
+                const curr = this.queue[this.idx];
+                const realWord = words.find(w => w.id === curr.id);
+
+                if (realWord) {
+                    let { interval = 0, reps = 0, ease = 2.5 } = realWord.srs || {};
+
+                    if (rating === 1) { // Again (lapse)
+                        interval = 0;
+                        reps = 0;
+                        ease = Math.max(1.3, ease - 0.2);
+                        realWord.wrongCount = (realWord.wrongCount || 0) + 1;
+                        this.queue.push(curr); // Append to back of deck
+                        document.getElementById('fc-total').textContent = this.queue.length;
+                    } else if (rating === 2) { // Hard
+                        interval = 1;
+                        reps++;
+                    } else if (rating === 3) { // Good
+                        if (reps === 0) interval = 1;
+                        else if (reps === 1) interval = 3;
+                        else interval = Math.round(interval * ease);
+                        reps++;
+                    }
+
+                    realWord.srs = {
+                        interval,
+                        reps,
+                        ease,
+                        due: TimeUtil.addDays(interval)
+                    };
                 }
+
+                App.markDayActive();
+                this.idx++;
+                this.display();
+            },
+            pronounceCurrent() {
+                if (this.queue[this.idx]) UI.pronounce(this.queue[this.idx].en);
+            },
+            finish() {
+                this.active = false;
+                Data.save();
+                UI.toast('SESSION COMPLETE', 'success');
+                App.switchTab('ledger');
             }
         };
 
-        // --- Grouping Tab Logic (Structural + Semantic) ---
-        const Grouping = {
-            run() {
-                if(words.length < 3) return UI.toast('단어가 부족하여 분석할 수 없습니다.', 'error');
-                
-                document.getElementById('group-content').classList.add('hidden');
-                document.getElementById('group-empty').classList.add('hidden');
-                const loading = document.getElementById('group-loading');
-                loading.classList.remove('hidden');
-                loading.style.display = 'flex';
-                
-                const bar = document.getElementById('group-progress');
-                const msg = document.getElementById('group-status-msg');
-                bar.style.width = '0%';
-                
-                // Simulate processing steps to not block UI thread heavily
-                setTimeout(() => {
-                    msg.textContent = "형태소 구조 분석 중 (Prefix/Suffix)...";
-                    bar.style.width = '30%';
-                    const structural = this.clusterByStructure(words);
-                    
-                    setTimeout(() => {
-                        msg.textContent = "의미망 클러스터링 중 (Topics)...";
-                        bar.style.width = '70%';
-                        const semantic = this.clusterBySemantics(words);
-                        
-                        setTimeout(() => {
-                            bar.style.width = '100%';
-                            this.render(structural, semantic);
-                            setTimeout(() => {
-                                loading.classList.add('hidden');
-                                loading.style.display = 'none';
-                                document.getElementById('group-content').classList.remove('hidden');
-                            }, 400);
-                        }, 300);
-                    }, 400);
+        const Quiz = {
+            queue: [],
+            idx: 0,
+            score: 0,
+            combo: 0,
+            timer: null,
+            timeLeft: 100,
+            active: false,
+            start() {
+                if (words.length < 4) {
+                    UI.toast('MINIMUM 4 WORDS REQUIRED FOR QUIZ', 'error');
+                    App.switchTab('ledger');
+                    return;
+                }
+                const pool = App.getActivePool();
+                this.queue = (pool.length >= 4 ? pool : words).sort(() => Math.random() - 0.5).slice(0, 15);
+                this.idx = 0;
+                this.score = 0;
+                this.combo = 0;
+                this.active = true;
+                this.renderQuestion();
+            },
+            renderQuestion() {
+                if (this.idx >= this.queue.length) {
+                    this.finish();
+                    return;
+                }
+                const current = this.queue[this.idx];
+                document.getElementById('quiz-score-num').textContent = this.score;
+                document.getElementById('quiz-question-word').textContent = current.en;
+
+                const comboBadge = document.getElementById('quiz-combo-badge');
+                if (this.combo >= 2) {
+                    comboBadge.classList.remove('hidden');
+                    document.getElementById('quiz-combo-count').textContent = this.combo;
+                } else {
+                    comboBadge.classList.add('hidden');
+                }
+
+                const distractors = words
+                    .filter(w => w.id !== current.id)
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 3);
+                const options = [current, ...distractors].sort(() => Math.random() - 0.5);
+
+                const container = document.getElementById('quiz-choices-container');
+                container.innerHTML = '';
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'brutal-panel p-4 text-center font-bold text-xs sm:text-sm bg-white hover:bg-neutral-100 transition-colors truncate font-korean';
+                    btn.textContent = opt.ko;
+                    btn.onclick = () => this.handlePick(opt.id === current.id, btn, current.ko);
+                    container.appendChild(btn);
+                });
+
+                this.runTimer();
+                UI.pronounce(current.en);
+            },
+            runTimer() {
+                clearInterval(this.timer);
+                this.timeLeft = 100;
+                const bar = document.getElementById('quiz-timer-fill');
+                bar.style.width = '100%';
+
+                this.timer = setInterval(() => {
+                    this.timeLeft -= 2;
+                    bar.style.width = `${Math.max(0, this.timeLeft)}%`;
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timer);
+                        this.handlePick(false, null, this.queue[this.idx]?.ko);
+                    }
                 }, 100);
             },
-            
-            clusterByStructure(wordList) {
-                const prefixes = ['trans','inter','sub','over','under','pre','post','anti','pro','dis','re','un','in','im','ex','con','com'];
-                const suffixes = ['tion','ment','ity','ness','ance','ence','able','ible','ive','ous','ful','less'];
-                
-                let groups = {};
-                
-                wordList.forEach(w => {
-                    const en = w.en.toLowerCase();
-                    // Check Prefix
-                    for(let p of prefixes) {
-                        if(en.startsWith(p) && en.length > p.length + 3) {
-                            const key = `[ ${p}- ] 접두사`;
-                            if(!groups[key]) groups[key] = [];
-                            groups[key].push(w);
-                            return; // Priority to prefix
-                        }
-                    }
-                    // Check Suffix
-                    for(let s of suffixes) {
-                        if(en.endsWith(s) && en.length > s.length + 3) {
-                            const key = `[ -${s} ] 접미사`;
-                            if(!groups[key]) groups[key] = [];
-                            groups[key].push(w);
-                            return;
-                        }
+            handlePick(isCorrect, clickedBtn, correctMeaning) {
+                clearInterval(this.timer);
+                const buttons = document.getElementById('quiz-choices-container').querySelectorAll('button');
+                buttons.forEach(b => {
+                    b.disabled = true;
+                    if (b.textContent === correctMeaning) {
+                        b.classList.add('bg-black', 'text-white');
                     }
                 });
-                
-                // Filter out small groups
-                return Object.entries(groups)
-                    .filter(([_, arr]) => arr.length >= 2)
-                    .sort((a,b) => b[1].length - a[1].length);
-            },
-            
-            clusterBySemantics(wordList) {
-                // Topic dictionaries (Simplified offline NLP)
-                const topics = [
-                    { name: '🌟 감정/성격', keywords: ['감정','기분','화','기쁨','슬픔','성격','태도','마음','불안','친절','용기','두려움'] },
-                    { name: '🏃 동작/상태', keywords: ['움직','가다','오다','상태','유지','멈추','시작','끝나','변화','행동','만들','파괴'] },
-                    { name: '💼 경제/직업', keywords: ['돈','회사','직업','일','경제','비용','수익','투자','손실','무역','가게','판매','구매'] },
-                    { name: '🧠 사고/인지', keywords: ['생각','이해','알다','배우','지식','기억','판단','분석','결정','논리','의심'] },
-                    { name: '🌍 자연/과학', keywords: ['자연','동물','식물','과학','우주','환경','날씨','물리','화학','기계','생명'] }
-                ];
-                
-                let groups = {};
-                
-                wordList.forEach(w => {
-                    let matched = false;
-                    for(let t of topics) {
-                        for(let k of t.keywords) {
-                            if(w.ko.includes(k)) {
-                                if(!groups[t.name]) groups[t.name] = [];
-                                groups[t.name].push(w);
-                                matched = true;
-                                break;
-                            }
-                        }
-                        if(matched) break;
-                    }
-                });
-                
-                return Object.entries(groups)
-                    .filter(([_, arr]) => arr.length >= 2)
-                    .sort((a,b) => b[1].length - a[1].length);
-            },
-            
-            render(structArr, semArr) {
-                const sWrap = document.getElementById('group-structural-wrap');
-                const mWrap = document.getElementById('group-semantic-wrap');
-                const sGrid = document.getElementById('group-structural');
-                const mGrid = document.getElementById('group-semantic');
-                
-                sGrid.innerHTML = ''; mGrid.innerHTML = '';
-                
-                const buildCard = (title, arr, color) => {
-                    const borderCls = color === 'indigo' ? 'border-indigo-500/30' : 'border-emerald-500/30';
-                    const textCls = color === 'indigo' ? 'text-indigo-300' : 'text-emerald-300';
-                    const bgCls = color === 'indigo' ? 'bg-indigo-900/50 text-indigo-200' : 'bg-emerald-900/50 text-emerald-200';
-                    
-                    return `
-                        <div class="glass-card p-5 rounded-3xl h-max border ${borderCls}">
-                            <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-700/50">
-                                <h4 class="font-black ${textCls} text-sm">${title}</h4>
-                                <span class="text-[10px] ${bgCls} px-2 py-0.5 rounded-full font-black">${arr.length} 단어</span>
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                ${arr.map(w => `<span class="chip font-en" title="${w.ko}">${w.en}</span>`).join('')}
-                            </div>
-                        </div>
-                    `;
-                };
 
-                if(structArr.length > 0) {
-                    sWrap.classList.remove('hidden');
-                    sGrid.innerHTML = structArr.map(g => buildCard(g[0], g[1], 'indigo')).join('');
-                } else { sWrap.classList.add('hidden'); }
-                
-                if(semArr.length > 0) {
-                    mWrap.classList.remove('hidden');
-                    mGrid.innerHTML = semArr.map(g => buildCard(g[0], g[1], 'emerald')).join('');
-                } else { mWrap.classList.add('hidden'); }
-                
-                if(structArr.length === 0 && semArr.length === 0) {
-                    document.getElementById('group-empty').classList.remove('hidden');
-                    document.getElementById('group-empty').innerHTML = '<p class="font-bold text-gray-500">연관성을 찾을 수 없습니다. 단어를 더 추가해보세요.</p>';
-                }
-            }
-        };
+                const current = this.queue[this.idx];
+                const realWord = words.find(w => w.id === current.id);
 
-        // --- Stats Tab Logic (Graph & Analysis) ---
-        const Stats = {
-            render() {
-                // KPIs
-                document.getElementById('st-total').textContent = words.length;
-                document.getElementById('st-master').textContent = words.filter(w => w.srs && w.srs.interval >= 21).length;
-                document.getElementById('st-hard').textContent = words.filter(w => w.wrongCount > 2).length;
-                
-                // Streak Calculation
-                let streak = 0, d = new Date();
-                while(true) {
-                    const ds = d.toLocaleDateString('en-CA', {timeZone:'Asia/Seoul'});
-                    const a = activityLog[ds];
-                    if(a && (a.added||a.tested||a.quizzed||a.reviewed)) { streak++; d.setDate(d.getDate()-1); }
-                    else {
-                        if(streak===0) { 
-                            d.setDate(d.getDate()-1); 
-                            const y = d.toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'}); 
-                            if(activityLog[y]) { streak++; d.setDate(d.getDate()-1); continue; } 
-                        }
-                        break;
-                    }
-                }
-                document.getElementById('st-streak').innerHTML = `${streak}<span class="text-lg">일</span>`;
-
-                // Top Hard Words
-                const topHard = [...words].filter(w => w.wrongCount > 0).sort((a,b) => b.wrongCount - a.wrongCount).slice(0,5);
-                const hardContainer = document.getElementById('st-top-hard');
-                if(topHard.length > 0) {
-                    hardContainer.innerHTML = topHard.map((w, i) => `
-                        <div class="bg-rose-900/20 border border-rose-500/30 p-4 rounded-2xl text-center relative">
-                            <div class="absolute -top-2 -left-2 w-6 h-6 bg-rose-600 rounded-full flex items-center justify-center text-white text-[10px] font-black">${i+1}</div>
-                            <p class="font-en font-black text-white text-lg mb-1 truncate">${w.en}</p>
-                            <p class="text-xs font-bold text-gray-400 truncate mb-2">${w.ko}</p>
-                            <span class="text-[10px] bg-rose-950 text-rose-400 px-2 py-0.5 rounded-full border border-rose-800">오답 ${w.wrongCount}회</span>
-                        </div>
-                    `).join('');
+                if (isCorrect) {
+                    this.combo++;
+                    this.score += 100 + (this.combo * 20);
                 } else {
-                    hardContainer.innerHTML = '<p class="text-gray-500 font-bold text-sm col-span-full text-center py-4">취약한 단어가 없습니다. 완벽합니다!</p>';
+                    if (clickedBtn) clickedBtn.classList.add('bg-neutral-200', 'text-neutral-500');
+                    this.combo = 0;
+                    if (realWord) realWord.wrongCount = (realWord.wrongCount || 0) + 1;
                 }
 
-                // Grass Activity Graph (35 Days)
-                const grass = document.getElementById('st-grass-grid'); grass.innerHTML='';
-                const start = new Date(); start.setDate(start.getDate() - 34); 
-                for(let i=0; i<35; i++) {
-                    const c = new Date(start); c.setDate(c.getDate() + i);
-                    const ds = c.toLocaleDateString('en-CA', {timeZone:'Asia/Seoul'});
-                    const a = activityLog[ds];
-                    const tot = a ? (a.added||0)+(a.tested||0)+(a.quizzed||0)+(a.reviewed||0) : 0;
-                    
-                    let cls = 'grass-0';
-                    if(tot>30) cls='grass-4'; else if(tot>15) cls='grass-3'; else if(tot>5) cls='grass-2'; else if(tot>0) cls='grass-1';
-                    
-                    // Simple tooltip approach
-                    grass.innerHTML += `<div class="w-5 h-5 shrink-0 rounded-[4px] ${cls} transition-transform hover:scale-125 cursor-pointer relative group">
-                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white text-[10px] font-black px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-50">${ds}: ${tot}활동</div>
-                    </div>`;
+                App.markDayActive();
+                setTimeout(() => {
+                    this.idx++;
+                    this.renderQuestion();
+                }, isCorrect ? 350 : 1000);
+            },
+            finish() {
+                this.active = false;
+                Data.save();
+                UI.toast(`QUIZ COMPLETE! FINAL: ${this.score} PTS`, 'success');
+                App.switchTab('flashcard');
+            }
+        };
+
+        const Ledger = {
+            filterStatus: 'all',
+            page: 1,
+            pageSize: 10,
+            setStatus(st) {
+                this.filterStatus = st;
+                this.page = 1;
+                document.querySelectorAll('.ledger-pill').forEach(b => {
+                    if (b.dataset.status === st) {
+                        b.className = 'ledger-pill active px-3.5 py-1.5 rounded-full border-2 border-black text-xs font-black bg-black text-white';
+                    } else {
+                        b.className = 'ledger-pill px-3.5 py-1.5 rounded-full border-2 border-black text-xs font-black bg-white text-black';
+                    }
+                });
+                this.render();
+            },
+            filter() {
+                this.page = 1;
+                this.render();
+            },
+            submitNewWord(e) {
+                e.preventDefault();
+                const en = document.getElementById('add-word-en').value.trim();
+                const ko = document.getElementById('add-word-ko').value.trim();
+                const ex = document.getElementById('add-word-ex').value.trim();
+
+                if (!en || !ko) return;
+                if (words.some(w => w.en.toLowerCase() === en.toLowerCase())) {
+                    UI.toast('ENTRY ALREADY EXISTS', 'error');
+                    return;
+                }
+
+                words.unshift({
+                    id: Date.now(),
+                    en,
+                    ko,
+                    ex: ex || '',
+                    wrongCount: 0,
+                    srs: { interval: 0, reps: 0, ease: 2.5, due: TimeUtil.today() }
+                });
+
+                Data.save();
+                UI.closeModal('modal-add');
+                UI.toast(`'${en}' SAVED TO LEDGER`, 'success');
+                this.render();
+            },
+            openEdit(id) {
+                const target = words.find(w => w.id === id);
+                if (!target) return;
+                document.getElementById('edit-word-id').value = id;
+                document.getElementById('edit-word-en').value = target.en;
+                document.getElementById('edit-word-ko').value = target.ko;
+                document.getElementById('edit-word-ex').value = target.ex || '';
+                UI.openModal('modal-edit');
+            },
+            saveWordEdit() {
+                const id = Number(document.getElementById('edit-word-id').value);
+                const en = document.getElementById('edit-word-en').value.trim();
+                const ko = document.getElementById('edit-word-ko').value.trim();
+                const ex = document.getElementById('edit-word-ex').value.trim();
+
+                if (!en || !ko) return;
+                const target = words.find(w => w.id === id);
+                if (target) {
+                    target.en = en;
+                    target.ko = ko;
+                    target.ex = ex;
+                    Data.save();
+                    UI.closeModal('modal-edit');
+                    UI.toast('ENTRY UPDATED', 'success');
+                    this.render();
+                }
+            },
+            deleteFromModal() {
+                const id = Number(document.getElementById('edit-word-id').value);
+                UI.confirmModal('Delete this vocabulary entry permanently?', () => {
+                    words = words.filter(w => w.id !== id);
+                    Data.save();
+                    UI.closeModal('modal-edit');
+                    UI.toast('ENTRY REMOVED', 'info');
+                    this.render();
+                });
+            },
+            render() {
+                const tbody = document.getElementById('ledger-rows');
+                const query = (document.getElementById('ledger-query')?.value || '').trim().toLowerCase();
+                const today = TimeUtil.today();
+
+                let filtered = words.filter(w => {
+                    const matchesQuery = w.en.toLowerCase().includes(query) || w.ko.toLowerCase().includes(query);
+                    if (!matchesQuery) return false;
+                    if (this.filterStatus === 'due') return !w.srs?.due || w.srs.due <= today;
+                    if (this.filterStatus === 'hard') return (w.wrongCount || 0) > 0;
+                    if (this.filterStatus === 'master') return (w.srs?.interval || 0) >= 21;
+                    return true;
+                });
+
+                if (filtered.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-neutral-400 text-xs font-mono-code font-bold uppercase">
+                                NO VOCABULARY ENTRIES FOUND
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById('ledger-pagination-bar').innerHTML = '';
+                    return;
+                }
+
+                const totalPages = Math.ceil(filtered.length / this.pageSize);
+                if (this.page > totalPages) this.page = totalPages;
+                const start = (this.page - 1) * this.pageSize;
+                const paginated = filtered.slice(start, start + this.pageSize);
+
+                tbody.innerHTML = paginated.map(w => {
+                    const isDue = !w.srs?.due || w.srs.due <= today;
+                    const isMaster = (w.srs?.interval || 0) >= 21;
+
+                    let statusBadge = '<span class="px-2 py-0.5 rounded-full border border-black bg-neutral-100 text-[10px] font-bold font-mono-code">LEARNING</span>';
+                    if (isDue) statusBadge = '<span class="px-2 py-0.5 rounded-full border border-black bg-black text-white text-[10px] font-black font-mono-code">DUE</span>';
+                    else if (isMaster) statusBadge = '<span class="px-2 py-0.5 rounded-full border border-black bg-neutral-100 text-[10px] font-black font-mono-code">MASTER</span>';
+
+                    return `
+                        <tr class="hover:bg-neutral-50 transition-colors">
+                            <td class="p-3.5 border-r-2 border-black">${statusBadge}</td>
+                            <td class="p-3.5 border-r-2 border-black">
+                                <span class="font-black text-sm sm:text-base text-black block tracking-tight font-mono-code">${w.en}</span>
+                                ${w.ex ? `<span class="text-[11px] text-neutral-500 italic block truncate max-w-xs font-mono-code">"${w.ex}"</span>` : ''}
+                            </td>
+                            <td class="p-3.5 border-r-2 border-black font-bold text-neutral-800 font-korean">${w.ko}</td>
+                            <td class="p-3.5 border-r-2 border-black hidden md:table-cell text-xs text-neutral-600 font-mono-code">
+                                <span>${w.srs?.interval || 0}D INTERVAL</span> / <span>${w.srs?.reps || 0} REPS</span>
+                            </td>
+                            <td class="p-3.5 border-r-2 border-black hidden sm:table-cell text-xs font-black text-center font-mono-code ${w.wrongCount > 0 ? 'text-rose-600' : 'text-neutral-400'}">
+                                ${w.wrongCount || 0}
+                            </td>
+                            <td class="p-3.5 text-center font-mono-code">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button onclick="UI.pronounce('${w.en.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-full border border-black bg-white flex items-center justify-center hover:bg-black hover:text-white transition-colors" title="Listen Audio">
+                                        <i class="fa-solid fa-volume-high text-[10px]"></i>
+                                    </button>
+                                    <button onclick="Ledger.openEdit(${w.id})" class="w-7 h-7 rounded-full border border-black bg-white flex items-center justify-center hover:bg-black hover:text-white transition-colors" title="Edit Entry">
+                                        <i class="fa-solid fa-pen text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                const bar = document.getElementById('ledger-pagination-bar');
+                bar.innerHTML = `
+                    <span class="font-bold text-neutral-600 uppercase">TOTAL ${filtered.length} WORDS (${start + 1} - ${Math.min(filtered.length, start + this.pageSize)})</span>
+                    <div class="flex items-center gap-1 font-mono-code font-bold">
+                        <button onclick="Ledger.prevPage()" ${this.page === 1 ? 'disabled' : ''} class="brutal-pill px-2.5 py-1 text-xs disabled:opacity-30">PREV</button>
+                        <span class="px-2 font-bold">${this.page} / ${totalPages}</span>
+                        <button onclick="Ledger.nextPage(${totalPages})" ${this.page === totalPages ? 'disabled' : ''} class="brutal-pill px-2.5 py-1 text-xs disabled:opacity-30">NEXT</button>
+                    </div>
+                `;
+            },
+            prevPage() {
+                if (this.page > 1) {
+                    this.page--;
+                    this.render();
+                }
+            },
+            nextPage(max) {
+                if (this.page < max) {
+                    this.page++;
+                    this.render();
                 }
             }
         };
 
-        // Initialize Application
-        document.addEventListener('DOMContentLoaded', () => { App.init(); });
+        // Bootstrap on DOM Loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
     </script>
 
-    <!-- Firebase Real-time Sync Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global context overrides (Mandatory strict adherence)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'voca-master-pro';
         let firebaseConfig = null;
-        try { firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null; } catch(e){}
+        try { 
+            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null; 
+        } catch(e){}
 
-        if(!firebaseConfig) {
-            // Using user's fallback snippet
+        if (!firebaseConfig) {
             firebaseConfig = {
                 apiKey: "AIzaSyDlMAr0qMwr3uRL_bodm8gkyewo85OlTlc", 
                 authDomain: "myvocaapp-d418d.firebaseapp.com",
@@ -1803,69 +1243,62 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let unsub = null;
 
-        const updateStatus = (color, text) => {
+        const setCloudState = (state, label) => {
             const dot = document.getElementById('cloud-dot');
-            const txt = document.getElementById('cloud-text');
-            if(dot && txt) {
-                dot.className = `w-2 h-2 rounded-full bg-${color}-500 transition-colors duration-300 shadow-[0_0_8px_rgba(var(--tw-color-${color}-500),_0.8)]`;
-                txt.textContent = text;
+            const lbl = document.getElementById('cloud-status');
+            if (dot && lbl) {
+                if (state === 'online') {
+                    dot.className = "w-2 h-2 rounded-full bg-emerald-500";
+                    lbl.textContent = label || "ONLINE";
+                } else if (state === 'syncing') {
+                    dot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+                    lbl.textContent = "SYNCING";
+                } else {
+                    dot.className = "w-2 h-2 rounded-full bg-neutral-400";
+                    lbl.textContent = "LOCAL";
+                }
             }
         };
 
-        const initSync = (user) => {
-            const userId = user.uid;
-            const uidEl = document.getElementById('setting-uid');
-            if(uidEl) uidEl.innerHTML = `Connected ID: <span class="text-indigo-400 font-black">${userId}</span>`;
-            
-            updateStatus('amber', '동기화 연결 중...');
-            
-            // STRICT MANDATORY RULE 1: /artifacts/{appId}/users/{userId}/{collectionName}
-            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'data', 'wordbook');
+        const setupSync = (user) => {
+            if (!user) return;
+            const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'wordbook');
 
-            if(unsub) unsub();
-            
-            // Realtime Sync Listener
-            unsub = onSnapshot(docRef, (snap) => {
-                updateStatus('emerald', '클라우드 동기화 됨 ☁️');
-                if(snap.exists()) {
-                    const data = snap.data();
+            onSnapshot(docRef, (snap) => {
+                setCloudState('online', 'ONLINE');
+                if (snap.exists()) {
                     try {
-                        const parsed = JSON.parse(data.payload);
-                        if(window.updateFromCloud) window.updateFromCloud(parsed);
-                    } catch(e) { console.error("Cloud Parse Error", e); }
-                } else {
-                    // Upload local if cloud is empty but local exists
-                    if(window.words && window.words.length > 0 && typeof window.triggerCloudSave === 'function') {
-                        window.triggerCloudSave({words: window.words, activityLog: window.activityLog});
-                    }
+                        const payload = JSON.parse(snap.data().payload || '{}');
+                        if (payload.words && Array.isArray(payload.words)) {
+                            words = payload.words;
+                            localStorage.setItem('daon_words_db', JSON.stringify(words));
+                            App.updateMetrics();
+                            if (currentTab === 'ledger') Ledger.render();
+                        }
+                    } catch(e){}
                 }
-            }, (err) => { 
-                console.error("Snapshot error:", err);
-                updateStatus('rose', '연결 오류'); 
+            }, () => {
+                setCloudState('offline', 'LOCAL');
             });
 
-            // Expose Save Trigger
-            window.triggerCloudSave = (dataObj) => {
-                updateStatus('indigo', '저장 중... ☁️');
-                setDoc(docRef, { payload: JSON.stringify(dataObj), timestamp: Date.now() })
-                    .then(() => updateStatus('emerald', '클라우드 동기화 됨 ☁️'))
-                    .catch(() => updateStatus('rose', '저장 실패'));
+            window.cloudSaveTrigger = (dataToSave) => {
+                setCloudState('syncing', 'SYNCING');
+                setDoc(docRef, { payload: JSON.stringify(dataToSave), updatedAt: Date.now() })
+                    .then(() => setCloudState('online', 'ONLINE'))
+                    .catch(() => setCloudState('offline', 'LOCAL'));
             };
         };
 
-        // STRICT MANDATORY RULE 3: Auth Before Queries
         const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        if(customToken) {
-            signInWithCustomToken(auth, customToken).then(cred => initSync(cred.user)).catch(() => {
-                signInAnonymously(auth).then(cred => initSync(cred.user));
-            });
+        if (customToken) {
+            signInWithCustomToken(auth, customToken)
+                .then(cred => setupSync(cred.user))
+                .catch(() => signInAnonymously(auth).then(cred => setupSync(cred.user)));
         } else {
-            signInAnonymously(auth).then(cred => initSync(cred.user)).catch((e) => {
-                console.error("Auth Fail", e);
-                updateStatus('rose', '오프라인 모드');
-            });
+            signInAnonymously(auth)
+                .then(cred => setupSync(cred.user))
+                .catch(() => setCloudState('offline', 'LOCAL'));
         }
     </script>
 </body>
