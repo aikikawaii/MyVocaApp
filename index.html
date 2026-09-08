@@ -676,27 +676,33 @@
                 u.rate = 0.95;
                 window.speechSynthesis.speak(u);
             },
-            fitText(el, maxPx = 56, minPx = 18) {
+            fitText(el, maxPx = 76, minPx = 28) {
                 if (!el) return;
                 el.style.whiteSpace = 'nowrap';
                 const parent = el.parentElement || el;
-                const comp = window.getComputedStyle(parent);
-                const pl = parseFloat(comp.paddingLeft) || 16;
-                const pr = parseFloat(comp.paddingRight) || 16;
-                const available = Math.max(60, parent.clientWidth - pl - pr - 16);
-
-                if (available <= 80) {
-                    const len = (el.textContent || '').length || 8;
-                    const fallback = Math.max(minPx, Math.min(maxPx, Math.floor(400 / len)));
-                    el.style.fontSize = `${fallback}px`;
+                const clientW = parent.clientWidth;
+                
+                // Fallback for hidden tabs or initial layout cycle
+                const textLen = (el.textContent || '').trim().length || 8;
+                if (!clientW || clientW < 120) {
+                    let est = maxPx;
+                    if (textLen > 14) est = Math.max(minPx, Math.round(maxPx * 0.58));
+                    else if (textLen > 10) est = Math.max(minPx, Math.round(maxPx * 0.74));
+                    else if (textLen > 7) est = Math.max(minPx, Math.round(maxPx * 0.88));
+                    el.style.fontSize = `${est}px`;
                     return;
                 }
 
-                let low = minPx, high = maxPx, optimal = minPx;
-                el.style.fontSize = `${high}px`;
+                const comp = window.getComputedStyle(parent);
+                const pl = parseFloat(comp.paddingLeft) || 16;
+                const pr = parseFloat(comp.paddingRight) || 16;
+                const available = Math.max(140, clientW - pl - pr - 12);
+
+                el.style.fontSize = `${maxPx}px`;
                 if (el.scrollWidth <= available) return;
 
-                // Binary search for maximum readable font size on one line
+                // Binary search to find optimal readable font size
+                let low = minPx, high = maxPx, optimal = minPx;
                 while (low <= high) {
                     const mid = Math.floor((low + high) / 2);
                     el.style.fontSize = `${mid}px`;
@@ -707,7 +713,7 @@
                         high = mid - 1;
                     }
                 }
-                el.style.fontSize = `${optimal}px`;
+                el.style.fontSize = `${Math.max(minPx, optimal)}px`;
             }
         };
 
@@ -973,8 +979,9 @@
             fitWords() {
                 const frontEl = document.getElementById('fc-front-word');
                 if (frontEl) {
-                    const maxFont = window.innerWidth < 640 ? 38 : (window.innerWidth < 1024 ? 52 : 62);
-                    UI.fitText(frontEl, maxFont, 18);
+                    const maxFont = window.innerWidth < 640 ? 50 : (window.innerWidth < 1024 ? 64 : 76);
+                    const minFont = window.innerWidth < 640 ? 26 : (window.innerWidth < 1024 ? 30 : 34);
+                    UI.fitText(frontEl, maxFont, minFont);
                 }
             },
             display() {
@@ -997,6 +1004,7 @@
                 document.getElementById('fc-interval-preview').textContent = `REPS: ${w.srs?.reps || 0}  |  INTERVAL: ${w.srs?.interval || 0}D`;
 
                 this.fitWords();
+                requestAnimationFrame(() => this.fitWords());
 
                 const weakBadge = document.getElementById('fc-weak-badge');
                 if ((w.wrongCount || 0) > 0) {
@@ -1100,8 +1108,9 @@
             fitWord() {
                 const qWordEl = document.getElementById('quiz-question-word');
                 if (qWordEl) {
-                    const maxFont = window.innerWidth < 640 ? 38 : (window.innerWidth < 1024 ? 50 : 60);
-                    UI.fitText(qWordEl, maxFont, 18);
+                    const maxFont = window.innerWidth < 640 ? 46 : (window.innerWidth < 1024 ? 58 : 68);
+                    const minFont = window.innerWidth < 640 ? 26 : (window.innerWidth < 1024 ? 28 : 32);
+                    UI.fitText(qWordEl, maxFont, minFont);
                 }
             },
             renderQuestion() {
@@ -1115,6 +1124,7 @@
                 const qWordEl = document.getElementById('quiz-question-word');
                 qWordEl.textContent = current.en;
                 this.fitWord();
+                requestAnimationFrame(() => this.fitWord());
 
                 const comboBadge = document.getElementById('quiz-combo-badge');
                 if (this.combo >= 2) {
@@ -1137,7 +1147,7 @@
 
                 options.forEach((opt, optIdx) => {
                     const btn = document.createElement('button');
-                    btn.className = `nb-btn p-3.5 sm:p-4 text-center font-extrabold text-xs sm:text-sm bg-[var(--card-bg)] ${pastelHovers[optIdx % pastelHovers.length]} transition-all border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] min-h-[58px] flex items-center justify-center leading-snug break-words`;
+                    btn.className = `nb-btn p-4 sm:p-5 text-center font-extrabold text-sm sm:text-base bg-[var(--card-bg)] ${pastelHovers[optIdx % pastelHovers.length]} transition-all border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] min-h-[64px] flex items-center justify-center leading-snug break-words`;
                     btn.textContent = opt.ko;
                     btn.onclick = () => this.handlePick(opt.id === current.id, btn, current.ko);
                     container.appendChild(btn);
