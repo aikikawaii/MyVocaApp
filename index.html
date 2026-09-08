@@ -798,14 +798,22 @@
                 currentTab = tabKey;
                 document.querySelectorAll('section[id^="view-"]').forEach(sec => sec.classList.add('hidden'));
                 
+                const activeColorClasses = {
+                    flashcard: "tab-btn active px-6 py-3 border-2 border-[var(--card-border)] pill-lavender rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]",
+                    quiz: "tab-btn active px-6 py-3 border-2 border-[var(--card-border)] pill-butter rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]",
+                    ledger: "tab-btn active px-6 py-3 border-2 border-[var(--card-border)] pill-sage rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]"
+                };
+
+                const inactiveColorClasses = {
+                    flashcard: "tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-lavender)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]",
+                    quiz: "tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-butter)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]",
+                    ledger: "tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-sage)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]"
+                };
+
                 ['flashcard', 'quiz', 'ledger'].forEach(k => {
                     const btn = document.getElementById(`btn-tab-${k}`);
                     if (!btn) return;
-                    if (k === tabKey) {
-                        btn.className = "tab-btn active px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--text-main)] text-[var(--bg-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]";
-                    } else {
-                        btn.className = "tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--hover-bg)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]";
-                    }
+                    btn.className = (k === tabKey) ? activeColorClasses[k] : inactiveColorClasses[k];
                 });
 
                 const targetSec = document.getElementById(`view-${tabKey}`);
@@ -1050,9 +1058,11 @@
                 const container = document.getElementById('quiz-choices-container');
                 container.innerHTML = '';
 
-                options.forEach(opt => {
+                const pastelColors = ['bg-[#fffefb] hover:bg-[var(--c-butter)]', 'bg-[#fffefb] hover:bg-[var(--c-sky)]', 'bg-[#fffefb] hover:bg-[var(--c-lavender)]', 'bg-[#fffefb] hover:bg-[var(--c-sage)]'];
+
+                options.forEach((opt, optIdx) => {
                     const btn = document.createElement('button');
-                    btn.className = 'nb-btn p-4 text-center font-extrabold text-xs sm:text-sm bg-[var(--card-bg)] hover:bg-[var(--hover-bg)] transition-all truncate';
+                    btn.className = `nb-btn p-4 text-center font-extrabold text-xs sm:text-sm ${pastelColors[optIdx % pastelColors.length]} transition-all truncate border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)]`;
                     btn.textContent = opt.ko;
                     btn.onclick = () => this.handlePick(opt.id === current.id, btn, current.ko);
                     container.appendChild(btn);
@@ -1082,8 +1092,7 @@
                 buttons.forEach(b => {
                     b.disabled = true;
                     if (b.textContent === correctMeaning) {
-                        b.classList.remove('bg-[var(--card-bg)]');
-                        b.classList.add('bg-[var(--text-main)]', 'text-[var(--bg-main)]');
+                        b.className = 'nb-btn p-4 text-center font-extrabold text-xs sm:text-sm pill-sage border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] truncate';
                     }
                 });
 
@@ -1095,8 +1104,7 @@
                     this.score += 100 + (this.combo * 20);
                 } else {
                     if (clickedBtn) {
-                        clickedBtn.classList.remove('bg-[var(--card-bg)]');
-                        clickedBtn.classList.add('bg-red-100', 'text-red-700', 'border-red-600');
+                        clickedBtn.className = 'nb-btn p-4 text-center font-extrabold text-xs sm:text-sm pill-coral border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] truncate';
                     }
                     this.combo = 0;
                     if (realWord) realWord.wrongCount = (realWord.wrongCount || 0) + 1;
@@ -1123,11 +1131,20 @@
             setStatus(st) {
                 this.filterStatus = st;
                 this.page = 1;
+
+                const colorPills = {
+                    all: 'pill-lavender',
+                    due: 'pill-coral',
+                    hard: 'pill-peach',
+                    master: 'pill-sage'
+                };
+
                 document.querySelectorAll('.ledger-pill').forEach(b => {
-                    if (b.dataset.status === st) {
-                        b.className = 'ledger-pill nb-btn-solid px-3.5 py-1.5 text-xs';
+                    const status = b.dataset.status;
+                    if (status === st) {
+                        b.className = `ledger-pill nb-btn px-3.5 py-1.5 text-xs ${colorPills[status] || 'nb-btn-solid'}`;
                     } else {
-                        b.className = 'ledger-pill nb-btn px-3.5 py-1.5 text-xs';
+                        b.className = 'ledger-pill nb-btn px-3.5 py-1.5 text-xs bg-[var(--card-bg)] text-[var(--text-muted)]';
                     }
                 });
                 this.render();
@@ -1234,9 +1251,9 @@
                     const isDue = !w.srs?.due || w.srs.due <= today;
                     const isMaster = (w.srs?.interval || 0) >= 21;
 
-                    let statusBadge = '<span class="px-2 py-0.5 rounded-md border border-[var(--card-border)] bg-[var(--table-header)] text-[10px] font-extrabold font-mono-num">LEARNING</span>';
-                    if (isDue) statusBadge = '<span class="px-2 py-0.5 rounded-md border border-[var(--card-border)] bg-[var(--text-main)] text-[var(--bg-main)] text-[10px] font-extrabold font-mono-num">DUE</span>';
-                    else if (isMaster) statusBadge = '<span class="px-2 py-0.5 rounded-md border border-[var(--card-border)] bg-emerald-100 text-emerald-800 text-[10px] font-extrabold font-mono-num">MASTER</span>';
+                    let statusBadge = '<span class="px-2.5 py-0.5 rounded-md border-2 border-[var(--card-border)] pill-butter text-[10px] font-extrabold font-mono-num shadow-[1px_1px_0px_var(--card-border)]">LEARNING</span>';
+                    if (isDue) statusBadge = '<span class="px-2.5 py-0.5 rounded-md border-2 border-[var(--card-border)] pill-coral text-[10px] font-extrabold font-mono-num shadow-[1px_1px_0px_var(--card-border)]">DUE</span>';
+                    else if (isMaster) statusBadge = '<span class="px-2.5 py-0.5 rounded-md border-2 border-[var(--card-border)] pill-sage text-[10px] font-extrabold font-mono-num shadow-[1px_1px_0px_var(--card-border)]">MASTER</span>';
 
                     return `
                         <tr class="hover:bg-[var(--hover-bg)] transition-colors">
@@ -1249,15 +1266,15 @@
                             <td class="hidden md:table-cell text-xs text-[var(--text-muted)] font-mono-num font-extrabold">
                                 <span>${w.srs?.interval || 0}D INTERVAL</span> / <span>${w.srs?.reps || 0} REPS</span>
                             </td>
-                            <td class="hidden sm:table-cell text-xs font-extrabold text-center font-mono-num ${w.wrongCount > 0 ? 'text-red-600' : 'text-[var(--text-muted)]'}">
+                            <td class="hidden sm:table-cell text-xs font-extrabold text-center font-mono-num ${w.wrongCount > 0 ? 'text-amber-700' : 'text-[var(--text-muted)]'}">
                                 ${w.wrongCount || 0}
                             </td>
                             <td class="text-center font-mono-num">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <button onclick="UI.pronounce('${w.en.replace(/'/g, "\\'")}')" class="nb-btn w-7 h-7 text-xs" title="Listen Audio">
+                                    <button onclick="UI.pronounce('${w.en.replace(/'/g, "\\'")}')" class="nb-btn w-7 h-7 text-xs pill-lavender" title="Listen Audio">
                                         <i class="fa-solid fa-volume-high text-[10px]"></i>
                                     </button>
-                                    <button onclick="Ledger.openEdit(${w.id})" class="nb-btn w-7 h-7 text-xs" title="Edit Entry">
+                                    <button onclick="Ledger.openEdit(${w.id})" class="nb-btn w-7 h-7 text-xs pill-butter" title="Edit Entry">
                                         <i class="fa-solid fa-pen text-[10px]"></i>
                                     </button>
                                 </div>
