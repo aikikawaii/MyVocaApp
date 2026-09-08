@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Typography: Exact Neo-Brutalist curated fonts from Daon's Dashboard -->
+    <!-- Typography: Neo-Brutalist curated fonts from Daon's Dashboard -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@600;700;800&family=IBM+Plex+Sans+KR:wght@500;600;700;800&family=Spline+Sans:wght@500;600;700;800&family=Unbounded:wght@700;800;900&display=swap" rel="stylesheet">
@@ -17,33 +17,36 @@
 
     <style>
         :root {
-            --bg-main: #f5f5f2;
-            --bg-canvas: #ffffff;
-            --text-main: #000000;
-            --text-muted: #52525b;
-            --text-faint: #71717a;
-            --card-bg: #ffffff;
-            --card-border: #000000;
-            --card-shadow: 4px 4px 0px #000000;
-            --card-shadow-lg: 6px 6px 0px #000000;
-            --card-shadow-sm: 2px 2px 0px #000000;
-            --card-shadow-hover: 1px 1px 0px #000000;
-            --hover-bg: #eaeae5;
-            --input-bg: #ffffff;
-            --input-border: #000000;
-            --table-header: #ebebe6;
-            --calendar-cell: #ffffff;
-            --calendar-hover: #f3f3ee;
-            --calendar-border: #000000;
-            --scrollbar-thumb: #000000;
-            --btn-glass: #ffffff;
-            --rule-color: #000000;
+            /* Soothing, low-glare warm paper backgrounds (Zero pure white) */
+            --bg-main: #ede8df;        /* Soft oatmeal parchment canvas */
+            --bg-canvas: #f6f3eb;      /* Primary surface background */
+            --text-main: #18181b;      /* Deep, gentle ink charcoal */
+            --text-muted: #57534e;     /* Warm stone muted text */
+            --text-faint: #78716c;     /* Faint border & helper text */
+            --card-bg: #f8f5ee;        /* Gentle ivory card canvas */
+            --card-border: #1c1917;    /* Solid dark ink border */
+            --card-shadow: 4px 4px 0px #1c1917;
+            --card-shadow-lg: 6px 6px 0px #1c1917;
+            --card-shadow-sm: 2px 2px 0px #1c1917;
+            --card-shadow-hover: 1px 1px 0px #1c1917;
+            --hover-bg: #e5dfd3;       /* Comfortable warm hover tone */
+            --input-bg: #fdfbf7;       /* Off-white input fill */
+            --input-border: #1c1917;
+            --table-header: #e4decfa8; /* Subtle tinted table header */
+            --calendar-cell: #f8f5ee;
+            --calendar-hover: #eae4d8;
+            --calendar-border: #1c1917;
+            --scrollbar-thumb: #1c1917;
+            --btn-glass: #f8f5ee;
+            --rule-color: #1c1917;
 
-            --sub-math: #2563eb;
-            --sub-phys: #0d9488;
-            --sub-eng: #d97706;
-            --sub-chem: #dc2626;
-            --sub-etc: #4b5563;
+            /* Soft eye-comfort neo-brutalist accents */
+            --c-sage: #bbf7d0;         /* Mild matcha green for mastery */
+            --c-sage-card: #eef9f2;    /* Card back gentle tint */
+            --c-butter: #fef08a;       /* Warm buttery yellow */
+            --c-lavender: #e0e7ff;     /* Gentle periwinkle lavender */
+            --c-coral: #fecdd3;        /* Soft blush coral for errors */
+            --c-peach: #fed7aa;        /* Muted amber peach */
         }
 
         * {
@@ -72,13 +75,13 @@
             font-feature-settings: "tnum" 1;
         }
 
-        /* Neo-Brutalist Panel & Card System */
+        /* Responsive Neo-Brutalist Panel & Card System */
         .nb-card {
             background-color: var(--card-bg);
             border: 2.5px solid var(--card-border);
             border-radius: 18px;
             box-shadow: var(--card-shadow);
-            transition: all 0.1s ease;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
         }
 
         .nb-card-sm {
@@ -88,21 +91,21 @@
             box-shadow: var(--card-shadow-sm);
         }
 
-        /* Neo-Brutalist Action Controls */
+        /* Responsive Action Controls */
         .nb-btn {
             background-color: var(--card-bg);
             color: var(--text-main);
             border: 2px solid var(--card-border);
             border-radius: 12px;
             box-shadow: var(--card-shadow-sm);
-            font-weight: 700;
+            font-weight: 800;
             transition: all 0.1s ease;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             user-select: none;
-            white-space: nowrap;
+            text-align: center;
         }
         .nb-btn:hover {
             transform: translate(-1px, -1px);
@@ -126,7 +129,7 @@
             align-items: center;
             justify-content: center;
             user-select: none;
-            white-space: nowrap;
+            text-align: center;
         }
         .nb-btn-solid:hover {
             transform: translate(-1px, -1px);
@@ -137,12 +140,19 @@
             box-shadow: 0px 0px 0px var(--card-border);
         }
 
+        /* Color accent utilities */
+        .pill-lavender { background-color: var(--c-lavender); color: var(--text-main); }
+        .pill-butter { background-color: var(--c-butter); color: var(--text-main); }
+        .pill-sage { background-color: var(--c-sage); color: var(--text-main); }
+        .pill-coral { background-color: var(--c-coral); color: var(--text-main); }
+        .pill-peach { background-color: var(--c-peach); color: var(--text-main); }
+
         /* Form Inputs */
         .input-dark {
             background-color: var(--input-bg);
             border: 2px solid var(--input-border);
             color: var(--text-main);
-            padding: 0.65rem 0.9rem;
+            padding: 0.7rem 0.95rem;
             border-radius: 12px;
             width: 100%;
             outline: none;
@@ -164,7 +174,7 @@
             width: 100%;
         }
         .db-table th, .db-table td {
-            padding: 0.85rem 1.1rem;
+            padding: 0.85rem 1rem;
             text-align: left;
             vertical-align: middle;
             border-bottom: 2px solid var(--card-border);
@@ -182,16 +192,25 @@
             background-color: var(--hover-bg);
         }
 
-        /* 3D Flashcard Transitions */
-        .perspective-1000 { perspective: 1000px; }
-        .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
+        .perspective-1000 {
+            perspective: 1200px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
 
         /* Scrollbars */
         ::-webkit-scrollbar { width: 7px; height: 7px; }
         ::-webkit-scrollbar-track { background: var(--bg-main); }
-        ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 0; }
+        ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -201,61 +220,59 @@
     </style>
 </head>
 
-<body class="p-3 sm:p-5 md:p-8 selection:bg-black selection:text-white">
+<body class="p-3 sm:p-5 md:p-8 selection:bg-stone-900 selection:text-amber-100">
 
-    <div id="app-container" class="max-w-[1440px] mx-auto space-y-6">
+    <div id="app-container" class="max-w-[1360px] mx-auto space-y-6">
 
-        <!-- Top Master Header Panel -->
         <header class="nb-card p-5 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <!-- Status Tags -->
-                <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                <div class="flex items-center gap-2 mb-2 flex-wrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[var(--text-main)] text-[var(--bg-main)]">
                         MOVEMENT // BRUTALISM
                     </span>
-                    <span id="sync-status-indicator" class="text-[11px] font-bold font-mono-num inline-flex items-center border-2 border-[var(--card-border)] rounded-full px-2 py-0.5 bg-[var(--card-bg)] shadow-[1px_1px_0px_var(--card-border)]">
-                        <span id="cloud-icon" class="text-[#0d9488] mr-1">●</span>
+                    <span id="sync-status-indicator" class="text-[11px] font-bold font-mono-num inline-flex items-center border-2 border-[var(--card-border)] rounded-full px-2.5 py-0.5 bg-[var(--card-bg)] shadow-[1px_1px_0px_var(--card-border)]">
+                        <span id="cloud-icon" class="text-[#0d9488] mr-1.5 font-black">●</span>
                         <span id="cloud-text">ONLINE</span>
                     </span>
-                    <span class="text-[10px] font-extrabold font-mono-num border-2 border-[var(--card-border)] rounded-full px-2 py-0.5 bg-[var(--table-header)] text-[var(--text-muted)] uppercase">
+                    <span class="text-[10px] font-extrabold font-mono-num border-2 border-[var(--card-border)] rounded-full px-2.5 py-0.5 bg-[var(--table-header)] text-[var(--text-muted)] uppercase">
                         SM-2 SPACED REPETITION
                     </span>
                 </div>
                 <!-- Main Header Title -->
-                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--text-main)] uppercase">
+                <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--text-main)] uppercase">
                     DAON'S VOCABULARY
                 </h1>
             </div>
 
             <!-- Header Action Controls -->
-            <div class="flex flex-wrap items-center gap-2.5 text-xs font-bold font-mono-num">
-                <button onclick="App.openAddModal()" class="nb-btn px-3.5 py-2 flex items-center gap-1.5">
+            <div class="flex flex-wrap items-center gap-2 text-xs font-bold font-mono-num w-full md:w-auto">
+                <button onclick="App.openAddModal()" class="nb-btn px-3.5 py-2 pill-sage flex items-center gap-1.5 flex-1 sm:flex-initial">
                     <span class="font-extrabold text-sm leading-none">+</span> ADD WORD
                 </button>
-                <button onclick="App.refreshData()" class="nb-btn px-3.5 py-2">
+                <button onclick="App.refreshData()" class="nb-btn px-3.5 py-2 flex-1 sm:flex-initial">
                     REFRESH
                 </button>
-                <label class="nb-btn px-3.5 py-2 cursor-pointer">
+                <label class="nb-btn px-3.5 py-2 cursor-pointer flex-1 sm:flex-initial">
                     RESTORE <input type="file" id="import-file" class="hidden" accept=".json" onchange="Data.import(event)">
                 </label>
-                <button onclick="Data.export()" class="nb-btn-solid px-4 py-2">
+                <button onclick="Data.export()" class="nb-btn-solid px-4 py-2 flex-1 sm:flex-initial">
                     BACKUP JSON
                 </button>
-                <button onclick="UI.openModal('settings-modal')" class="nb-btn w-9 h-9 p-0 text-sm" title="Preferences">
+                <button onclick="UI.openModal('settings-modal')" class="nb-btn w-9 h-9 p-0 text-sm flex-shrink-0" title="Preferences">
                     <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Navigation Tabs: Exact Tab System from Daon's Dashboard -->
         <nav class="flex space-x-2 pb-1 overflow-x-auto hide-scrollbar text-xs font-extrabold tracking-wider uppercase">
-            <button onclick="App.switchTab('flashcard')" id="btn-tab-flashcard" class="tab-btn active px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--text-main)] text-[var(--bg-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]" data-tab="flashcard">
+            <button onclick="App.switchTab('flashcard')" id="btn-tab-flashcard" class="tab-btn active px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] pill-lavender rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]" data-tab="flashcard">
                 [01] FLASHCARDS
             </button>
-            <button onclick="App.switchTab('quiz')" id="btn-tab-quiz" class="tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--hover-bg)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]" data-tab="quiz">
+            <button onclick="App.switchTab('quiz')" id="btn-tab-quiz" class="tab-btn px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-butter)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]" data-tab="quiz">
                 [02] SPEED QUIZ
             </button>
-            <button onclick="App.switchTab('ledger')" id="btn-tab-ledger" class="tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--hover-bg)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]" data-tab="ledger">
+            <button onclick="App.switchTab('ledger')" id="btn-tab-ledger" class="tab-btn px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-sage)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]" data-tab="ledger">
                 [03] VOCAB LEDGER DB (<span id="tab-word-count" class="font-mono-num font-extrabold">0</span>)
             </button>
         </nav>
@@ -263,15 +280,12 @@
         <!-- Retention & Performance Metrics Strip -->
         <div class="nb-card p-4 bg-[var(--card-bg)]">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs font-mono-num">
-                <div class="flex flex-wrap items-center gap-2 sm:gap-4 font-extrabold">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3.5 font-extrabold">
                     <span class="text-[10px] uppercase tracking-widest text-[var(--text-muted)]">RETENTION RADAR //</span>
-                    <span>DUE: <strong id="metric-due" class="font-extrabold text-[var(--text-main)] text-sm">0</strong></span>
-                    <span class="text-[var(--text-faint)]">/</span>
-                    <span>MASTERED: <strong id="metric-master" class="font-extrabold text-[var(--text-main)] text-sm">0</strong></span>
-                    <span class="text-[var(--text-faint)]">/</span>
-                    <span>CRITICAL: <strong id="metric-hard" class="font-extrabold text-red-600 text-sm">0</strong></span>
-                    <span class="text-[var(--text-faint)]">/</span>
-                    <span class="px-2.5 py-0.5 rounded-full border-2 border-[var(--card-border)] bg-[var(--table-header)] text-[10px] font-extrabold shadow-[1px_1px_0px_var(--card-border)]">
+                    <span class="px-2 py-0.5 rounded-md border border-[var(--card-border)] pill-coral">DUE: <strong id="metric-due" class="font-extrabold text-[var(--text-main)] text-xs">0</strong></span>
+                    <span class="px-2 py-0.5 rounded-md border border-[var(--card-border)] pill-sage">MASTER: <strong id="metric-master" class="font-extrabold text-[var(--text-main)] text-xs">0</strong></span>
+                    <span class="px-2 py-0.5 rounded-md border border-[var(--card-border)] pill-peach">WEAK: <strong id="metric-hard" class="font-extrabold text-red-700 text-xs">0</strong></span>
+                    <span class="px-2.5 py-0.5 rounded-full border-2 border-[var(--card-border)] pill-butter text-[10px] font-extrabold shadow-[1px_1px_0px_var(--card-border)]">
                         🔥 STREAK: <span id="metric-streak">0</span> DAYS ACTIVE
                     </span>
                 </div>
@@ -279,7 +293,7 @@
                 <!-- Review Pool Filter -->
                 <div class="flex items-center gap-2 font-mono-num font-bold">
                     <span class="text-[10px] uppercase text-[var(--text-muted)] hidden sm:inline">REVIEW POOL:</span>
-                    <select id="srs-pool-filter" onchange="App.onPoolFilterChange()" class="input-dark py-1.5 px-3 text-xs w-auto cursor-pointer uppercase">
+                    <select id="srs-pool-filter" onchange="App.onPoolFilterChange()" class="input-dark py-1.5 px-3 text-xs w-auto cursor-pointer uppercase bg-[var(--input-bg)]">
                         <option value="due">SCHEDULED TODAY (DUE)</option>
                         <option value="hard">CRITICAL WEAK WORDS</option>
                         <option value="all">ENTIRE REPOSITORY</option>
@@ -291,9 +305,8 @@
         <!-- MAIN VIEWS CONTAINER -->
         <main class="w-full pb-16">
 
-            <!-- TAB 1: FLASHCARDS (Active Spaced Repetition) -->
             <section id="view-flashcard" class="space-y-6 block">
-                <div class="w-full max-w-3xl mx-auto nb-card p-6 sm:p-8 flex flex-col justify-between min-h-[560px]">
+                <div class="w-full max-w-2xl mx-auto nb-card p-5 sm:p-7 flex flex-col justify-between min-h-[540px]">
                     
                     <!-- Top Status Strip -->
                     <div>
@@ -302,52 +315,52 @@
                                 <span class="px-3 py-1 rounded-md border-2 border-[var(--card-border)] bg-[var(--table-header)] text-[10px] font-extrabold uppercase shadow-[1px_1px_0px_var(--card-border)]" id="deck-mode-pill">
                                     QUEUE: DUE TODAY
                                 </span>
-                                <span id="fc-weak-badge" class="hidden px-2.5 py-1 rounded-md border-2 border-[var(--card-border)] bg-red-100 text-red-700 text-[10px] font-extrabold uppercase shadow-[1px_1px_0px_var(--card-border)]">
+                                <span id="fc-weak-badge" class="hidden px-2.5 py-1 rounded-md border-2 border-[var(--card-border)] pill-coral text-red-800 text-[10px] font-extrabold uppercase shadow-[1px_1px_0px_var(--card-border)]">
                                     ✕ FREQUENT FAIL
                                 </span>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <span class="font-extrabold text-sm text-[var(--text-main)]">
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <span class="font-extrabold text-xs sm:text-sm text-[var(--text-main)]">
                                     <span id="fc-index">1</span> / <span id="fc-total">10</span>
                                 </span>
-                                <button onclick="Flashcard.pronounceCurrent()" class="nb-btn w-8 h-8 rounded-lg" title="Audio Pronounce [R]">
+                                <button onclick="Flashcard.pronounceCurrent()" class="nb-btn w-8 h-8 rounded-lg pill-lavender" title="Audio Pronounce [R]">
                                     <i class="fa-solid fa-volume-high text-xs"></i>
                                 </button>
                             </div>
                         </div>
 
                         <!-- Brutalist Linear Progress Bar -->
-                        <div class="w-full h-3 rounded-full border-2 border-[var(--card-border)] bg-[var(--table-header)] overflow-hidden mt-3.5 shadow-[1px_1px_0px_var(--card-border)]">
+                        <div class="w-full h-2.5 rounded-full border-2 border-[var(--card-border)] bg-[var(--table-header)] overflow-hidden mt-3 shadow-[1px_1px_0px_var(--card-border)]">
                             <div id="fc-progress-fill" class="h-full bg-[var(--text-main)] transition-all duration-200" style="width: 10%;"></div>
                         </div>
                     </div>
 
-                    <!-- 3D Flippable Flashcard -->
-                    <div class="perspective-1000 my-6 flex-1 flex items-center justify-center min-h-[290px] cursor-pointer select-none" onclick="Flashcard.flip()">
-                        <div id="fc-flip-card" class="w-full h-full relative transform-style-3d transition-transform duration-300">
+                    <!-- 3D Flippable Flashcard (Responsive text & no awkward word breaks) -->
+                    <div class="perspective-1000 my-5 flex-1 flex items-center justify-center min-h-[300px] cursor-pointer select-none" onclick="Flashcard.flip()">
+                        <div id="fc-flip-card" class="w-full h-full min-h-[290px] relative transform-style-3d transition-transform duration-300">
                             
-                            <!-- Front Face (English Headword) -->
-                            <div class="absolute inset-0 backface-hidden nb-card p-8 flex flex-col items-center justify-center text-center bg-[#ffffff]">
-                                <span class="text-[10px] font-extrabold text-[var(--text-muted)] mb-4 tracking-widest uppercase font-mono-num">
+                            <!-- Front Face (English Headword on Soothing Ivory Surface) -->
+                            <div class="absolute inset-0 backface-hidden nb-card p-6 sm:p-8 flex flex-col items-center justify-center text-center bg-[#faf7f0] border-[2.5px] border-[var(--card-border)]">
+                                <span class="text-[10px] font-extrabold text-[var(--text-muted)] mb-3 tracking-widest uppercase font-mono-num">
                                     [ CLICK OR PRESS SPACE TO REVEAL ]
                                 </span>
-                                <h2 id="fc-front-word" class="text-4xl sm:text-6xl font-extrabold tracking-tight text-[var(--text-main)] break-all uppercase">
+                                <h2 id="fc-front-word" class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[var(--text-main)] break-words max-w-full uppercase leading-tight">
                                     meticulous
                                 </h2>
-                                <span id="fc-interval-preview" class="mt-5 text-[11px] font-extrabold text-[var(--text-muted)] font-mono-num uppercase border-2 border-[var(--card-border)] rounded-md px-3 py-1 bg-[var(--table-header)] shadow-[1.5px_1.5px_0px_var(--card-border)]">
+                                <span id="fc-interval-preview" class="mt-5 text-[10px] sm:text-[11px] font-extrabold text-[var(--text-muted)] font-mono-num uppercase border-2 border-[var(--card-border)] rounded-md px-3 py-1 bg-[var(--table-header)] shadow-[1.5px_1.5px_0px_var(--card-border)]">
                                     REPS: 0  |  INTERVAL: 0D
                                 </span>
                             </div>
 
-                            <!-- Back Face (Korean Definition & Context) -->
-                            <div class="absolute inset-0 backface-hidden nb-card p-8 flex flex-col items-center justify-center text-center rotate-y-180 bg-[#ffffff]">
-                                <span class="text-[10px] font-extrabold text-[var(--text-muted)] mb-2 tracking-widest uppercase font-mono-num">
+                            <!-- Back Face (Korean Definition & Context on Soothing Mint/Sage Surface) -->
+                            <div class="absolute inset-0 backface-hidden nb-card p-6 sm:p-8 flex flex-col items-center justify-center text-center rotate-y-180 bg-[#f2fbf6] border-[2.5px] border-[var(--card-border)]">
+                                <span class="text-[10px] font-extrabold text-emerald-800 mb-2 tracking-widest uppercase font-mono-num">
                                     [ DEFINITION ]
                                 </span>
-                                <h3 id="fc-back-meaning" class="text-3xl sm:text-4xl font-extrabold text-[var(--text-main)] mb-3">
+                                <h3 id="fc-back-meaning" class="text-2xl sm:text-4xl font-extrabold text-[var(--text-main)] mb-3 break-words max-w-full">
                                     꼼꼼한, 세심한
                                 </h3>
-                                <p id="fc-back-sentence" class="text-xs sm:text-sm text-[var(--text-muted)] bg-[var(--table-header)] p-3 rounded-xl border-2 border-[var(--card-border)] max-w-lg hidden leading-relaxed font-mono-num italic shadow-[1px_1px_0px_var(--card-border)]">
+                                <p id="fc-back-sentence" class="text-xs sm:text-sm text-[var(--text-muted)] bg-[var(--card-bg)] p-3 rounded-xl border-2 border-[var(--card-border)] max-w-md hidden leading-relaxed font-mono-num italic shadow-[1px_1px_0px_var(--card-border)] break-words">
                                     <!-- Example inserted here -->
                                 </p>
                             </div>
@@ -356,21 +369,21 @@
 
                     <!-- 3-Tier SM-2 Rating Controls -->
                     <div class="pt-3 border-t-2 border-[var(--card-border)] flex flex-col gap-2">
-                        <div class="grid grid-cols-3 gap-2.5 font-mono-num">
-                            <button onclick="Flashcard.grade(1); event.stopPropagation();" class="nb-btn py-3 px-2 flex flex-col items-center justify-center">
-                                <span class="text-xs font-extrabold text-red-600 uppercase">✕ AGAIN [1]</span>
+                        <div class="grid grid-cols-3 gap-2 sm:gap-2.5 font-mono-num">
+                            <button onclick="Flashcard.grade(1); event.stopPropagation();" class="nb-btn py-2.5 sm:py-3 px-2 flex flex-col items-center justify-center pill-coral">
+                                <span class="text-xs font-extrabold text-red-900 uppercase">✕ AGAIN [1]</span>
                                 <span class="text-[9px] text-[var(--text-muted)] mt-0.5">RESET INTERVAL</span>
                             </button>
-                            <button onclick="Flashcard.grade(2); event.stopPropagation();" class="nb-btn py-3 px-2 flex flex-col items-center justify-center">
-                                <span class="text-xs font-extrabold text-amber-600 uppercase">△ HARD [2]</span>
+                            <button onclick="Flashcard.grade(2); event.stopPropagation();" class="nb-btn py-2.5 sm:py-3 px-2 flex flex-col items-center justify-center pill-butter">
+                                <span class="text-xs font-extrabold text-amber-900 uppercase">△ HARD [2]</span>
                                 <span class="text-[9px] text-[var(--text-muted)] mt-0.5">+1 DAY</span>
                             </button>
-                            <button onclick="Flashcard.grade(3); event.stopPropagation();" class="nb-btn-solid py-3 px-2 flex flex-col items-center justify-center">
-                                <span class="text-xs font-extrabold text-[var(--bg-main)] uppercase">✓ GOOD [3]</span>
+                            <button onclick="Flashcard.grade(3); event.stopPropagation();" class="nb-btn-solid py-2.5 sm:py-3 px-2 flex flex-col items-center justify-center pill-sage !text-[var(--text-main)]">
+                                <span class="text-xs font-extrabold uppercase">✓ GOOD [3]</span>
                                 <span class="text-[9px] opacity-80 mt-0.5" id="fc-btn-good-interval">+3 DAYS</span>
                             </button>
                         </div>
-                        <div class="text-center text-[10px] font-extrabold text-[var(--text-muted)] uppercase font-mono-num pt-1">
+                        <div class="text-center text-[10px] font-extrabold text-[var(--text-muted)] uppercase font-mono-num pt-1 hidden sm:block">
                             SHORTCUTS: [SPACE] FLIP &nbsp;|&nbsp; [1, 2, 3] GRADE &nbsp;|&nbsp; [R] AUDIO
                         </div>
                     </div>
@@ -378,9 +391,8 @@
                 </div>
             </section>
 
-            <!-- TAB 2: SPEED QUIZ (Rapid 4-Choice Recall) -->
             <section id="view-quiz" class="space-y-6 hidden">
-                <div class="w-full max-w-3xl mx-auto nb-card p-6 sm:p-8 flex flex-col justify-between min-h-[560px]">
+                <div class="w-full max-w-2xl mx-auto nb-card p-5 sm:p-7 flex flex-col justify-between min-h-[540px]">
                     
                     <!-- Quiz Status Bar -->
                     <div>
@@ -389,7 +401,7 @@
                                 <span class="px-2.5 py-1 rounded-md border-2 border-[var(--card-border)] bg-[var(--table-header)] text-[10px] uppercase font-extrabold shadow-[1px_1px_0px_var(--card-border)]">
                                     RAPID QUIZ
                                 </span>
-                                <span id="quiz-combo-badge" class="px-2.5 py-1 rounded-md border-2 border-[var(--card-border)] bg-[var(--text-main)] text-[var(--bg-main)] text-[10px] font-extrabold hidden shadow-[1px_1px_0px_var(--card-border)]">
+                                <span id="quiz-combo-badge" class="px-2.5 py-1 rounded-md border-2 border-[var(--card-border)] pill-butter text-[10px] font-extrabold hidden shadow-[1px_1px_0px_var(--card-border)]">
                                     🔥 <span id="quiz-combo-count">0</span>X COMBO
                                 </span>
                             </div>
@@ -399,30 +411,29 @@
                         </div>
 
                         <!-- Timer Bar -->
-                        <div class="w-full h-3 rounded-full border-2 border-[var(--card-border)] bg-[var(--table-header)] overflow-hidden mt-3.5 shadow-[1px_1px_0px_var(--card-border)]">
+                        <div class="w-full h-2.5 rounded-full border-2 border-[var(--card-border)] bg-[var(--table-header)] overflow-hidden mt-3 shadow-[1px_1px_0px_var(--card-border)]">
                             <div id="quiz-timer-fill" class="h-full bg-[var(--text-main)] transition-all duration-100" style="width: 100%;"></div>
                         </div>
                     </div>
 
                     <!-- Target Word Prompt -->
-                    <div class="py-12 text-center">
+                    <div class="py-8 sm:py-12 text-center">
                         <span class="text-[10px] font-extrabold text-[var(--text-muted)] block mb-2 tracking-widest uppercase font-mono-num">
                             SELECT MATCHING DEFINITION
                         </span>
-                        <h2 id="quiz-question-word" class="text-4xl sm:text-6xl font-extrabold tracking-tight text-[var(--text-main)] break-all uppercase">
+                        <h2 id="quiz-question-word" class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[var(--text-main)] break-words max-w-full uppercase leading-tight px-2">
                             resilient
                         </h2>
                     </div>
 
-                    <!-- 4 Choices Grid -->
-                    <div id="quiz-choices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t-2 border-[var(--card-border)]">
-                        <!-- Dynamic option buttons -->
+                    <!-- 4 Choices Grid (Flexible height, no text overflow) -->
+                    <div id="quiz-choices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-4 border-t-2 border-[var(--card-border)]">
+                        <!-- Dynamic option buttons injected here -->
                     </div>
 
                 </div>
             </section>
 
-            <!-- TAB 3: VOCAB LEDGER DB (Master Table & Record Vault) -->
             <section id="view-ledger" class="space-y-6 hidden">
                 
                 <!-- Ledger Controls Bar -->
@@ -433,13 +444,13 @@
 
                     <!-- Status Filter Tabs -->
                     <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar w-full sm:w-auto font-mono-num text-xs">
-                        <button onclick="Ledger.setStatus('all')" class="ledger-pill nb-btn-solid px-3.5 py-1.5 text-xs" data-status="all">ALL</button>
-                        <button onclick="Ledger.setStatus('due')" class="ledger-pill nb-btn px-3.5 py-1.5 text-xs" data-status="due">DUE</button>
-                        <button onclick="Ledger.setStatus('hard')" class="ledger-pill nb-btn px-3.5 py-1.5 text-xs" data-status="hard">CRITICAL</button>
-                        <button onclick="Ledger.setStatus('master')" class="ledger-pill nb-btn px-3.5 py-1.5 text-xs" data-status="master">MASTERED</button>
+                        <button onclick="Ledger.setStatus('all')" class="ledger-pill nb-btn-solid px-3 py-1.5 text-xs" data-status="all">ALL</button>
+                        <button onclick="Ledger.setStatus('due')" class="ledger-pill nb-btn px-3 py-1.5 text-xs" data-status="due">DUE</button>
+                        <button onclick="Ledger.setStatus('hard')" class="ledger-pill nb-btn px-3 py-1.5 text-xs" data-status="hard">CRITICAL</button>
+                        <button onclick="Ledger.setStatus('master')" class="ledger-pill nb-btn px-3 py-1.5 text-xs" data-status="master">MASTER</button>
                     </div>
 
-                    <button onclick="App.openAddModal()" class="nb-btn-solid px-4 py-2 text-xs w-full sm:w-auto font-mono-num">
+                    <button onclick="App.openAddModal()" class="nb-btn-solid px-4 py-2 text-xs w-full sm:w-auto font-mono-num pill-sage !text-[var(--text-main)]">
                         + NEW ENTRY
                     </button>
                 </div>
@@ -450,12 +461,12 @@
                         <table class="db-table">
                             <thead>
                                 <tr>
-                                    <th class="w-28 text-center">STATUS</th>
+                                    <th class="w-24 sm:w-28 text-center">STATUS</th>
                                     <th>HEADWORD</th>
                                     <th>DEFINITION</th>
-                                    <th class="hidden md:table-cell w-44">CADENCE</th>
+                                    <th class="hidden md:table-cell w-40">CADENCE</th>
                                     <th class="hidden sm:table-cell w-20 text-center">FAILS</th>
-                                    <th class="text-center w-28">ACTION</th>
+                                    <th class="text-center w-24 sm:w-28">ACTION</th>
                                 </tr>
                             </thead>
                             <tbody id="ledger-rows" class="bg-[var(--card-bg)] text-xs">
@@ -476,13 +487,13 @@
     </div>
 
     <!-- MODAL OVERLAY: Add Word Entry -->
-    <div id="modal-add" class="hidden fixed inset-0 bg-black/60 z-[100] flex justify-center items-center p-4">
+    <div id="modal-add" class="hidden fixed inset-0 bg-stone-950/60 z-[100] flex justify-center items-center p-4">
         <div class="bg-[var(--card-bg)] border-[3px] border-[var(--card-border)] p-6 sm:p-7 w-full max-w-lg shadow-[8px_8px_0px_var(--card-border)] rounded-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b-2 border-[var(--card-border)] pb-3 mb-5">
                 <span class="text-[11px] font-extrabold uppercase tracking-widest text-[var(--text-muted)] font-mono-num">VOCABULARY DOCKET</span>
                 <button onclick="UI.closeModal('modal-add')" class="text-xs font-mono-num font-extrabold text-[var(--text-main)] hover:underline">[ESC / CLOSE]</button>
             </div>
-            <h2 class="text-2xl font-extrabold text-[var(--text-main)] mb-6 tracking-tight uppercase">NEW VOCABULARY ENTRY</h2>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-[var(--text-main)] mb-6 tracking-tight uppercase">NEW VOCABULARY ENTRY</h2>
             
             <form onsubmit="Ledger.submitNewWord(event)" class="space-y-4 font-mono-num text-xs font-bold">
                 <div>
@@ -497,22 +508,22 @@
                     <label class="block text-[11px] uppercase text-[var(--text-muted)] font-extrabold mb-1 tracking-wider">CONTEXT SENTENCE (OPTIONAL)</label>
                     <input type="text" id="add-word-ex" placeholder="e.g. Small businesses are vulnerable." class="input-dark font-sans text-xs">
                 </div>
-                <div class="mt-8 flex justify-end space-x-2.5 pt-4 border-t-2 border-[var(--card-border)] font-mono-num text-xs">
+                <div class="mt-7 flex justify-end space-x-2.5 pt-4 border-t-2 border-[var(--card-border)] font-mono-num text-xs">
                     <button type="button" onclick="UI.closeModal('modal-add')" class="nb-btn px-4 py-2 text-[var(--text-muted)]">CANCEL</button>
-                    <button type="submit" class="nb-btn-solid px-5 py-2">SAVE RECORD</button>
+                    <button type="submit" class="nb-btn-solid px-5 py-2 pill-sage !text-[var(--text-main)]">SAVE RECORD</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- MODAL OVERLAY: Edit Word Entry -->
-    <div id="modal-edit" class="hidden fixed inset-0 bg-black/60 z-[100] flex justify-center items-center p-4">
+    <div id="modal-edit" class="hidden fixed inset-0 bg-stone-950/60 z-[100] flex justify-center items-center p-4">
         <div class="bg-[var(--card-bg)] border-[3px] border-[var(--card-border)] p-6 sm:p-7 w-full max-w-lg shadow-[8px_8px_0px_var(--card-border)] rounded-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b-2 border-[var(--card-border)] pb-3 mb-5">
                 <span class="text-[11px] font-extrabold uppercase tracking-widest text-[var(--text-muted)] font-mono-num">ENTRY UPDATE</span>
                 <button onclick="UI.closeModal('modal-edit')" class="text-xs font-mono-num font-extrabold text-[var(--text-main)] hover:underline">[ESC / CLOSE]</button>
             </div>
-            <h2 class="text-2xl font-extrabold text-[var(--text-main)] mb-6 tracking-tight uppercase">EDIT VOCABULARY ENTRY</h2>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-[var(--text-main)] mb-6 tracking-tight uppercase">EDIT VOCABULARY ENTRY</h2>
             <input type="hidden" id="edit-word-id">
             
             <div class="space-y-4 font-mono-num text-xs font-bold">
@@ -528,13 +539,13 @@
                     <label class="block text-[11px] uppercase text-[var(--text-muted)] font-extrabold mb-1 tracking-wider">CONTEXT SENTENCE</label>
                     <input type="text" id="edit-word-ex" class="input-dark font-sans text-xs">
                 </div>
-                <div class="mt-8 flex justify-between space-x-2.5 pt-4 border-t-2 border-[var(--card-border)] font-mono-num text-xs">
-                    <button onclick="Ledger.deleteFromModal()" class="nb-btn px-4 py-2 text-red-600 hover:text-red-700">
+                <div class="mt-7 flex justify-between space-x-2.5 pt-4 border-t-2 border-[var(--card-border)] font-mono-num text-xs">
+                    <button onclick="Ledger.deleteFromModal()" class="nb-btn px-4 py-2 text-red-600 hover:text-red-700 pill-coral">
                         <i class="fa-solid fa-trash-can mr-1.5"></i> DELETE
                     </button>
                     <div class="flex space-x-2">
                         <button onclick="UI.closeModal('modal-edit')" class="nb-btn px-4 py-2 text-[var(--text-muted)]">CANCEL</button>
-                        <button onclick="Ledger.saveWordEdit()" class="nb-btn-solid px-5 py-2">SAVE CHANGES</button>
+                        <button onclick="Ledger.saveWordEdit()" class="nb-btn-solid px-5 py-2 pill-sage !text-[var(--text-main)]">SAVE CHANGES</button>
                     </div>
                 </div>
             </div>
@@ -542,13 +553,13 @@
     </div>
 
     <!-- MODAL OVERLAY: Settings & Preferences -->
-    <div id="settings-modal" class="hidden fixed inset-0 bg-black/60 z-[100] flex justify-center items-center p-4">
+    <div id="settings-modal" class="hidden fixed inset-0 bg-stone-950/60 z-[100] flex justify-center items-center p-4">
         <div class="bg-[var(--card-bg)] border-[3px] border-[var(--card-border)] p-6 sm:p-7 w-full max-w-lg shadow-[8px_8px_0px_var(--card-border)] rounded-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b-2 border-[var(--card-border)] pb-3 mb-5">
                 <span class="text-[11px] font-extrabold uppercase tracking-widest text-[var(--text-muted)] font-mono-num">SYSTEM PREFERENCES</span>
                 <button onclick="UI.closeModal('settings-modal')" class="text-xs font-mono-num font-extrabold text-[var(--text-main)] hover:underline">[ESC / CLOSE]</button>
             </div>
-            <h2 class="text-2xl font-extrabold text-[var(--text-main)] mb-6 tracking-tight uppercase">CONFIGURATION</h2>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-[var(--text-main)] mb-6 tracking-tight uppercase">CONFIGURATION</h2>
 
             <div class="space-y-4 text-xs font-mono-num">
                 <div class="p-4 border-2 border-[var(--card-border)] rounded-xl bg-[var(--table-header)]">
@@ -562,7 +573,7 @@
                         <span class="font-extrabold block text-sm uppercase">CURATED SEED PACK</span>
                         <p class="text-[11px] text-[var(--text-muted)]">Inject 7 essential vocabulary sample entries.</p>
                     </div>
-                    <button onclick="Data.loadSamples(); UI.closeModal('settings-modal');" class="nb-btn px-3 py-1.5 text-xs font-extrabold">
+                    <button onclick="Data.loadSamples(); UI.closeModal('settings-modal');" class="nb-btn px-3 py-1.5 text-xs font-extrabold pill-lavender">
                         INJECT
                     </button>
                 </div>
@@ -577,22 +588,22 @@
         </div>
     </div>
 
-    <!-- Custom Modal Confirmation Dialog (Replaces native alert & confirm) -->
-    <div id="modal-dialog" class="hidden fixed inset-0 bg-black/60 z-[110] flex justify-center items-center p-4">
+    <!-- Custom Modal Confirmation Dialog -->
+    <div id="modal-dialog" class="hidden fixed inset-0 bg-stone-950/60 z-[110] flex justify-center items-center p-4">
         <div class="bg-[var(--card-bg)] border-[3px] border-[var(--card-border)] p-6 w-full max-w-xs shadow-[8px_8px_0px_var(--card-border)] rounded-2xl text-center">
-            <div class="w-10 h-10 rounded-full border-2 border-[var(--card-border)] bg-[var(--table-header)] mx-auto flex items-center justify-center text-sm font-extrabold mb-3 font-mono-num">
+            <div class="w-10 h-10 rounded-full border-2 border-[var(--card-border)] pill-butter mx-auto flex items-center justify-center text-sm font-extrabold mb-3 font-mono-num">
                 !
             </div>
             <p id="dialog-prompt" class="text-xs font-extrabold text-[var(--text-main)] mb-5 leading-relaxed font-mono-num uppercase">ARE YOU SURE?</p>
             <div class="flex gap-2 font-mono-num text-xs">
                 <button onclick="UI.handleDialog(false)" class="nb-btn flex-1 py-2 text-[var(--text-muted)]">CANCEL</button>
-                <button onclick="UI.handleDialog(true)" class="nb-btn-solid flex-1 py-2">CONFIRM</button>
+                <button onclick="UI.handleDialog(true)" class="nb-btn-solid flex-1 py-2 pill-coral !text-[var(--text-main)]">CONFIRM</button>
             </div>
         </div>
     </div>
 
     <!-- Bottom Center Toast Notifications -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 font-mono-num"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 font-mono-num pointer-events-none"></div>
 
     <script>
         let words = [];
@@ -639,14 +650,17 @@
             toast(message, type = 'info') {
                 const container = document.getElementById('toast-container');
                 const t = document.createElement('div');
-                const borderClass = type === 'error' ? 'border-red-600 text-red-600' : 'border-[var(--card-border)] text-[var(--text-main)]';
-                t.className = `bg-[var(--card-bg)] ${borderClass} border-2 rounded-xl p-3.5 text-xs font-extrabold flex items-center justify-between w-[320px] shadow-[4px_4px_0px_var(--card-border)] toast-enter-active z-[999] uppercase font-mono-num`;
+                let pillClass = 'pill-lavender';
+                if (type === 'success') pillClass = 'pill-sage';
+                else if (type === 'error') pillClass = 'pill-coral text-red-950';
+
+                t.className = `${pillClass} pointer-events-auto border-2 border-[var(--card-border)] rounded-xl p-3.5 text-xs font-extrabold flex items-center justify-between w-[320px] shadow-[4px_4px_0px_var(--card-border)] toast-enter-active z-[999] uppercase font-mono-num`;
                 t.innerHTML = `
                     <div class="flex items-center gap-2">
                         <span>${type === 'success' ? '✓' : (type === 'error' ? '✕' : '●')}</span>
                         <span>${esc(message)}</span>
                     </div>
-                    <button class="text-[var(--text-muted)] hover:text-black" onclick="this.parentElement.remove()">✕</button>
+                    <button class="text-[var(--text-muted)] hover:text-black font-extrabold" onclick="this.parentElement.remove()">✕</button>
                 `;
                 container.appendChild(t);
                 setTimeout(() => {
@@ -799,15 +813,15 @@
                 document.querySelectorAll('section[id^="view-"]').forEach(sec => sec.classList.add('hidden'));
                 
                 const activeColorClasses = {
-                    flashcard: "tab-btn active px-6 py-3 border-2 border-[var(--card-border)] pill-lavender rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]",
-                    quiz: "tab-btn active px-6 py-3 border-2 border-[var(--card-border)] pill-butter rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]",
-                    ledger: "tab-btn active px-6 py-3 border-2 border-[var(--card-border)] pill-sage rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]"
+                    flashcard: "tab-btn active px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] pill-lavender rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]",
+                    quiz: "tab-btn active px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] pill-butter rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]",
+                    ledger: "tab-btn active px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] pill-sage rounded-xl shadow-[3px_3px_0px_var(--card-border)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]"
                 };
 
                 const inactiveColorClasses = {
-                    flashcard: "tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-lavender)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]",
-                    quiz: "tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-butter)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]",
-                    ledger: "tab-btn px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-sage)] flex-shrink-0 transition-all active:translate-x-[2px] active:translate-y-[2px]"
+                    flashcard: "tab-btn px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-lavender)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]",
+                    quiz: "tab-btn px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-butter)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]",
+                    ledger: "tab-btn px-5 sm:px-6 py-3 border-2 border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] rounded-xl shadow-[3px_3px_0px_var(--card-border)] hover:bg-[var(--c-sage)] flex-shrink-0 transition-transform active:translate-x-[2px] active:translate-y-[2px]"
                 };
 
                 ['flashcard', 'quiz', 'ledger'].forEach(k => {
@@ -1058,11 +1072,11 @@
                 const container = document.getElementById('quiz-choices-container');
                 container.innerHTML = '';
 
-                const pastelColors = ['bg-[#fffefb] hover:bg-[var(--c-butter)]', 'bg-[#fffefb] hover:bg-[var(--c-sky)]', 'bg-[#fffefb] hover:bg-[var(--c-lavender)]', 'bg-[#fffefb] hover:bg-[var(--c-sage)]'];
+                const pastelHovers = ['hover:bg-[var(--c-butter)]', 'hover:bg-[var(--c-lavender)]', 'hover:bg-[var(--c-sage)]', 'hover:bg-[var(--c-peach)]'];
 
                 options.forEach((opt, optIdx) => {
                     const btn = document.createElement('button');
-                    btn.className = `nb-btn p-4 text-center font-extrabold text-xs sm:text-sm ${pastelColors[optIdx % pastelColors.length]} transition-all truncate border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)]`;
+                    btn.className = `nb-btn p-3.5 sm:p-4 text-center font-extrabold text-xs sm:text-sm bg-[var(--card-bg)] ${pastelHovers[optIdx % pastelHovers.length]} transition-all border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] min-h-[58px] flex items-center justify-center leading-snug break-words`;
                     btn.textContent = opt.ko;
                     btn.onclick = () => this.handlePick(opt.id === current.id, btn, current.ko);
                     container.appendChild(btn);
@@ -1092,7 +1106,7 @@
                 buttons.forEach(b => {
                     b.disabled = true;
                     if (b.textContent === correctMeaning) {
-                        b.className = 'nb-btn p-4 text-center font-extrabold text-xs sm:text-sm pill-sage border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] truncate';
+                        b.className = 'nb-btn p-3.5 sm:p-4 text-center font-extrabold text-xs sm:text-sm pill-sage border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] min-h-[58px] flex items-center justify-center';
                     }
                 });
 
@@ -1104,7 +1118,7 @@
                     this.score += 100 + (this.combo * 20);
                 } else {
                     if (clickedBtn) {
-                        clickedBtn.className = 'nb-btn p-4 text-center font-extrabold text-xs sm:text-sm pill-coral border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] truncate';
+                        clickedBtn.className = 'nb-btn p-3.5 sm:p-4 text-center font-extrabold text-xs sm:text-sm pill-coral border-2 border-[var(--card-border)] shadow-[2px_2px_0px_var(--card-border)] min-h-[58px] flex items-center justify-center';
                     }
                     this.combo = 0;
                     if (realWord) realWord.wrongCount = (realWord.wrongCount || 0) + 1;
@@ -1142,9 +1156,9 @@
                 document.querySelectorAll('.ledger-pill').forEach(b => {
                     const status = b.dataset.status;
                     if (status === st) {
-                        b.className = `ledger-pill nb-btn px-3.5 py-1.5 text-xs ${colorPills[status] || 'nb-btn-solid'}`;
+                        b.className = `ledger-pill nb-btn px-3 py-1.5 text-xs ${colorPills[status] || 'nb-btn-solid'}`;
                     } else {
-                        b.className = 'ledger-pill nb-btn px-3.5 py-1.5 text-xs bg-[var(--card-bg)] text-[var(--text-muted)]';
+                        b.className = 'ledger-pill nb-btn px-3 py-1.5 text-xs bg-[var(--card-bg)] text-[var(--text-muted)]';
                     }
                 });
                 this.render();
@@ -1251,7 +1265,7 @@
                     const isDue = !w.srs?.due || w.srs.due <= today;
                     const isMaster = (w.srs?.interval || 0) >= 21;
 
-                    let statusBadge = '<span class="px-2.5 py-0.5 rounded-md border-2 border-[var(--card-border)] pill-butter text-[10px] font-extrabold font-mono-num shadow-[1px_1px_0px_var(--card-border)]">LEARNING</span>';
+                    let statusBadge = '<span class="px-2.5 py-0.5 rounded-md border-2 border-[var(--card-border)] pill-butter text-[10px] font-extrabold font-mono-num shadow-[1px_1px_0px_var(--card-border)]">LEARN</span>';
                     if (isDue) statusBadge = '<span class="px-2.5 py-0.5 rounded-md border-2 border-[var(--card-border)] pill-coral text-[10px] font-extrabold font-mono-num shadow-[1px_1px_0px_var(--card-border)]">DUE</span>';
                     else if (isMaster) statusBadge = '<span class="px-2.5 py-0.5 rounded-md border-2 border-[var(--card-border)] pill-sage text-[10px] font-extrabold font-mono-num shadow-[1px_1px_0px_var(--card-border)]">MASTER</span>';
 
@@ -1259,14 +1273,14 @@
                         <tr class="hover:bg-[var(--hover-bg)] transition-colors">
                             <td class="text-center">${statusBadge}</td>
                             <td>
-                                <span class="font-extrabold text-sm sm:text-base text-[var(--text-main)] block tracking-tight">${esc(w.en)}</span>
+                                <span class="font-extrabold text-sm sm:text-base text-[var(--text-main)] block tracking-tight break-words">${esc(w.en)}</span>
                                 ${w.ex ? `<span class="text-[11px] text-[var(--text-muted)] italic block truncate max-w-xs font-mono-num">"${esc(w.ex)}"</span>` : ''}
                             </td>
-                            <td class="font-extrabold text-[var(--text-main)]">${esc(w.ko)}</td>
+                            <td class="font-extrabold text-[var(--text-main)] break-words">${esc(w.ko)}</td>
                             <td class="hidden md:table-cell text-xs text-[var(--text-muted)] font-mono-num font-extrabold">
-                                <span>${w.srs?.interval || 0}D INTERVAL</span> / <span>${w.srs?.reps || 0} REPS</span>
+                                <span>${w.srs?.interval || 0}D INT</span> / <span>${w.srs?.reps || 0} REPS</span>
                             </td>
-                            <td class="hidden sm:table-cell text-xs font-extrabold text-center font-mono-num ${w.wrongCount > 0 ? 'text-amber-700' : 'text-[var(--text-muted)]'}">
+                            <td class="hidden sm:table-cell text-xs font-extrabold text-center font-mono-num ${w.wrongCount > 0 ? 'text-red-700' : 'text-[var(--text-muted)]'}">
                                 ${w.wrongCount || 0}
                             </td>
                             <td class="text-center font-mono-num">
@@ -1313,7 +1327,6 @@
         });
     </script>
 
-    <!-- Cloud Real-time Synchronization -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -1345,13 +1358,13 @@
             const lbl = document.getElementById('cloud-text');
             if (icon && lbl) {
                 if (state === 'online') {
-                    icon.className = "text-[#0d9488] mr-1";
+                    icon.className = "text-[#0d9488] mr-1.5 font-black";
                     lbl.textContent = label || "ONLINE";
                 } else if (state === 'syncing') {
-                    icon.className = "text-amber-500 animate-pulse mr-1";
+                    icon.className = "text-amber-500 animate-pulse mr-1.5 font-black";
                     lbl.textContent = "SYNCING...";
                 } else {
-                    icon.className = "text-[var(--text-muted)] mr-1";
+                    icon.className = "text-[var(--text-muted)] mr-1.5 font-black";
                     lbl.textContent = "LOCAL";
                 }
             }
