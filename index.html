@@ -340,11 +340,11 @@
                         <div id="fc-flip-card" class="w-full h-full min-h-[290px] relative transform-style-3d transition-transform duration-300">
                             
                             <!-- Front Face (English Headword on Soothing Ivory Surface) -->
-                            <div class="absolute inset-0 backface-hidden nb-card p-6 sm:p-8 flex flex-col items-center justify-center text-center bg-[#faf7f0] border-[2.5px] border-[var(--card-border)]">
+                            <div class="absolute inset-0 backface-hidden nb-card p-6 sm:p-8 flex flex-col items-center justify-center text-center bg-[#faf7f0] border-[2.5px] border-[var(--card-border)] overflow-hidden">
                                 <span class="text-[10px] font-extrabold text-[var(--text-muted)] mb-3 tracking-widest uppercase font-mono-num">
                                     [ CLICK OR PRESS SPACE TO REVEAL ]
                                 </span>
-                                <h2 id="fc-front-word" class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[var(--text-main)] break-words max-w-full uppercase leading-tight">
+                                <h2 id="fc-front-word" class="font-extrabold tracking-tight text-[var(--text-main)] w-full max-w-full uppercase leading-none text-center whitespace-nowrap overflow-hidden transition-all duration-75">
                                     meticulous
                                 </h2>
                                 <span id="fc-interval-preview" class="mt-5 text-[10px] sm:text-[11px] font-extrabold text-[var(--text-muted)] font-mono-num uppercase border-2 border-[var(--card-border)] rounded-md px-3 py-1 bg-[var(--table-header)] shadow-[1.5px_1.5px_0px_var(--card-border)]">
@@ -417,11 +417,11 @@
                     </div>
 
                     <!-- Target Word Prompt -->
-                    <div class="py-8 sm:py-12 text-center">
+                    <div class="py-8 sm:py-12 text-center overflow-hidden">
                         <span class="text-[10px] font-extrabold text-[var(--text-muted)] block mb-2 tracking-widest uppercase font-mono-num">
                             SELECT MATCHING DEFINITION
                         </span>
-                        <h2 id="quiz-question-word" class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[var(--text-main)] break-words max-w-full uppercase leading-tight px-2">
+                        <h2 id="quiz-question-word" class="font-extrabold tracking-tight text-[var(--text-main)] w-full max-w-full uppercase leading-none text-center whitespace-nowrap overflow-hidden px-2 transition-all duration-75">
                             resilient
                         </h2>
                     </div>
@@ -675,6 +675,39 @@
                 u.lang = 'en-US';
                 u.rate = 0.95;
                 window.speechSynthesis.speak(u);
+            },
+            fitText(el, maxPx = 56, minPx = 18) {
+                if (!el) return;
+                el.style.whiteSpace = 'nowrap';
+                const parent = el.parentElement || el;
+                const comp = window.getComputedStyle(parent);
+                const pl = parseFloat(comp.paddingLeft) || 16;
+                const pr = parseFloat(comp.paddingRight) || 16;
+                const available = Math.max(60, parent.clientWidth - pl - pr - 16);
+
+                if (available <= 80) {
+                    const len = (el.textContent || '').length || 8;
+                    const fallback = Math.max(minPx, Math.min(maxPx, Math.floor(400 / len)));
+                    el.style.fontSize = `${fallback}px`;
+                    return;
+                }
+
+                let low = minPx, high = maxPx, optimal = minPx;
+                el.style.fontSize = `${high}px`;
+                if (el.scrollWidth <= available) return;
+
+                // Binary search for maximum readable font size on one line
+                while (low <= high) {
+                    const mid = Math.floor((low + high) / 2);
+                    el.style.fontSize = `${mid}px`;
+                    if (el.scrollWidth <= available) {
+                        optimal = mid;
+                        low = mid + 1;
+                    } else {
+                        high = mid - 1;
+                    }
+                }
+                el.style.fontSize = `${optimal}px`;
             }
         };
 
@@ -787,6 +820,14 @@
                 Data.load();
                 this.updateStreak();
                 this.switchTab('flashcard');
+
+                window.addEventListener('resize', () => {
+                    if (currentTab === 'flashcard' && Flashcard.active) {
+                        Flashcard.fitWords();
+                    } else if (currentTab === 'quiz' && Quiz.active) {
+                        Quiz.fitWord();
+                    }
+                });
 
                 // Global Shortcuts: [SPACE] to flip, [1, 2, 3] to grade, [R] to pronounce
                 window.addEventListener('keydown', (e) => {
@@ -929,6 +970,13 @@
 
                 this.display();
             },
+            fitWords() {
+                const frontEl = document.getElementById('fc-front-word');
+                if (frontEl) {
+                    const maxFont = window.innerWidth < 640 ? 38 : (window.innerWidth < 1024 ? 52 : 62);
+                    UI.fitText(frontEl, maxFont, 18);
+                }
+            },
             display() {
                 if (this.idx >= this.queue.length) {
                     this.finish();
@@ -943,9 +991,12 @@
                 document.getElementById('fc-index').textContent = this.idx + 1;
                 document.getElementById('fc-progress-fill').style.width = `${Math.round(((this.idx + 1) / this.queue.length) * 100)}%`;
 
-                document.getElementById('fc-front-word').textContent = w.en;
+                const frontWordEl = document.getElementById('fc-front-word');
+                frontWordEl.textContent = w.en;
                 document.getElementById('fc-back-meaning').textContent = w.ko;
                 document.getElementById('fc-interval-preview').textContent = `REPS: ${w.srs?.reps || 0}  |  INTERVAL: ${w.srs?.interval || 0}D`;
+
+                this.fitWords();
 
                 const weakBadge = document.getElementById('fc-weak-badge');
                 if ((w.wrongCount || 0) > 0) {
@@ -1046,6 +1097,13 @@
                 this.active = true;
                 this.renderQuestion();
             },
+            fitWord() {
+                const qWordEl = document.getElementById('quiz-question-word');
+                if (qWordEl) {
+                    const maxFont = window.innerWidth < 640 ? 38 : (window.innerWidth < 1024 ? 50 : 60);
+                    UI.fitText(qWordEl, maxFont, 18);
+                }
+            },
             renderQuestion() {
                 if (this.idx >= this.queue.length) {
                     this.finish();
@@ -1053,7 +1111,10 @@
                 }
                 const current = this.queue[this.idx];
                 document.getElementById('quiz-score-num').textContent = this.score;
-                document.getElementById('quiz-question-word').textContent = current.en;
+
+                const qWordEl = document.getElementById('quiz-question-word');
+                qWordEl.textContent = current.en;
+                this.fitWord();
 
                 const comboBadge = document.getElementById('quiz-combo-badge');
                 if (this.combo >= 2) {
